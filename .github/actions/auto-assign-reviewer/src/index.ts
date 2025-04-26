@@ -71,7 +71,7 @@ async function getCandidates(token: string): Promise<Reviewer[]> {
   // Reviewer 있으면 하지 말기
   const existingReviewers = new Set(
     pr.requested_reviewers
-      .map((r: any) => r.login)
+      .map((r: { login: string }) => r.login)
       .filter((r: string) => !r.includes("[bot]"))
   );
 
