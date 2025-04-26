@@ -1,0 +1,23 @@
+{
+  "name": "auto-assign-reviewer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf dist && tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^20.8.4",
+    "@types/node-fetch": "^2.6.12",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "node-fetch": "^2.7.0"
+  }
+}

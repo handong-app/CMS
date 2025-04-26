@@ -1,0 +1,22 @@
+{
+  "pull_request": {
+    "head": {
+      "ref": "cicd/auth-reviewers"
+    },
+    "base": {
+      "ref": "main"
+    },
+    "user": {
+      "login": "octocat"
+    },
+    "requested_reviewers": [
+      {
+        "login": "octocat[bot]"
+      }
+    ],
+    "files": [
+      { "filename": "src/main/java/com/example/Test.java" },
+      { "filename": "src/main/front/page/Home.tsx" }
+    ]
+  }
+}
