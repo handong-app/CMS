@@ -54,7 +54,6 @@ jobs:
       - name: Copy reviewers.json
         working-directory: ${{ github.workspace }}
         run: |
-          ls
           cp secrets-repo/auto-assign-reviewer/reviewers.json .github/actions/auto-assign-reviewer/reviewers.json
 
       - name: Setup Node.js
@@ -70,3 +69,15 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           discord-token: ${{ secrets.DISCORD_TOKEN }}
+
+      - name: Cleanup secrets-repo
+        if: always()
+        working-directory: ${{ github.workspace }}
+        run: |
+          rm -rf secrets-repo
+
+      - name: Cleanup reviewers.json
+        if: always()
+        working-directory: ${{ github.workspace }}
+        run: |
+          rm -f .github/actions/auto-assign-reviewer/reviewers.json
