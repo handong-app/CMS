@@ -47,9 +47,9 @@ async function notifyDiscordDM(token, prReview, reviewers) {
         }
         const payload = {
             // content: `👋 Hey <@${reviewer.discordId}>, you've been assigned to review a new PR on GitHub!`,
-            content: `📢 **리뷰어로 할당되었습니다!!**\n\n📝 **PR 제목:** ${prReview.title}\n👤 **담당자:** ${prReview.author}\n👀 **리뷰어:** ${reviewers
+            content: `## 📢  리뷰어로 할당되었습니다!!\n\n* **PR 제목:** ${prReview.title}\n* **담당자:** ${prReview.author}\n* **리뷰어:** ${reviewers
                 .map((reviewer) => `${reviewer.github}(${reviewer.part})`)
-                .join(", ")}\n🔗 **리뷰하러 가기:** ${prReview.url}`,
+                .join(", ")}\n* **리뷰하러 가기:** ${prReview.url}`,
             flags: 4,
         };
         const res = await (0, node_fetch_1.default)(`https://discord.com/api/v10/users/@me/channels`, {

@@ -15,11 +15,11 @@ export async function notifyDiscordDM(
 
     const payload = {
       // content: `👋 Hey <@${reviewer.discordId}>, you've been assigned to review a new PR on GitHub!`,
-      content: `📢 **리뷰어로 할당되었습니다!!**\n\n📝 **PR 제목:** ${
+      content: `## 📢  리뷰어로 할당되었습니다!!\n\n* **PR 제목:** ${
         prReview.title
-      }\n👤 **담당자:** ${prReview.author}\n👀 **리뷰어:** ${reviewers
+      }\n* **담당자:** ${prReview.author}\n* **리뷰어:** ${reviewers
         .map((reviewer) => `${reviewer.github}(${reviewer.part})`)
-        .join(", ")}\n🔗 **리뷰하러 가기:** ${prReview.url}`,
+        .join(", ")}\n* **리뷰하러 가기:** ${prReview.url}`,
       flags: 4,
     };
 
