@@ -1,0 +1,16 @@
+name: "Auto Assign Reviewer"
+description: "Automatically assigns a random reviewer (excluding PR author)"
+author: "HandongApp"
+
+inputs:
+  github-token:
+    description: "GitHub Token"
+    required: true
+    default: "${{ github.token }}"
+  discord-token:
+    description: "Bot token for Discord"
+    required: true
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
