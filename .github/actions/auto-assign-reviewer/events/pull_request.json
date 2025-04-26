@@ -1,5 +1,7 @@
 {
   "pull_request": {
+    "title": "Test PR",
+    "html_url": "https://github.com/handong-app/CMS/pull/1",
     "head": {
       "ref": "cicd/auth-reviewers"
     },
