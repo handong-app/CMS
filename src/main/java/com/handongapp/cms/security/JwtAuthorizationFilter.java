@@ -1,3 +1,4 @@
+
 package com.handongapp.cms.security;
 
 import jakarta.servlet.FilterChain;
@@ -11,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
@@ -51,7 +54,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         userDetails.getAuthorities().forEach(a ->
                 System.out.println("  -> " + a.getAuthority())
         );
-
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
