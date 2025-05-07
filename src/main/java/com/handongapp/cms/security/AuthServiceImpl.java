@@ -2,9 +2,8 @@ package com.handongapp.cms.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
