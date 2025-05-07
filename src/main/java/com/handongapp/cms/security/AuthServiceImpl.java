@@ -3,6 +3,9 @@ package com.handongapp.cms.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
@@ -12,14 +15,20 @@ import java.util.UUID;
 @Component
 public class AuthServiceImpl implements AuthService{
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final LoginProperties loginProperties;
     private Key accessKeySecret;
     private Key refreshKeySecret;
 
     @PostConstruct
     private void init() {
-        this.accessKeySecret  = Keys.hmacShaKeyFor(loginProperties.getAccessTokenSecret().getBytes());
-        this.refreshKeySecret = Keys.hmacShaKeyFor(loginProperties.getRefreshTokenSecret().getBytes());
+        try {
+            this.accessKeySecret = Keys.hmacShaKeyFor(loginProperties.getAccessTokenSecret().getBytes());
+            this.refreshKeySecret = Keys.hmacShaKeyFor(loginProperties.getRefreshTokenSecret().getBytes());
+        } catch (Exception e) {
+            logger.error("JWT 키 초기화 중 오류 발생", e);
+            throw new RuntimeException("JWT 토큰 키 초기화 실패", e);
+        }
     }
 
     public AuthServiceImpl(LoginProperties loginProperties) {
@@ -65,6 +74,7 @@ public class AuthServiceImpl implements AuthService{
             parseToken(token, accessKeySecret);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            logger.debug("Access 토큰 검증 실패: {}", e.getMessage());
             return false;
         }
     }
@@ -74,23 +84,44 @@ public class AuthServiceImpl implements AuthService{
             parseToken(token, refreshKeySecret);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            logger.debug("Refresh 토큰 검증 실패: {}", e.getMessage());
             return false;
         }
     }
 
     public Claims getAccessClaims(String token) {
-        return parseToken(token, accessKeySecret).getBody();
+        try {
+            return parseToken(token, accessKeySecret).getBody();
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.error("Access 토큰에서 Claims 추출 실패: {}", e.getMessage());
+            throw new RuntimeException("유효하지 않은 Access 토큰입니다", e);
+        }
     }
 
     public Claims getRefreshClaims(String token) {
-        return parseToken(token, refreshKeySecret).getBody();
+        try {
+            return parseToken(token, refreshKeySecret).getBody();
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.error("Refresh 토큰에서 Claims 추출 실패: {}", e.getMessage());
+            throw new RuntimeException("유효하지 않은 Refresh 토큰입니다", e);
+        }
     }
 
     public String getSubjectFromAccess(String token) {
-        return getAccessClaims(token).getSubject();
+        try {
+            return getAccessClaims(token).getSubject();
+        } catch (RuntimeException e) {
+            logger.error("Access 토큰에서 Subject 추출 실패: {}", e.getMessage());
+            throw new RuntimeException("Access 토큰에서 Subject를 추출할 수 없습니다", e);
+        }
     }
 
     public String getSubjectFromRefresh(String token) {
-        return getRefreshClaims(token).getSubject();
+        try {
+            return getRefreshClaims(token).getSubject();
+        } catch (RuntimeException e) {
+            logger.error("Refresg 토큰에서 Subject 추출 실패: {}", e.getMessage());
+            throw new RuntimeException("Refresg 토큰에서 Subject를 추출할 수 없습니다", e);
+        }
     }
 }
