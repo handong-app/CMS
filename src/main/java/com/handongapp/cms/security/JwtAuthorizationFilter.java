@@ -48,10 +48,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String email = authServiceImpl.getSubjectFromAccess(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-        userDetails.getAuthorities().forEach(a ->
-                System.out.println("  -> " + a.getAuthority())
-        );
-
+        if (logger.isDebugEnabled()) {
+            userDetails.getAuthorities().forEach(a ->
+                    logger.debug("사용자 권한: " + a.getAuthority())
+            );
+        }
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
