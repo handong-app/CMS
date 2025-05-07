@@ -43,6 +43,12 @@ function getReviewers() {
     const data = (0, fs_1.readFileSync)(path, "utf-8");
     return JSON.parse(data);
 }
+function addReviewerFromGroup(groupCandidates, existingReviewers, part, selected) {
+    if (groupCandidates.every((candidate) => !existingReviewers.has(candidate.github))) {
+        if (groupCandidates.length > 0)
+            selected.push({ ...selectRandom(groupCandidates), part });
+    }
+}
 function detectChangedGroups(files) {
     let front = false;
     let back = false;
@@ -91,17 +97,11 @@ async function getCandidates(token) {
     const selected = [];
     if (groupFlags.front) {
         const candidates = reviewersData.front.filter((r) => r.github !== prAuthor);
-        if (candidates.some((candidate) => !existingReviewers.has(candidate.github))) {
-            if (candidates.length > 0)
-                selected.push({ ...selectRandom(candidates), part: "FE" });
-        }
+        addReviewerFromGroup(candidates, existingReviewers, "FE", selected);
     }
     if (groupFlags.back) {
         const candidates = reviewersData.back.filter((r) => r.github !== prAuthor);
-        if (candidates.some((candidate) => !existingReviewers.has(candidate.github))) {
-            if (candidates.length > 0)
-                selected.push({ ...selectRandom(candidates), part: "BE" });
-        }
+        addReviewerFromGroup(candidates, existingReviewers, "BE", selected);
     }
     return selected;
 }
