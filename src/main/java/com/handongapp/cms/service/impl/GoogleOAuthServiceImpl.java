@@ -1,6 +1,7 @@
 package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.Tbuser;
+import com.handongapp.cms.repository.TbuserRepository;
 import com.handongapp.cms.security.AuthService;
 import com.handongapp.cms.security.LoginProperties;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class GoogleOAuthServiceImpl implements GoogleOAuthService {
@@ -23,15 +25,18 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
     private final LoginProperties loginProperties;
     private final TbuserService tbuserService;
     private final AuthService authService;
+    private final TbuserRepository tbuserRepository;
 
     public GoogleOAuthServiceImpl(WebClient.Builder webClientBuilder,
                                   LoginProperties loginProperties,
                                   TbuserService tbuserService,
-                                  AuthService authService) {
+                                  AuthService authService,
+                                  TbuserRepository tbuserRepository) {
         this.webClient = webClientBuilder.build();
         this.loginProperties = loginProperties;
         this.tbuserService = tbuserService;
         this.authService = authService;
+        this.tbuserRepository = tbuserRepository;
     }
 
     @Override
@@ -80,6 +85,18 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             throw new IllegalArgumentException("Invalid refresh token");
         }
         String email = authService.getSubjectFromRefresh(refreshToken);
+
+        Optional<Tbuser> userOpt = tbuserRepository.findByEmail(email);
+        if (userOpt.isPresent()) {
+                Tbuser user = userOpt.get();
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("memberId", user.getUserId());
+                claims.put("email", user.getEmail());
+                claims.put("name", user.getName());
+                claims.put("picture", user.getPicture());
+                return authService.createAccessToken(claims, email);
+            }
         return authService.createAccessToken(Map.of(), email);
+
     }
 }
