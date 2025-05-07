@@ -50,7 +50,7 @@ public class TbuserServiceImpl implements TbuserService {
                             googleUserInfoResponse.getFamily_name() + googleUserInfoResponse.getGiven_name(),
                             googleUserInfoResponse.getEmail(),
                             googleUserInfoResponse.getPicture(),
-                            "USER"
+                            Tbuser.UserRole.valueOf("USER")
                     ));
                 });
     }
