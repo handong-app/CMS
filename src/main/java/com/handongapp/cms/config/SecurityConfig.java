@@ -31,10 +31,10 @@ public class SecurityConfig {
     private final LoginProperties loginProperties;
 
     public SecurityConfig(AuthServiceImpl authServiceImpl,
-                          PrincipalDetailsService principalDetailsService,
+                          UserDetailsService userDetailsService,
                           CorsFilterConfiguration corsFilterConfiguration, LoginProperties loginProperties) {
         this.authServiceImpl = authServiceImpl;
-        this.userDetailsService = principalDetailsService;
+        this.userDetailsService = userDetailsService;
         this.corsFilterConfiguration = corsFilterConfiguration;
         this.loginProperties = loginProperties;
     }
