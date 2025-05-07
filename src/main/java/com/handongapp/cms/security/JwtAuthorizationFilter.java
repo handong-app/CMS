@@ -38,7 +38,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = header.substring(7);
+        String token = header.substring(loginProperties.getJwtTokenPrefix().length() + 1);
 
         if (!authServiceImpl.validateAccessToken(token)) {
             filterChain.doFilter(request, response);
