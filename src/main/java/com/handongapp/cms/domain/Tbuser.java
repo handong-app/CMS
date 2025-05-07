@@ -1,8 +1,6 @@
 package com.handongapp.cms.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +17,11 @@ import lombok.Setter;
 }
 )
 public class Tbuser extends AuditingFields{
+
+    public enum UserRole {
+        SERVICE_ADMIN, CLUB_ADMIN, CLUB_MEMBER, USER
+    }
+
     // general login
     @Setter private String username;
     @Setter private String password;
@@ -29,9 +32,12 @@ public class Tbuser extends AuditingFields{
     @Setter private String email;
     @Setter private String picture;
 
-    @Setter private String role;
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
-    private Tbuser(String userId , String name, String email, String picture, String role) {
+    private Tbuser(String userId , String name, String email, String picture, UserRole role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -39,7 +45,7 @@ public class Tbuser extends AuditingFields{
         this.role = role;
     }
 
-    public static Tbuser of(String userId, String name, String email, String picture, String role) {
+    public static Tbuser of(String userId, String name, String email, String picture, UserRole role) {
         return new Tbuser(userId, name, email, picture, role);
     }
 
