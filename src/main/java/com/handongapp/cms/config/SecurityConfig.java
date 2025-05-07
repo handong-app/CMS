@@ -61,7 +61,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/auth/loginFormalMethod/**", "/api/login").permitAll()
+                        .requestMatchers("/api/auth/google/**", "/api/login").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
                         .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN")
