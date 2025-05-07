@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth/loginFormalMethod")
+@RequestMapping("/api/auth/google")
 public class GoogleLoginController {
 
     private final TbuserService tbuserService;
