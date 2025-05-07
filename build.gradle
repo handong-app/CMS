@@ -48,10 +48,14 @@ dependencies {
 // Amazon S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.0.1'
 
-// AWS SDK v2 core - 직접 추가 필요!
-    implementation 'software.amazon.awssdk:aws-core:2.20.63'
-    implementation 'software.amazon.awssdk:secretsmanager:2.20.63'
-    implementation 'software.amazon.awssdk:ssm:2.20.63'
+// AWS SDK BOM을 추가하여 버전 관리
+    implementation platform('software.amazon.awssdk:bom:2.20.152')
+
+// 버전을 명시하지 않으면 BOM에서 정의된 버전이 사용
+    implementation 'software.amazon.awssdk:aws-core'
+    implementation 'software.amazon.awssdk:secretsmanager'
+    implementation 'software.amazon.awssdk:ssm'
+    implementation 'software.amazon.awssdk:s3'
 
 // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
