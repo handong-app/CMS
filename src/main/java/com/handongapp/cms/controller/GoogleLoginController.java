@@ -42,8 +42,16 @@ public class GoogleLoginController {
      */
     @GetMapping("/callback")
     public ResponseEntity<?> callback(@RequestParam("code") String authorizationCode) {
-        GoogleOAuthResponse response = googleOAuthService.authenticate(authorizationCode);
-        return ResponseEntity.ok(response);
+        try {
+            if (authorizationCode == null || authorizationCode.trim().isEmpty())
+                return ResponseEntity.badRequest().body(Map.of("error", "인증 코드가 제공되지 않았습니다"));
+
+            GoogleOAuthResponse response = googleOAuthService.authenticate(authorizationCode);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "인증 처리 중 오류가 발생했습니다: " + e.getMessage()));
+        }
     }
 
     /**
@@ -51,13 +59,20 @@ public class GoogleLoginController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestHeader(value = "Refresh-Token", required = false) String refreshToken) {
-        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
+        if (refreshToken == null || !refreshToken.startsWith("Bearer "))
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Missing or invalid refresh token header"));
-        }
 
         String token = refreshToken.substring(7);
-        String access = googleOAuthService.refreshAccessToken(token);
-        return ResponseEntity.ok(Map.of("accessToken", access));
+
+        try {
+            String access = googleOAuthService.refreshAccessToken(token);
+            if (access == null || access.isEmpty())
+                return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired refresh token"));
+            return ResponseEntity.ok(Map.of("accessToken", access));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Token refresh failed: " + e.getMessage()));
+        }
     }
 }
