@@ -54,9 +54,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             );
         }
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            logger.debug("인증 성공: " + userDetails.getUsername());
+        } catch (Exception e) {
+            logger.error("인증 컨텍스트 설정 중 오류 발생", e);
+        }
+
         filterChain.doFilter(request, response);
     }
 }
