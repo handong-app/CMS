@@ -80,7 +80,7 @@ async function getCandidates(token: string): Promise<Reviewer[]> {
   if (groupFlags.front) {
     const candidates = reviewersData.front.filter((r) => r.github !== prAuthor);
     if (
-      candidates.some((candidate) => !existingReviewers.has(candidate.github))
+      !candidates.some((candidate) => existingReviewers.has(candidate.github))
     ) {
       if (candidates.length > 0)
         selected.push({ ...selectRandom(candidates), part: "FE" });
@@ -90,7 +90,7 @@ async function getCandidates(token: string): Promise<Reviewer[]> {
   if (groupFlags.back) {
     const candidates = reviewersData.back.filter((r) => r.github !== prAuthor);
     if (
-      candidates.some((candidate) => !existingReviewers.has(candidate.github))
+      !candidates.some((candidate) => existingReviewers.has(candidate.github))
     ) {
       if (candidates.length > 0)
         selected.push({ ...selectRandom(candidates), part: "BE" });
