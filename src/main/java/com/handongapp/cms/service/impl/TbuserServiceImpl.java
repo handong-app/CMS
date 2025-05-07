@@ -30,10 +30,13 @@ public class TbuserServiceImpl implements TbuserService {
             return tbuserRepository.save(tbuser);
         } else {
             // 새로운 사용자 저장
-            Tbuser newUser = new Tbuser();
-            newUser.setUserId(userId);
-            newUser.setEmail(email);
-            newUser.setName(name);
+            Tbuser newUser = Tbuser.of(
+                    userId,
+                    name,
+                    email,
+                    null, // 기본 이미지 URL 설정 가능
+                    Tbuser.UserRole.valueOf("USER") // 기본 역할 설정
+            );
             return tbuserRepository.save(newUser);
         }
     }
