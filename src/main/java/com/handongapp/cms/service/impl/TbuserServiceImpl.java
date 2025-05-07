@@ -41,8 +41,13 @@ public class TbuserServiceImpl implements TbuserService {
         }
     }
 
-    // 밑은 구글 OAuth 정석 로그인을 위해 만든 것
-    @Transactional
+     /**
+      * Processes Google OAuth user information.
+      * Creates a new user if not exists, or returns existing user.
+      *
+      * @param googleUserInfoResponse Google user information
+      * @return User entity
+      */    @Transactional
     public Tbuser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
         // 구글 userId를 기반으로 기존 회원 조회
         return tbuserRepository.findByUserId(googleUserInfoResponse.getId())
