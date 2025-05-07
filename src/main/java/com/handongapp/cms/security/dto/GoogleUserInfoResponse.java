@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class GoogleUserInfoResponse {
     private String id;       // 구글 고유 아이디
-    private String verified_email;
+    private boolean verified_email;
     private String email;    // 구글 이메일
     private String given_name;
     private String family_name;
