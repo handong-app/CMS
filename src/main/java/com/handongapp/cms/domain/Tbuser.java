@@ -37,6 +37,9 @@ public class Tbuser extends AuditingFields{
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Setter
+    private String studentId;
+
     private Tbuser(String userId , String name, String email, String picture, UserRole role) {
         this.userId = userId;
         this.name = name;
