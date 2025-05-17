@@ -11,6 +11,22 @@ function getReviewers(): ReviewerGroup {
   return JSON.parse(data) as ReviewerGroup;
 }
 
+function addReviewerFromGroup(
+  groupCandidates: Reviewer[],
+  existingReviewers: Set<string>,
+  part: "FE" | "BE",
+  selected: Reviewer[]
+): void {
+  if (
+    groupCandidates.every(
+      (candidate) => !existingReviewers.has(candidate.github)
+    )
+  ) {
+    if (groupCandidates.length > 0)
+      selected.push({ ...selectRandom(groupCandidates), part });
+  }
+}
+
 function detectChangedGroups(files: string[]): {
   front: boolean;
   back: boolean;
@@ -69,7 +85,7 @@ async function getCandidates(token: string): Promise<Reviewer[]> {
   const reviewersData = getReviewers();
 
   // Reviewer 있으면 하지 말기
-  const existingReviewers = new Set(
+  const existingReviewers = new Set<string>(
     pr.requested_reviewers
       .map((r: { login: string }) => r.login)
       .filter((r: string) => !r.includes("[bot]"))
@@ -79,22 +95,12 @@ async function getCandidates(token: string): Promise<Reviewer[]> {
 
   if (groupFlags.front) {
     const candidates = reviewersData.front.filter((r) => r.github !== prAuthor);
-    if (
-      candidates.some((candidate) => !existingReviewers.has(candidate.github))
-    ) {
-      if (candidates.length > 0)
-        selected.push({ ...selectRandom(candidates), part: "FE" });
-    }
+    addReviewerFromGroup(candidates, existingReviewers, "FE", selected);
   }
 
   if (groupFlags.back) {
     const candidates = reviewersData.back.filter((r) => r.github !== prAuthor);
-    if (
-      candidates.some((candidate) => !existingReviewers.has(candidate.github))
-    ) {
-      if (candidates.length > 0)
-        selected.push({ ...selectRandom(candidates), part: "BE" });
-    }
+    addReviewerFromGroup(candidates, existingReviewers, "BE", selected);
   }
 
   return selected;
