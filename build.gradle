@@ -27,6 +27,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+//  mac 에서 webflux 사용시 아래 의존성 추가
+    runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.108.Final:osx-aarch_64" // Apple Silicon (M1~M4)
+    runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.108.Final:osx-x86_64"   // Intel Mac
+
 // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
