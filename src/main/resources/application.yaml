@@ -1,0 +1,59 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+    open-in-view: false
+
+  datasource:
+    url: ${DB_HOST:${DB_HOST_DEFAULT}}/${DB_NAME:${DB_NAME_DEFAULT}}
+    username: ${DB_USERNAME:${DB_USERNAME_DEFAULT}}
+    password: ${DB_PASSWORD:${DB_PASSWORD_DEFAULT}}
+    driver-class-name: ${DB_CLASSNAME:${DB_CLASSNAME_DEFAULT}}
+    show-sql: true
+    defer-datasource-initialization: true
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    credentials:
+      accessKey: ${AWS_ACCESSKEY:${AWS_ACCESSKEY_DEFAULT}}
+      secretKey: ${AWS_SECRETKEY:${AWS_SECRETKEY_DEFAULT}}
+    s3:
+      bucket: ${AWS_BUCKET_NAME:${AWS_BUCKET_NAME_DEFAULT}}
+
+google:
+  oauth:
+    client-id: ${OAUTH_GOOGLE_CLIENT_ID:${OAUTH_GOOGLE_CLIENT_ID_DEFAULT}}
+    client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET:${OAUTH_GOOGLE_CLIENT_SECRET_DEFAULT}}
+    redirect-uri: ${REDIRECT_URI:${REDIRECT_URI_DEFAULT}}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web.servlet: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+
+external:
+  jwt:
+    token:
+      prefix: "Bearer "
+      access-token: Authorization
+      refresh-token: Refresh-Token
+      expiration: Access-Token-Expire-Time
+    access:
+      prefix: Authorization
+      secret: ${JWT_ACCESS_SECRET:${JWT_ACCESS_SECRET_DEFAULT}}
+      expiration-ms: 900000      # 15?
+    refresh:
+      prefix: refreshToken
+      secret: ${JWT_REFRESH_SECRET:${JWT_REFRESH_SECRET_DEFAULT}}
+      expiration-ms: 604800000   # 7?
