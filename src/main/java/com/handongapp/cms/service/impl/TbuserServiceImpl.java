@@ -7,6 +7,7 @@ import com.handongapp.cms.service.TbuserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -47,7 +48,8 @@ public class TbuserServiceImpl implements TbuserService {
       *
       * @param googleUserInfoResponse Google user information
       * @return User entity
-      */    @Transactional
+      */
+     @Transactional
     public Tbuser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
         // 구글 userId를 기반으로 기존 회원 조회
         return tbuserRepository.findByUserId(googleUserInfoResponse.getId())
@@ -55,8 +57,8 @@ public class TbuserServiceImpl implements TbuserService {
                     // 없으면 새로 생성 및 저장
                     return tbuserRepository.save(Tbuser.of(
                             googleUserInfoResponse.getId(),
-                            googleUserInfoResponse.getFamily_name() + googleUserInfoResponse.getGiven_name(),
-                            googleUserInfoResponse.getEmail(),
+                            Objects.toString(googleUserInfoResponse.getFamily_name(), "")
+                                    + Objects.toString(googleUserInfoResponse.getGiven_name(), ""),                            googleUserInfoResponse.getEmail(),
                             googleUserInfoResponse.getPicture(),
                             Tbuser.UserRole.valueOf("USER")
                     ));
