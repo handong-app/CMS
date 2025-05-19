@@ -17,26 +17,82 @@ repositories {
     mavenCentral()
 }
 
+// Commons Logging 충돌 방지: spring-jcl만 사용
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+// Spring Boot 기본 스타터
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+//  mac 에서 webflux 사용시 아래 의존성 추가
+    runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.108.Final:osx-aarch_64" // Apple Silicon (M1~M4)
+    runtimeOnly "io.netty:netty-resolver-dns-native-macos:4.1.108.Final:osx-x86_64"   // Intel Mac
+
+// Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+// DB 드라이버
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.1.4'
     runtimeOnly 'com.h2database:h2'
 
-    // TEST
+// 개발 편의성
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+// OpenAPI / Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+// Google OAuth
+    implementation 'com.google.api-client:google-api-client:2.7.2'
+
+// Amazon S3
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.0.1'
+
+// AWS SDK BOM을 추가하여 버전 관리
+    implementation platform('software.amazon.awssdk:bom:2.20.152')
+
+// 버전을 명시하지 않으면 BOM에서 정의된 버전이 사용
+    implementation 'software.amazon.awssdk:aws-core'
+    implementation 'software.amazon.awssdk:secretsmanager'
+    implementation 'software.amazon.awssdk:ssm'
+    implementation 'software.amazon.awssdk:s3'
+
+// JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+// MyBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+//  hibernate Validator
+    implementation 'org.hibernate.validator:hibernate-validator'
+
+// javax API
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+// 테스트 관련
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
     testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
-    testImplementation("org.assertj:assertj-core:3.25.1")
+    testImplementation 'org.assertj:assertj-core:3.25.1'
     testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
-
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client:3.1.4")
+// Configuration Properties
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }
 
 tasks.named('test') {
