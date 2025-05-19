@@ -3,7 +3,6 @@ package com.handongapp.cms.config;
 import com.handongapp.cms.security.AuthServiceImpl;
 import com.handongapp.cms.security.JwtAuthorizationFilter;
 import com.handongapp.cms.security.LoginProperties;
-import com.handongapp.cms.security.PrincipalDetailsService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +60,9 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers("/**/*.html").permitAll()
+
                         .requestMatchers("/api/auth/google/**", "/api/login").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
@@ -70,15 +72,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
 
         return http.build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web
-                .ignoring()
-                // css/js/images 등 기존 정적 리소스
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers(new AntPathRequestMatcher("/**/*.html"));
     }
 
     @Bean

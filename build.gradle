@@ -17,6 +17,11 @@ repositories {
     mavenCentral()
 }
 
+// Commons Logging 충돌 방지: spring-jcl만 사용
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 dependencies {
 // Spring Boot 기본 스타터
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -68,6 +73,9 @@ dependencies {
 
 // MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+//  hibernate Validator
+    implementation 'org.hibernate.validator:hibernate-validator'
 
 // javax API
     implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
