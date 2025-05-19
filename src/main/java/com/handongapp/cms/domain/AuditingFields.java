@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import lombok.*;
 
 @Getter
@@ -17,8 +19,7 @@ import lombok.*;
 @MappedSuperclass
 public class AuditingFields {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Column(nullable = false) //이거는 테이블 컬럼에 속성을 주기 위함 입니다!! not null!!!!
     @Setter
@@ -40,7 +41,7 @@ public class AuditingFields {
 
     @PrePersist
     public void onPrePersist() {
-//        this.id = UUID.randomUUID().toString().replace("-", "");
+        this.id = UUID.randomUUID().toString().replace("-", "");
         this.deleted = "N";
     }
 }
