@@ -61,7 +61,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/**/*.html").permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/**/*.html")).permitAll()
 
                         .requestMatchers("/api/auth/google/**", "/api/login").permitAll()
 
