@@ -10,6 +10,8 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
+    open-in-view: false
+
   datasource:
     url: ${DB_HOST:${DB_HOST_DEFAULT}}/${DB_NAME:${DB_NAME_DEFAULT}}
     username: ${DB_USERNAME:${DB_USERNAME_DEFAULT}}
