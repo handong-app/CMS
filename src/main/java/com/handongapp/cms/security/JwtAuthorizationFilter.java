@@ -14,16 +14,16 @@ import java.io.IOException;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final AuthServiceImpl authServiceImpl;
+    private final AuthService authService;
     private final UserDetailsService userDetailsService;
     private final LoginProperties loginProperties;
     private final TokenBlacklistManager tokenBlacklistManager;
 
-    public JwtAuthorizationFilter(AuthServiceImpl authServiceImpl,
+    public JwtAuthorizationFilter(AuthService authService,
                                   UserDetailsService userDetailsService,
                                   LoginProperties loginProperties,
                                   TokenBlacklistManager tokenBlacklistManager) {
-        this.authServiceImpl = authServiceImpl;
+        this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.loginProperties = loginProperties;
         this.tokenBlacklistManager = tokenBlacklistManager;
@@ -49,13 +49,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!authServiceImpl.validateAccessToken(token)) {
+        if (!authService.validateAccessToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("유효하지 않은 토큰입니다.");
             return;
         }
 
-        String email = authServiceImpl.getSubjectFromAccess(token);
+        String email = authService.getSubjectFromAccess(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         if (userDetails == null) {
