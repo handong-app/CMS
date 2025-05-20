@@ -30,9 +30,4 @@ public class TokenBlacklistManager {
     public boolean isBlacklisted(String token) {
         return blacklist.getIfPresent(token) != null;
     }
-
-    public Map<String, Boolean> getAllBlacklistedTokens() {
-        return new HashMap<>(blacklist.asMap()); // 현재 캐시의 전체 내용
-    }
-
 }
