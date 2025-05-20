@@ -21,7 +21,6 @@ public class TokenBlacklistManager {
 
     public void blacklist(String token) {
         long durationMillis = loginProperties.getRefreshTokenExpirationMs();
-        blacklist.put(token, true);
         blacklist.policy().expireVariably().ifPresent(policy ->
                 policy.put(token, true, Duration.ofMillis(durationMillis))
         );
