@@ -72,7 +72,11 @@ public class GoogleLoginController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Missing or invalid refresh token header"));
 
-        String token = refreshToken.substring(7);
+        String prefix = loginProperties.getJwtTokenPrefix();
+        if (refreshToken.length() <= prefix.length()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token format"));
+        }
+        String token = refreshToken.substring(prefix.length());
 
         try {
             String access = googleOAuthService.refreshAccessToken(token);
@@ -89,15 +93,20 @@ public class GoogleLoginController {
      * Process logout by blacklisting the access token
      */
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String accessToken) {
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String accessToken) {
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body(Map.of("error", "토큰이 올바르지 않습니다."));
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or missing token"));
         }
-        String token = accessToken.substring(loginProperties.getJwtTokenPrefix().length());
+
+        String prefix = loginProperties.getJwtTokenPrefix();
+        if (accessToken.length() <= prefix.length()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token format"));
+        }
+
+        String token = accessToken.substring(prefix.length());
 
         tokenBlacklistManager.blacklist(token);
 
-        return ResponseEntity.ok(Map.of("message", "로그아웃 성공"));
+        return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
-
 }
