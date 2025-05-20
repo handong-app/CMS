@@ -58,6 +58,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String email = authServiceImpl.getSubjectFromAccess(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
+        if (userDetails == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("인증 정보를 찾을 수 없습니다.");
+            return;
+        }
+
         if (logger.isDebugEnabled()) {
             userDetails.getAuthorities().forEach(a ->
                     logger.debug("사용자 권한: " + a.getAuthority())
