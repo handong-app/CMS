@@ -76,6 +76,8 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         String refresh = authService.createRefreshToken(tbuser.getEmail());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
 
+        authService.saveRefreshToken(refresh, tbuser.getEmail());
+
         return new GoogleOAuthResponse(access, refresh, expires, tbuser);
     }
 
@@ -85,6 +87,10 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             throw new IllegalArgumentException("Invalid refresh token");
         }
         String email = authService.getSubjectFromRefresh(refreshToken);
+
+        if (!authService.isValidRefreshToken(email, refreshToken)) {
+            throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
+        }
 
         Optional<Tbuser> userOpt = tbuserRepository.findByEmail(email);
         if (userOpt.isPresent()) {

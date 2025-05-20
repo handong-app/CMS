@@ -1,5 +1,6 @@
 package com.handongapp.cms.security;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +19,7 @@ public class AuthServiceImpl implements AuthService{
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final LoginProperties loginProperties;
+    private final Cache<String, String> refreshTokenCache;
     private Key accessKeySecret;
     private Key refreshKeySecret;
 
@@ -31,8 +34,9 @@ public class AuthServiceImpl implements AuthService{
         }
     }
 
-    public AuthServiceImpl(LoginProperties loginProperties) {
+    public AuthServiceImpl(LoginProperties loginProperties, Cache<String, String> refreshTokenCache) {
         this.loginProperties = loginProperties;
+        this.refreshTokenCache = refreshTokenCache;
     }
 
     public String createAccessToken(Map<String,Object> claims, String subject) {
@@ -123,5 +127,19 @@ public class AuthServiceImpl implements AuthService{
             logger.error("Refresg 토큰에서 Subject 추출 실패: {}", e.getMessage());
             throw new RuntimeException("Refresg 토큰에서 Subject를 추출할 수 없습니다", e);
         }
+    }
+
+    @Override
+    public void saveRefreshToken(String refreshToken, String email) {
+        refreshTokenCache.put("refresh:" + email, refreshToken);
+        refreshTokenCache.policy().expireVariably().ifPresent(policy ->
+                policy.put("refresh:" + email, refreshToken, Duration.ofMillis(loginProperties.getRefreshTokenExpirationMs()))
+        );
+    }
+
+    @Override
+    public boolean isValidRefreshToken(String email, String providedToken) {
+        String stored = refreshTokenCache.getIfPresent("refresh:" + email);
+        return stored != null && stored.equals(providedToken);
     }
 }
