@@ -1,12 +1,11 @@
 package com.handongapp.cms.security;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class TokenBlacklistManager {
@@ -31,4 +30,9 @@ public class TokenBlacklistManager {
     public boolean isBlacklisted(String token) {
         return blacklist.getIfPresent(token) != null;
     }
+
+    public Map<String, Boolean> getAllBlacklistedTokens() {
+        return new HashMap<>(blacklist.asMap()); // 현재 캐시의 전체 내용
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.handongapp.cms.security;
 
-
 import com.handongapp.cms.domain.Tbuser;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
