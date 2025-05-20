@@ -6,7 +6,6 @@ import com.handongapp.cms.security.TokenBlacklistManager;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbuserService;
-import java.io.IOException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,11 +53,7 @@ public class GoogleLoginController {
             GoogleOAuthResponse response = googleOAuthService.authenticate(authorizationCode);
             return ResponseEntity.ok(response);
 
-        }
-        catch (IOException e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Error communicating with Google: " + e.getMessage()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Authentication error: " + e.getMessage()));
         }
     }
