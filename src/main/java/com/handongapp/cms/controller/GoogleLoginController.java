@@ -6,7 +6,7 @@ import com.handongapp.cms.security.TokenBlacklistManager;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbuserService;
-import io.jsonwebtoken.io.IOException;
+import java.io.IOException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
