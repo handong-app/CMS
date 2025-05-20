@@ -69,7 +69,9 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
-        claims.put("role", Optional.ofNullable(tbuser.getRole()).orElse(Tbuser.UserRole.valueOf("")));
+        claims.put("role", Optional.ofNullable(tbuser.getRole())
+                .map(Enum::name) // return string like "USER"
+                .orElse("USER")); // 기본값도 보장(로그인하면, 기본값은 user)
         claims.put("student", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
 
         String access = authService.createAccessToken(claims, tbuser.getEmail());
@@ -94,14 +96,16 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
         Optional<Tbuser> userOpt = tbuserRepository.findByEmail(email);
         if (userOpt.isPresent()) {
-                Tbuser tbuser = userOpt.get();
-                Map<String, Object> claims = new HashMap<>();
-                claims.put("email", tbuser.getEmail());
-                claims.put("name", tbuser.getName());
-                claims.put("role", tbuser.getRole());
-                claims.put("student", tbuser.getStudentId());
-                return authService.createAccessToken(claims, email);
-            }
+            Tbuser tbuser = userOpt.get();
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("email", tbuser.getEmail());
+            claims.put("name", tbuser.getName());
+            claims.put("role", Optional.ofNullable(tbuser.getRole())
+                    .map(Enum::name)
+                    .orElse("USER"));
+            claims.put("student", tbuser.getStudentId());
+            return authService.createAccessToken(claims, email);
+        }
         return authService.createAccessToken(Map.of(), email);
 
     }
