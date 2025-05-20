@@ -36,7 +36,7 @@ public class TbuserServiceImpl implements TbuserService {
                     name,
                     email,
                     null, // 기본 이미지 URL 설정 가능
-                    Tbuser.UserRole.valueOf("USER") // 기본 역할 설정
+                    Tbuser.UserRole.USER
             );
             return tbuserRepository.save(newUser);
         }
