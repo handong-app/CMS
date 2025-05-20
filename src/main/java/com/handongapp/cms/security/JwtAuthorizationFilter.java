@@ -50,7 +50,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         if (!authServiceImpl.validateAccessToken(token)) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("유효하지 않은 토큰입니다.");
             return;
         }
 
