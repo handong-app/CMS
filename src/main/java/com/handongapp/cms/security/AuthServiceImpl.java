@@ -19,6 +19,7 @@ public class AuthServiceImpl implements AuthService{
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final LoginProperties loginProperties;
     private final Cache<String, String> refreshTokenCache;
+    private final TokenBlacklistManager tokenBlacklistManager;
     private Key accessKeySecret;
     private Key refreshKeySecret;
 
@@ -33,9 +34,12 @@ public class AuthServiceImpl implements AuthService{
         }
     }
 
-    public AuthServiceImpl(LoginProperties loginProperties, Cache<String, String> refreshTokenCache) {
+    public AuthServiceImpl(LoginProperties loginProperties,
+                           Cache<String, String> refreshTokenCache,
+                           TokenBlacklistManager tokenBlacklistManager) {
         this.loginProperties = loginProperties;
         this.refreshTokenCache = refreshTokenCache;
+        this.tokenBlacklistManager = tokenBlacklistManager;
     }
 
     public String createAccessToken(Map<String,Object> claims, String subject) {
@@ -81,6 +85,12 @@ public class AuthServiceImpl implements AuthService{
     public boolean validateAccessToken(String token) {
         try {
             parseToken(token, accessKeySecret);
+
+            if (tokenBlacklistManager.isBlacklisted(token)) {
+                logger.debug("토큰이 블랙리스트에 있습니다: {}", token);
+                return false;
+            }
+
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             logger.debug("Access 토큰 검증 실패: {}", e.getMessage());
