@@ -57,3 +57,7 @@ external:
       prefix: refreshToken
       secret: ${JWT_REFRESH_SECRET:${JWT_REFRESH_SECRET_DEFAULT}}
       expiration-ms: 604800000   # 7?
+
+cors:
+  allowed-origins: >
+    {FE_URL}, {BE_URL}
