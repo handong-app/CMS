@@ -3,6 +3,7 @@ package com.handongapp.cms.config;
 import com.handongapp.cms.security.AuthServiceImpl;
 import com.handongapp.cms.security.JwtAuthorizationFilter;
 import com.handongapp.cms.security.LoginProperties;
+import com.handongapp.cms.security.TokenBlacklistManager;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,14 +29,18 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final CorsFilterConfiguration corsFilterConfiguration;
     private final LoginProperties loginProperties;
+    private final TokenBlacklistManager tokenBlacklistManager;
 
     public SecurityConfig(AuthServiceImpl authServiceImpl,
                           UserDetailsService userDetailsService,
-                          CorsFilterConfiguration corsFilterConfiguration, LoginProperties loginProperties) {
+                          CorsFilterConfiguration corsFilterConfiguration,
+                          LoginProperties loginProperties,
+                          TokenBlacklistManager tokenBlacklistManager) {
         this.authServiceImpl = authServiceImpl;
         this.userDetailsService = userDetailsService;
         this.corsFilterConfiguration = corsFilterConfiguration;
         this.loginProperties = loginProperties;
+        this.tokenBlacklistManager = tokenBlacklistManager;
     }
 
     @Bean
@@ -55,7 +60,7 @@ public class SecurityConfig {
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(
-                        new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties),
+                        new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties, tokenBlacklistManager),
                         UsernamePasswordAuthenticationFilter.class
                 )
 

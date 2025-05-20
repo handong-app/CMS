@@ -17,13 +17,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final AuthServiceImpl authServiceImpl;
     private final UserDetailsService userDetailsService;
     private final LoginProperties loginProperties;
+    private final TokenBlacklistManager tokenBlacklistManager;
 
     public JwtAuthorizationFilter(AuthServiceImpl authServiceImpl,
                                   UserDetailsService userDetailsService,
-                                  LoginProperties loginProperties) {
+                                  LoginProperties loginProperties,
+                                  TokenBlacklistManager tokenBlacklistManager) {
         this.authServiceImpl = authServiceImpl;
         this.userDetailsService = userDetailsService;
         this.loginProperties = loginProperties;
+        this.tokenBlacklistManager = tokenBlacklistManager;
     }
 
     @Override
@@ -39,6 +42,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         String token = header.substring(loginProperties.getJwtTokenPrefix().length());
+
+        if (tokenBlacklistManager.isBlacklisted(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("해당 토큰은 로그아웃 처리된 토큰입니다.");
+            return;
+        }
 
         if (!authServiceImpl.validateAccessToken(token)) {
             filterChain.doFilter(request, response);
