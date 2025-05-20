@@ -88,7 +88,6 @@ public class GoogleLoginController {
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body(Map.of("error", "토큰이 올바르지 않습니다."));
         }
-// todo : 로그아웃 전, 후로 blacklist 처리 여부 확인
         String token = accessToken.substring(loginProperties.getJwtTokenPrefix().length());
 
         tokenBlacklistManager.blacklist(token);

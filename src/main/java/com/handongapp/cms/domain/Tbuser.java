@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Entity
 @NoArgsConstructor
-// SELECT * FROM tbuser WHERE @Index 설정 해준 것들 :: 쿼리 조회 속도 향상
 @Table(indexes = {
         @Index(columnList = "deleted")
         , @Index(columnList = "process")
