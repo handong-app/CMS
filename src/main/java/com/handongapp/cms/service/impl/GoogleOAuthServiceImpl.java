@@ -67,10 +67,10 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
         // 4. JWT claims 생성
         Map<String, Object> claims = new HashMap<>();
-        claims.put("email", tbuser.getEmail());
-        claims.put("name", tbuser.getName());
-        claims.put("role", tbuser.getRole());
-        claims.put("student", tbuser.getStudentId());
+        claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
+        claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
+        claims.put("role", Optional.ofNullable(tbuser.getRole()).orElse(Tbuser.UserRole.valueOf("")));
+        claims.put("student", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
 
         String access = authService.createAccessToken(claims, tbuser.getEmail());
         String refresh = authService.createRefreshToken(tbuser.getEmail());
