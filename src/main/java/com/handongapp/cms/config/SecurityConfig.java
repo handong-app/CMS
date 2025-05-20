@@ -1,9 +1,6 @@
 package com.handongapp.cms.config;
 
-import com.handongapp.cms.security.AuthServiceImpl;
-import com.handongapp.cms.security.JwtAuthorizationFilter;
-import com.handongapp.cms.security.LoginProperties;
-import com.handongapp.cms.security.TokenBlacklistManager;
+import com.handongapp.cms.security.*;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,6 +55,10 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new JwtExceptionHandlers.JwtAuthenticationEntryPoint())
+                        .accessDeniedHandler(new JwtExceptionHandlers.JwtAccessDeniedHandler())
+                )
                 .addFilterBefore(
                         new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties, tokenBlacklistManager),
                         UsernamePasswordAuthenticationFilter.class
