@@ -139,7 +139,7 @@ public class AuthServiceImpl implements AuthService{
         try {
             return getRefreshClaims(token).getSubject();
         } catch (RuntimeException e) {
-            logger.error("Refresg 토큰에서 Subject 추출 실패: {}", e.getMessage());
+            logger.error("Refresh 토큰에서 Subject 추출 실패: {}", e.getMessage());
             throw new RuntimeException("Refresg 토큰에서 Subject를 추출할 수 없습니다", e);
         }
     }
