@@ -57,11 +57,11 @@ public class TbuserServiceImpl implements TbuserService {
                     // 없으면 새로 생성 및 저장
                     return tbuserRepository.save(Tbuser.of(
                             googleUserInfoResponse.getId(),
-                            Objects.toString(googleUserInfoResponse.getFamily_name(), "")
-                                    + Objects.toString(googleUserInfoResponse.getGiven_name(), ""),
+                            Objects.toString(googleUserInfoResponse.getFamilyName(), "")
+                                    + Objects.toString(googleUserInfoResponse.getGivenName(), ""),
                             googleUserInfoResponse.getEmail(),
                             googleUserInfoResponse.getPicture(),
-                            Tbuser.UserRole.valueOf("USER")
+                            Tbuser.UserRole.USER
                     ));
                 });
     }
