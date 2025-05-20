@@ -44,9 +44,12 @@ public class AuthServiceImpl implements AuthService{
 
         return Jwts.builder()
                 .setClaims(claims)
+                .setIssuer("app.handong.cms")
+                .setAudience("app.handong.cms.frontend")
                 .setSubject(subject)
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(now)
+                .setNotBefore(now)
                 .setExpiration(expiry)
                 .signWith(accessKeySecret, SignatureAlgorithm.HS512)
                 .compact();
@@ -58,8 +61,11 @@ public class AuthServiceImpl implements AuthService{
 
         return Jwts.builder()
                 .setSubject(subject)
+                .setIssuer("app.handong.cms")
+                .setAudience("app.handong.cms.frontend")
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(now)
+                .setNotBefore(now)
                 .setExpiration(expiry)
                 .signWith(refreshKeySecret, SignatureAlgorithm.HS512)
                 .compact();

@@ -67,10 +67,10 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
         // 4. JWT claims 생성
         Map<String, Object> claims = new HashMap<>();
-        claims.put("memberId", tbuser.getUserId());
         claims.put("email", tbuser.getEmail());
         claims.put("name", tbuser.getName());
-        claims.put("picture", tbuser.getPicture());
+        claims.put("role", tbuser.getRole());
+        claims.put("student", tbuser.getStudentId());
 
         String access = authService.createAccessToken(claims, tbuser.getEmail());
         String refresh = authService.createRefreshToken(tbuser.getEmail());
@@ -94,12 +94,12 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
         Optional<Tbuser> userOpt = tbuserRepository.findByEmail(email);
         if (userOpt.isPresent()) {
-                Tbuser user = userOpt.get();
+                Tbuser tbuser = userOpt.get();
                 Map<String, Object> claims = new HashMap<>();
-                claims.put("memberId", user.getUserId());
-                claims.put("email", user.getEmail());
-                claims.put("name", user.getName());
-                claims.put("picture", user.getPicture());
+                claims.put("email", tbuser.getEmail());
+                claims.put("name", tbuser.getName());
+                claims.put("role", tbuser.getRole());
+                claims.put("student", tbuser.getStudentId());
                 return authService.createAccessToken(claims, email);
             }
         return authService.createAccessToken(Map.of(), email);
