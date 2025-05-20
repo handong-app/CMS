@@ -6,6 +6,7 @@ import com.handongapp.cms.security.TokenBlacklistManager;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbuserService;
+import io.jsonwebtoken.io.IOException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,19 +43,23 @@ public class GoogleLoginController {
     }
 
     /**
-     * 구글 로그인 콜백 (Authorization Code → Access Token 교환 → 사용자 정보 획득 → JWT 발급)
+     + Google login callback (Authorization Code → Access Token exchange → User info retrieval → JWT issuance)
      */
     @GetMapping("/callback")
     public ResponseEntity<?> callback(@RequestParam("code") String authorizationCode) {
         try {
             if (authorizationCode == null || authorizationCode.trim().isEmpty())
-                return ResponseEntity.badRequest().body(Map.of("error", "인증 코드가 제공되지 않았습니다"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Authorization code not provided"));
 
             GoogleOAuthResponse response = googleOAuthService.authenticate(authorizationCode);
             return ResponseEntity.ok(response);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "인증 처리 중 오류가 발생했습니다: " + e.getMessage()));
+        }
+        catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Error communicating with Google: " + e.getMessage()));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Authentication error: " + e.getMessage()));
         }
     }
 
@@ -81,7 +86,7 @@ public class GoogleLoginController {
     }
 
     /**
-     * 구글 로그아웃 처리
+     * Process logout by blacklisting the access token
      */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String accessToken) {
