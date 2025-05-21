@@ -79,6 +79,8 @@ public class GoogleLoginController {
                 return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired refresh token"));
             return ResponseEntity.ok(Map.of("accessToken", access));
 
+        } catch (io.jsonwebtoken.JwtException e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid JWT token: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Token refresh failed: " + e.getMessage()));
         }
