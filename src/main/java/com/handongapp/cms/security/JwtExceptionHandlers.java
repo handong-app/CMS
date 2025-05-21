@@ -17,9 +17,8 @@ public class JwtExceptionHandlers {
         public void commence(HttpServletRequest request,
                              HttpServletResponse response,
                              AuthenticationException authException) throws IOException {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Unauthorized: Access token is missing or invalid.\"}");
+            writeJsonErrorResponse(response, HttpServletResponse.SC_FORBIDDEN,
+                    "Forbidden: You don't have permission to access this resource.");
         }
     }
 
@@ -28,9 +27,15 @@ public class JwtExceptionHandlers {
         public void handle(HttpServletRequest request,
                            HttpServletResponse response,
                            AccessDeniedException accessDeniedException) throws IOException {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Forbidden: You don't have permission to access this resource.\"}");
+            writeJsonErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "Unauthorized: Access token is missing or invalid.");
+
         }
+    }
+
+    private static void writeJsonErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.getWriter().write(String.format("{\"error\": \"%s\", \"status\": %d}", message, status));
     }
 }
