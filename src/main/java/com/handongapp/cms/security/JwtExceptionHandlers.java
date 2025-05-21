@@ -17,8 +17,8 @@ public class JwtExceptionHandlers {
         public void commence(HttpServletRequest request,
                              HttpServletResponse response,
                              AuthenticationException authException) throws IOException {
-            writeJsonErrorResponse(response, HttpServletResponse.SC_FORBIDDEN,
-                    "Forbidden: You don't have permission to access this resource.");
+            writeJsonErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "Unauthorized: Access token is missing or invalid.");
         }
     }
 
