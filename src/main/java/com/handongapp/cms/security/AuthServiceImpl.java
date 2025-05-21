@@ -25,14 +25,19 @@ public class AuthServiceImpl implements AuthService{
 
     @PostConstruct
     private void init() {
+        if (loginProperties.getAccessTokenSecret().length() < 64
+                || loginProperties.getRefreshTokenSecret().length() < 64) {
+            throw new IllegalStateException("JWT 시크릿은 64바이트(512bit) 이상이어야 합니다. HS512 알고리즘 요구사항입니다.");
+        }
+
         try {
             this.accessKeySecret = Keys.hmacShaKeyFor(loginProperties.getAccessTokenSecret().getBytes());
             this.refreshKeySecret = Keys.hmacShaKeyFor(loginProperties.getRefreshTokenSecret().getBytes());
         } catch (Exception e) {
-            logger.error("JWT 키 초기화 중 오류 발생", e);
-            throw new RuntimeException("JWT 토큰 키 초기화 실패", e);
+            throw new RuntimeException("JWT 키 초기화 중 오류 발생", e);
         }
     }
+
 
     public AuthServiceImpl(LoginProperties loginProperties,
                            Cache<String, String> refreshTokenCache,
