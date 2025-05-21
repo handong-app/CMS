@@ -68,11 +68,11 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         // 4. JWT claims 생성
         Map<String, Object> claims = buildClaims(tbuser);
 
-        String access = authService.createAccessToken(claims, tbuser.getEmail());
-        String refresh = authService.createRefreshToken(tbuser.getEmail());
+        String access = authService.createAccessToken(claims, tbuser.getUserId());
+        String refresh = authService.createRefreshToken(tbuser.getUserId());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
 
-        authService.saveRefreshToken(refresh, tbuser.getEmail());
+        authService.saveRefreshToken(refresh, tbuser.getUserId());
 
         return new GoogleOAuthResponse(access, refresh, expires, tbuser);
     }
@@ -82,19 +82,20 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         if (!authService.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("Invalid refresh token");
         }
-        String email = authService.getSubjectFromRefresh(refreshToken);
+        String rawSubject = authService.getSubjectFromRefresh(refreshToken);
+        String userId = rawSubject.replaceFirst("user-", "");
 
-        if (!authService.isValidRefreshToken(email, refreshToken)) {
+        if (!authService.isValidRefreshToken(userId, refreshToken)) {
             throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
         }
 
-        Optional<Tbuser> userOpt = tbuserRepository.findByEmail(email);
+        Optional<Tbuser> userOpt = tbuserRepository.findByUserId(userId);
         if (userOpt.isPresent()) {
             Tbuser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
-            return authService.createAccessToken(claims, email);
+            return authService.createAccessToken(claims, userOpt.get().getUserId());
         }
-        return authService.createAccessToken(Map.of(), email);
+        return authService.createAccessToken(Map.of(),  userOpt.get().getUserId());
     }
 
     private Map<String, Object> buildClaims(Tbuser tbuser) {
