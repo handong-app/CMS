@@ -22,7 +22,7 @@ public interface AuthService {
 
     String getSubjectFromRefresh(String token);
 
-    void saveRefreshToken(String refreshToken, String email);
+    void saveRefreshToken(String refreshToken, String userId);
 
-    boolean isValidRefreshToken(String email, String providedToken);
+    boolean isValidRefreshToken(String userId, String providedToken);
 }

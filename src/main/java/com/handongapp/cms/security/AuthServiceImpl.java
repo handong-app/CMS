@@ -55,8 +55,7 @@ public class AuthServiceImpl implements AuthService{
                 .setClaims(claims)
                 .setIssuer("app.handong.cms")
                 .setAudience("app.handong.cms.frontend")
-                .setSubject(subject)
-                .setId(UUID.randomUUID().toString())
+                .setSubject("user-" + subject)
                 .setIssuedAt(now)
                 .setNotBefore(now)
                 .setExpiration(expiry)
@@ -69,10 +68,9 @@ public class AuthServiceImpl implements AuthService{
         Date expiry = new Date(now.getTime() + loginProperties.getRefreshTokenExpirationMs());
 
         return Jwts.builder()
-                .setSubject(subject)
+                .setSubject("user-" + subject)
                 .setIssuer("app.handong.cms")
                 .setAudience("app.handong.cms.frontend")
-                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(now)
                 .setNotBefore(now)
                 .setExpiration(expiry)
@@ -150,16 +148,16 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public void saveRefreshToken(String refreshToken, String email) {
-        refreshTokenCache.put("refresh:" + email, refreshToken);
+    public void saveRefreshToken(String refreshToken, String userId) {
+        refreshTokenCache.put("refresh:" + userId, refreshToken);
         refreshTokenCache.policy().expireVariably().ifPresent(policy ->
-                policy.put("refresh:" + email, refreshToken, Duration.ofMillis(loginProperties.getRefreshTokenExpirationMs()))
+                policy.put("refresh:" + userId, refreshToken, Duration.ofMillis(loginProperties.getRefreshTokenExpirationMs()))
         );
     }
 
     @Override
-    public boolean isValidRefreshToken(String email, String providedToken) {
-        String stored = refreshTokenCache.getIfPresent("refresh:" + email);
+    public boolean isValidRefreshToken(String userId, String providedToken) {
+        String stored = refreshTokenCache.getIfPresent("refresh:" + userId);
         return stored != null && stored.equals(providedToken);
     }
 }

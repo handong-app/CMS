@@ -29,7 +29,7 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public String getUsername() {
 //        return tbuser.getUsername();
-        return tbuser.getEmail();  // 난 email 기반을 작업을 하니.. mismatch지만..        return tbuser.getEmail();
+        return tbuser.getEmail();  // 난 email 기반을 작업을 하니.. mismatch지만..
     }
 
     @Override
