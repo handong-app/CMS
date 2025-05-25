@@ -13,10 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class TbSection extends AuditingFields {
-    @Column(length = 32, nullable = false)
+    @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String courseId;
 
-    @Column(length = 30, nullable = false)
+    @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")
