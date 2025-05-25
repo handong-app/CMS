@@ -42,33 +42,11 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
     @Override
     public GoogleOAuthResponse authenticate(String authorizationCode) {
 
-        // 1. Authorization Code → Access Token 교환
-        GoogleTokenResponse token = webClient.post()
-                .uri("https://oauth2.googleapis.com/token")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header("Host", "oauth2.googleapis.com")  // 명시적 Host 헤더 추가
-                .body(BodyInserters.fromFormData("code", authorizationCode)
-                        .with("client_id", loginProperties.getClientId())
-                        .with("client_secret", loginProperties.getClientSecret())
-                        .with("redirect_uri", loginProperties.getRedirectUri())
-                        .with("grant_type", "authorization_code"))
-                .retrieve()
-                .bodyToMono(GoogleTokenResponse.class)
-                .block();
-        // 2. Access Token → Google 사용자 정보 조회
-        GoogleUserInfoResponse userInfo = webClient.get()
-                .uri("https://www.googleapis.com/oauth2/v2/userinfo")
-                .header("Authorization", "Bearer " + token.getAccessToken())
-                .retrieve()
-                .bodyToMono(GoogleUserInfoResponse.class)
-                .block();
-
-        // 3. Member 가입/로그인 처리
+        GoogleTokenResponse token = getAccessToken(authorizationCode);
+        GoogleUserInfoResponse userInfo = getUserInfo(token.getAccessToken());
         TbUser tbuser = tbuserService.processGoogleUser(userInfo);
 
-        // 4. JWT claims 생성
         Map<String, Object> claims = buildClaims(tbuser);
-
         String access = authService.createAccessToken(claims, tbuser.getId());
         String refresh = authService.createRefreshToken(tbuser.getId());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
@@ -98,6 +76,30 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         } else {
             return authService.createAccessToken(Map.of(), userId);
         }
+    }
+
+    GoogleTokenResponse getAccessToken(String authorizationCode) {
+        return webClient.post()
+                .uri("https://oauth2.googleapis.com/token")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Host", "oauth2.googleapis.com")  // 명시적 Host 헤더 추가
+                .body(BodyInserters.fromFormData("code", authorizationCode)
+                        .with("client_id", loginProperties.getClientId())
+                        .with("client_secret", loginProperties.getClientSecret())
+                        .with("redirect_uri", loginProperties.getRedirectUri())
+                        .with("grant_type", "authorization_code"))
+                .retrieve()
+                .bodyToMono(GoogleTokenResponse.class)
+                .block();
+    }
+
+    public GoogleUserInfoResponse getUserInfo(String accessToken) {
+        return webClient.get()
+                .uri("https://www.googleapis.com/oauth2/v2/userinfo")
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(GoogleUserInfoResponse.class)
+                .block();
     }
 
     private Map<String, Object> buildClaims(TbUser tbuser) {
