@@ -15,15 +15,15 @@ import lombok.*;
 
 @Getter
 @ToString
-@EntityListeners(AuditingEntityListener.class) //이게 있어야 자동으로 값 넣어줌!!
+@EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public class AuditingFields {
     @Id
     @Column(columnDefinition = "CHAR(32)")
     private String id;
 
-    @Column(nullable = false) //이거는 테이블 컬럼에 속성을 주기 위함 입니다!! not null!!!!
     @Setter
+    @Column(columnDefinition = "CHAR(1)", nullable = false)
     protected String deleted;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
