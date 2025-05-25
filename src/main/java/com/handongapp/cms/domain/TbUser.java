@@ -18,6 +18,9 @@ import lombok.Setter;
 )
 public class TbUser extends AuditingFields{
 
+    private String userName;
+    private String password;
+
     @Column(length = 21, unique = true) private String googleSub;
     @Column(length = 30)  @Setter private String name;
     @Column(length = 320) @Setter private String email;

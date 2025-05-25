@@ -89,7 +89,7 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
         }
 
-        Optional<TbUser> userOpt = tbuserRepository.findByUserId(userId);
+        Optional<TbUser> userOpt = tbuserRepository.findById(userId);
         if (userOpt.isPresent()) {
             TbUser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
@@ -102,9 +102,9 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
-        claims.put("role", Optional.ofNullable(tbuser.getRole())
+        claims.put("role", Optional.ofNullable("USER"))/*, tbuser.getRole())
                 .map(Enum::name)
-                .orElse("USER"));
+                .orElse("USER"))*/;
         claims.put("student", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
         return claims;
     }
