@@ -21,6 +21,8 @@ public class TbProgramParticipant extends AuditingFields {
     @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String userId;
 
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime invitedAt;
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime acceptedAt;
 }
