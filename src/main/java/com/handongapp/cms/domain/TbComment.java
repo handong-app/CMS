@@ -1,7 +1,5 @@
-package com.example.course.domain;
-
+package com.handongapp.cms.domain;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * <p>TbComment Entity – user-generated comment bound to a Node.</p>
@@ -10,7 +8,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "tb_comment")
-public class TbComment extends AuditingFields{
+public class TbComment extends AuditingFields {
 
     /** Author – UUID */
     @Column(name = "user_id",columnDefinition = "char(32)", nullable = false)

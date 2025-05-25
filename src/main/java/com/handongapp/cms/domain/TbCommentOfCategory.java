@@ -1,5 +1,4 @@
-package com.example.course.domain;
-
+package com.handongapp.cms.domain;
 import jakarta.persistence.*;
 
 /**
