@@ -15,12 +15,11 @@ import java.util.List;
 public class TbNodeGroup extends AuditingFields {
 
     /** Parent Section (UUID) */
-    @Column(name = "section_id", length = 32, nullable = false)
+    @Column(name = "section_id",columnDefinition = "char(32)", nullable = false)
     private String sectionId;
 
-    @Column(length = 32, nullable = false)
+    @Column(columnDefinition = "varchar(30)", nullable = false)
     private String title;
-
     /** Explicit sort order */
     @Column(name = "`order`")
     private Integer order;

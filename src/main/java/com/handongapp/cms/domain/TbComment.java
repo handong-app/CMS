@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class TbComment extends AuditingFields{
 
     /** Author – UUID */
-    @Column(name = "user_id", length = 32, nullable = false)
+    @Column(name = "user_id",columnDefinition = "char(32)", nullable = false)
     private String userId;
 
     /** Indicates the target node has been deleted (soft-delete flag) */
@@ -21,11 +21,11 @@ public class TbComment extends AuditingFields{
     private Boolean nodeDeleted;
 
     /** Target Node (either a Node or, in special cases, a NodeGroup) */
-    @Column(name = "target_id")
+    @Column(name = "target_id",columnDefinition = "char(32)", nullable = false)
     private String targetId;
 
     /** Comment category (emoji label etc.) */
-    @Column(name = "category_id")
+    @Column(name = "category_id",columnDefinition = "char(32)", nullable = false)
     private String categoryId;
 
     @Lob

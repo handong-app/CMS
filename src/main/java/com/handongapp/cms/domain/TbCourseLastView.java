@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 public class TbCourseLastView extends AuditingFields {
 
     /** Owner of the record – UUID (CHAR(32)) */
-    @Column(name = "user_id", length = 32, nullable = false)
+    @Column(name = "user_id",columnDefinition = "char(32)", nullable = false)
     private String userId;
 
     /** Course identifier (FK → course.id) */
-    @Column(name = "course_id", nullable = false)
-    private Integer courseId;
+    @Column(name = "course_id",columnDefinition = "char(32)", nullable = false)
+    private String courseId;
 
     /** Last viewed Node-Group */
-    @Column(name = "node_group_id", length = 32, nullable = false)
+    @Column(name = "node_group_id",columnDefinition = "char(32)", nullable = false)
     private String nodeGroupId;
 
 }

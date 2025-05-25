@@ -15,7 +15,7 @@ import java.util.Map;
 public class TbNode extends AuditingFields {
 
     /** Owning group */
-    @Column(name = "node_group_id")
+    @Column(name = "node_group_id",columnDefinition = "char(32)", nullable = false)
     private String nodeGroupId;
 
     /** Position inside the group */
