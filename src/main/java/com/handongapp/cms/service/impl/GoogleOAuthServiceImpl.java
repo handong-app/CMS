@@ -56,27 +56,6 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         return new GoogleOAuthResponse(access, refresh, expires, tbUser);
     }
 
-    @Override
-    public String refreshAccessToken(String refreshToken) {
-        if (!authService.validateRefreshToken(refreshToken)) {
-            throw new IllegalArgumentException("Invalid refresh token");
-        }
-        String rawSubject = authService.getSubjectFromRefresh(refreshToken);
-        String userId = rawSubject.replaceFirst("user-", "");
-
-        if (!authService.isValidRefreshToken(userId, refreshToken)) {
-            throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
-        }
-
-        Optional<TbUser> userOpt = tbUserRepository.findById(userId);
-        if (userOpt.isPresent()) {
-            TbUser tbUser = userOpt.get();
-            Map<String, Object> claims = buildClaims(tbUser);
-            return authService.createAccessToken(claims, userOpt.get().getId());
-        } else {
-            return authService.createAccessToken(Map.of(), userId);
-        }
-    }
 
     GoogleTokenResponse getAccessToken(String authorizationCode) {
         return webClient.post()
@@ -111,4 +90,42 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         return claims;
     }
 
+    @Override
+    public String refreshAccessToken(String refreshToken) {
+        validateRefreshToken(refreshToken);
+
+        String userId = extractUserId(refreshToken);
+        ensureTokenMatchesCache(userId, refreshToken);
+
+        TbUser user = tbUserRepository.findById(userId)
+                .orElse(null);
+
+        Map<String, Object> claims = (user != null) ? buildClaims(user) : Map.of();
+        return authService.createAccessToken(claims, userId);
+    }
+
+    private void validateRefreshToken(String token) {
+        if (!authService.validateRefreshToken(token)) {
+            throw new InvalidTokenException("리프레시 토큰 형식이 유효하지 않습니다.");
+        }
+    }
+
+    private String extractUserId(String refreshToken) {
+        return authService.getSubjectFromRefresh(refreshToken)
+                .replaceFirst("^user-", "");
+    }
+
+    private void ensureTokenMatchesCache(String userId, String suppliedToken) {
+        if (!authService.isValidRefreshToken(userId, suppliedToken)) {
+            throw new TokenReuseException("재사용되었거나 서버에 없는 리프레시 토큰입니다.");
+        }
+    }
+
+    public static class InvalidTokenException extends RuntimeException {
+        public InvalidTokenException(String message) { super(message); }
+    }
+
+    public static class TokenReuseException extends RuntimeException {
+        public TokenReuseException(String message) { super(message); }
+    }
 }
