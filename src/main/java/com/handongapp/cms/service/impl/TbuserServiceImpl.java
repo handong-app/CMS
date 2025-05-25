@@ -67,11 +67,7 @@ public class TbuserServiceImpl implements TbuserService {
                 .orElseGet(() -> {
                     String allowedDomain = "handong.ac.kr";
                     if (!googleUserInfoResponse.getEmail().toLowerCase().endsWith("@" + allowedDomain)) {
-                        try {
-                            throw new NoPermissionException("학교 계정이 아니면 회원가입할 수 없습니다.");
-                        } catch (NoPermissionException e) {
-                            throw new RuntimeException(e);
-                        }
+                        throw new RuntimeException("학교 계정이 아니면 회원가입할 수 없습니다.");
                     }
 
                     TbUser tbuser = tbUserRepository.save(
