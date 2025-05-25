@@ -75,12 +75,7 @@ public class TbuserServiceImpl implements TbuserService {
                         }
                     }
 
-                    // todo: change dto..
-                    TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
-                    tbUserClubRoleRepository.save(TbUserClubRole.of(tbUserRepository.findById(googleUserInfoResponse.getId()).get().getId(), null,
-                            tb.getId(), null));
-
-                    return tbUserRepository.save(
+                    TbUser tbuser = tbUserRepository.save(
                             TbUser.of(
                                     googleUserInfoResponse.getId(),
                                     Objects.toString(googleUserInfoResponse.getFamilyName(), "")
@@ -90,6 +85,13 @@ public class TbuserServiceImpl implements TbuserService {
                                     false
                             )
                     );
+                    // todo: change dto..
+                    TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
+
+                    tbUserClubRoleRepository.save(TbUserClubRole.of(tbUserRepository.findByGoogleSub(googleUserInfoResponse.getId()).get().getId(), null,
+                            tb.getId(), null));
+
+                    return tbuser;
                 });
     }
 }
