@@ -68,11 +68,11 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         // 4. JWT claims 생성
         Map<String, Object> claims = buildClaims(tbuser);
 
-        String access = authService.createAccessToken(claims, tbuser.getUserId());
-        String refresh = authService.createRefreshToken(tbuser.getUserId());
+        String access = authService.createAccessToken(claims, tbuser.getId());
+        String refresh = authService.createRefreshToken(tbuser.getId());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
 
-        authService.saveRefreshToken(refresh, tbuser.getUserId());
+        authService.saveRefreshToken(refresh, tbuser.getId());
 
         return new GoogleOAuthResponse(access, refresh, expires, tbuser);
     }
@@ -93,9 +93,9 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         if (userOpt.isPresent()) {
             TbUser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
-            return authService.createAccessToken(claims, userOpt.get().getGoogleSub());
+            return authService.createAccessToken(claims, userOpt.get().getId());
         }
-        return authService.createAccessToken(Map.of(),  userOpt.get().getGoogleSub());
+        return authService.createAccessToken(Map.of(),  userOpt.get().getId());
     }
 
     private Map<String, Object> buildClaims(TbUser tbuser) {
