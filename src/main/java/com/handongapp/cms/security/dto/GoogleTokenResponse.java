@@ -26,5 +26,4 @@ public class GoogleTokenResponse {
     @JsonProperty("scope")
     private String scope;
 
-
 }

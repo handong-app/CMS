@@ -2,9 +2,11 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
+import com.handongapp.cms.domain.TbUserClubRole;
 import com.handongapp.cms.domain.enums.ClubUserRole;
-import com.handongapp.cms.domain.enums.ProgramProgressState;
+import com.handongapp.cms.repository.TbClubRepository;
 import com.handongapp.cms.repository.TbClubRoleRepository;
+import com.handongapp.cms.repository.TbUserClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.service.TbuserService;
@@ -20,11 +22,14 @@ public class TbuserServiceImpl implements TbuserService {
 
     private final TbUserRepository tbUserRepository;
     private final TbClubRoleRepository tbClubRoleRepository;
+    private final TbUserClubRoleRepository tbUserClubRoleRepository;
 
     public TbuserServiceImpl(TbUserRepository tbUserRepository,
-                             TbClubRoleRepository tbClubRoleRepository) {
+                             TbClubRoleRepository tbClubRoleRepository,
+                             TbUserClubRoleRepository tbUserClubRoleRepository) {
         this.tbUserRepository = tbUserRepository;
         this.tbClubRoleRepository = tbClubRoleRepository;
+        this.tbUserClubRoleRepository = tbUserClubRoleRepository;
     }
 
     public TbUser saveOrUpdateUser(String userId, String email, String name) {
@@ -70,7 +75,10 @@ public class TbuserServiceImpl implements TbuserService {
                         }
                     }
 
-                    TbClubRole.of(ClubUserRole.USER, "막 가입한 학생");
+                    // todo: change dto..
+                    TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
+                    tbUserClubRoleRepository.save(TbUserClubRole.of(tbUserRepository.findById(googleUserInfoResponse.getId()).get().getId(), null,
+                            tb.getId(), null));
 
                     return tbUserRepository.save(
                             TbUser.of(
