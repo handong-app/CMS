@@ -28,8 +28,8 @@ public class TbCourse extends AuditingFields {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 16, nullable = false)
-    private String visibility;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isVisible;
 
     @Column(columnDefinition = "TEXT")
     private String pictureUrl;
