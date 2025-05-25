@@ -4,7 +4,6 @@ import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
 import com.handongapp.cms.domain.enums.ClubUserRole;
-import com.handongapp.cms.repository.TbClubRepository;
 import com.handongapp.cms.repository.TbClubRoleRepository;
 import com.handongapp.cms.repository.TbUserClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
