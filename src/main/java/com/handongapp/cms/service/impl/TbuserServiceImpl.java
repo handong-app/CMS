@@ -83,6 +83,15 @@ public class TbuserServiceImpl implements TbuserService {
                     // todo: change dto..
                     TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
 
+                    TbUserClubRole userClubRole = TbUserClubRole.of(
+                        tbuser.getId(),
+                        null,
+                            tb.getId(),
+                            null
+                    );
+
+                    tbUserClubRoleRepository.save(userClubRole);
+
                     tbUserClubRoleRepository.save(TbUserClubRole.of(tbUserRepository.findByGoogleSub(googleUserInfoResponse.getId()).get().getId(), null,
                             tb.getId(), null));
 
