@@ -8,7 +8,7 @@ import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.security.dto.GoogleTokenResponse;
 import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
-import com.handongapp.cms.service.TbuserService;
+import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -23,20 +23,20 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
     private final WebClient webClient;
     private final LoginProperties loginProperties;
-    private final TbuserService tbuserService;
+    private final TbUserService tbUserService;
     private final AuthService authService;
-    private final TbUserRepository tbuserRepository;
+    private final TbUserRepository tbUserRepository;
 
     public GoogleOAuthServiceImpl(WebClient.Builder webClientBuilder,
                                   LoginProperties loginProperties,
-                                  TbuserService tbuserService,
+                                  TbUserService tbUserService,
                                   AuthService authService,
-                                  TbUserRepository tbuserRepository) {
+                                  TbUserRepository tbUserRepository) {
         this.webClient = webClientBuilder.build();
         this.loginProperties = loginProperties;
-        this.tbuserService = tbuserService;
+        this.tbUserService = tbUserService;
         this.authService = authService;
-        this.tbuserRepository = tbuserRepository;
+        this.tbUserRepository = tbUserRepository;
     }
 
     @Override
@@ -44,16 +44,16 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
         GoogleTokenResponse token = getAccessToken(authorizationCode);
         GoogleUserInfoResponse userInfo = getUserInfo(token.getAccessToken());
-        TbUser tbuser = tbuserService.processGoogleUser(userInfo);
+        TbUser tbUser = tbUserService.processGoogleUser(userInfo);
 
-        Map<String, Object> claims = buildClaims(tbuser);
-        String access = authService.createAccessToken(claims, tbuser.getId());
-        String refresh = authService.createRefreshToken(tbuser.getId());
+        Map<String, Object> claims = buildClaims(tbUser);
+        String access = authService.createAccessToken(claims, tbUser.getId());
+        String refresh = authService.createRefreshToken(tbUser.getId());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
 
-        authService.saveRefreshToken(refresh, tbuser.getId());
+        authService.saveRefreshToken(refresh, tbUser.getId());
 
-        return new GoogleOAuthResponse(access, refresh, expires, tbuser);
+        return new GoogleOAuthResponse(access, refresh, expires, tbUser);
     }
 
     @Override
@@ -68,10 +68,10 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
         }
 
-        Optional<TbUser> userOpt = tbuserRepository.findById(userId);
+        Optional<TbUser> userOpt = tbUserRepository.findById(userId);
         if (userOpt.isPresent()) {
-            TbUser tbuser = userOpt.get();
-            Map<String, Object> claims = buildClaims(tbuser);
+            TbUser tbUser = userOpt.get();
+            Map<String, Object> claims = buildClaims(tbUser);
             return authService.createAccessToken(claims, userOpt.get().getId());
         } else {
             return authService.createAccessToken(Map.of(), userId);
@@ -102,12 +102,12 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .block();
     }
 
-    private Map<String, Object> buildClaims(TbUser tbuser) {
+    private Map<String, Object> buildClaims(TbUser tbUser) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
-        claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
+        claims.put("email", Optional.ofNullable(tbUser.getEmail()).orElse(""));
+        claims.put("name", Optional.ofNullable(tbUser.getName()).orElse(""));
         claims.put("role", "USER");  // 로그인 하자마자는 USER로..?
-        claims.put("studentId", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
+        claims.put("studentId", Optional.ofNullable(tbUser.getStudentId()).orElse(""));
         return claims;
     }
 
