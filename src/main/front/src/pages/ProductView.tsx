@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import ProductItem from "../components/ProductItem";
-import type { ProductItemProps } from "../components/ProductItem";
+import ProductItem from "../components/ProductItem/ProductItem";
+import { ProductItemProps } from "../types/product.types";
 
 function ProductView() {
   const { id } = useParams();
