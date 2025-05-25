@@ -8,6 +8,7 @@ import com.handongapp.cms.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
@@ -105,5 +106,30 @@ public class GoogleLoginController {
         tokenBlacklistManager.blacklist(token);
 
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
+    }
+
+    /**
+     * 프런트에서 이 엔드포인트를 호출하면
+     * Google OAuth 동의 화면 URL을 문자열로 돌려준다.
+     */
+    @GetMapping("/authorize-url")
+    public String getAuthorizeUrl() {
+        String base = "https://accounts.google.com/o/oauth2/v2/auth";
+
+        String scope = String.join(" ",
+                "openid",
+                "email",
+                "profile",
+                "https://www.googleapis.com/auth/user.organization.read"   // ← People API
+        );
+
+        return UriComponentsBuilder.fromHttpUrl(base)
+                .queryParam("client_id",     loginProperties.getClientId())
+                .queryParam("redirect_uri",  loginProperties.getRedirectUri())
+                .queryParam("response_type", "code")
+                .queryParam("scope",         scope)
+                .queryParam("access_type",   "offline")   // refresh_token 발급
+                .build()
+                .toUriString();
     }
 }
