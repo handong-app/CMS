@@ -2,11 +2,13 @@ package com.handongapp.cms.controller;
 
 import com.handongapp.cms.security.AuthService;
 import com.handongapp.cms.security.LoginProperties;
+import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.security.TokenBlacklistManager;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,8 +47,8 @@ public class GoogleLoginController {
     /**
      + Google login callback (Authorization Code → Access Token exchange → User info retrieval → JWT issuance)
      */
-    @GetMapping("/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String authorizationCode) {
+    @GetMapping("")
+    public ResponseEntity<?> login(@RequestParam("code") String authorizationCode) {
         try {
             if (authorizationCode == null || authorizationCode.trim().isEmpty())
                 return ResponseEntity.badRequest().body(Map.of("error", "Authorization code not provided"));
@@ -58,6 +60,18 @@ public class GoogleLoginController {
             return ResponseEntity.status(500).body(Map.of("error", "Authentication error: " + e.getMessage()));
         }
     }
+
+    @GetMapping("/cb")
+    public ResponseEntity<?> callback(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails != null) {
+            System.out.println("Logged in user: " + principalDetails.getUsername());
+            return ResponseEntity.ok("Success");
+        } else {
+            System.out.println("No authentication found!");
+            return ResponseEntity.ok("Fail");
+        }
+    }
+
 
     /**
      * Refresh Token으로 새로운 Access Token 발급
