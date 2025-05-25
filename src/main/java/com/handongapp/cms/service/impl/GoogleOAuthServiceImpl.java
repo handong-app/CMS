@@ -93,9 +93,9 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         if (userOpt.isPresent()) {
             TbUser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
-            return authService.createAccessToken(claims, userOpt.get().getUserId());
+            return authService.createAccessToken(claims, userOpt.get().getGoogleSub());
         }
-        return authService.createAccessToken(Map.of(),  userOpt.get().getUserId());
+        return authService.createAccessToken(Map.of(),  userOpt.get().getGoogleSub());
     }
 
     private Map<String, Object> buildClaims(TbUser tbuser) {
