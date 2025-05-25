@@ -7,8 +7,12 @@ import jakarta.persistence.*;
  *
  * <p><b>Design Pattern:</b> Reference Data / Lookup Table.</p>
  */
+@Getter
+@Setter
 @Entity
-@Table(name = "tb_comment_of_category")
+@Table(name = "tb_comment_of_category",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"course_id", "slug"})
+})
 public class TbCommentOfCategory extends AuditingFields {
 
     /** FK → course.id (BIGINT) */
