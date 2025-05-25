@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class TbUserServiceImpl implements TbUserService {
@@ -31,26 +30,13 @@ public class TbUserServiceImpl implements TbUserService {
     }
 
     public TbUser saveOrUpdateUser(String userId, String email, String name) {
-        // userId를 기준으로 사용자 검색
-        Optional<TbUser> existingUser = tbUserRepository.findById(userId);
-
-        if (existingUser.isPresent()) {
-            // 기존 사용자 정보 업데이트
-            TbUser tbuser = existingUser.get();
-            tbuser.setEmail(email);
-            tbuser.setName(name);
-            return tbUserRepository.save(tbuser);
-        } else {
-            // 새로운 사용자 저장
-            TbUser newUser = TbUser.of(
-                    userId,
-                    name,
-                    email,
-                    null, // 기본 이미지 URL 설정 가능
-                    false
-            );
-            return tbUserRepository.save(newUser);
-        }
+        return tbUserRepository.findById(userId)
+                .map(user -> {
+                    user.setEmail(email);
+                    user.setName(name);
+                    return tbUserRepository.save(user);
+                })
+                .orElseGet(() -> tbUserRepository.save(TbUser.of( userId, name, email, null, false)));
     }
 
      /**
@@ -62,18 +48,15 @@ public class TbUserServiceImpl implements TbUserService {
       */
     @Transactional
     public TbUser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
+        String allowedDomain = "handong.ac.kr";
+        validateEmailDomain(googleUserInfoResponse.getEmail(), allowedDomain);
+
         return tbUserRepository.findByGoogleSub(googleUserInfoResponse.getId())
                 .orElseGet(() -> {
-                    String allowedDomain = "handong.ac.kr";
-                    if (!googleUserInfoResponse.getEmail().toLowerCase().endsWith("@" + allowedDomain)) {
-                        throw new RuntimeException("학교 계정이 아니면 회원가입할 수 없습니다.");
-                    }
-
                     TbUser tbuser = tbUserRepository.save(
                             TbUser.of(
                                     googleUserInfoResponse.getId(),
-                                    Objects.toString(googleUserInfoResponse.getFamilyName(), "")
-                                            + Objects.toString(googleUserInfoResponse.getGivenName(), ""),
+                                    buildUserName(googleUserInfoResponse),
                                     googleUserInfoResponse.getEmail(),
                                     googleUserInfoResponse.getPicture(),
                                     false
@@ -81,16 +64,30 @@ public class TbUserServiceImpl implements TbUserService {
                     );
                     // todo: change dto..
                     TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
-
-                    TbUserClubRole userClubRole = TbUserClubRole.of(
-                        tbuser.getId(),
-                        null,
-                            tb.getId(),
-                            null
-                    );
-                    tbUserClubRoleRepository.save(userClubRole);
+                    assignUserClubRole(tbuser, tb);
 
                     return tbuser;
                 });
+    }
+
+    private void validateEmailDomain(String email, String allowedDomain) {
+        if (email == null || !email.toLowerCase().endsWith("@" + allowedDomain)) {
+            throw new InvalidEmailDomainException("학교 계정만 회원가입 가능합니다.");
+        }
+    }
+
+    private String buildUserName(GoogleUserInfoResponse userInfo) {
+        return Objects.toString(userInfo.getFamilyName(), "") + Objects.toString(userInfo.getGivenName(), "");
+    }
+
+    private void assignUserClubRole(TbUser tbUser, TbClubRole clubRole) {
+        TbUserClubRole userClubRole = TbUserClubRole.of(tbUser.getId(), null, clubRole.getId(), null);
+        tbUserClubRoleRepository.save(userClubRole);
+    }
+
+    public static class InvalidEmailDomainException extends RuntimeException {
+        public InvalidEmailDomainException(String message) {
+            super(message);
+        }
     }
 }
