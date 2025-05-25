@@ -5,7 +5,7 @@ import com.handongapp.cms.security.LoginProperties;
 import com.handongapp.cms.security.TokenBlacklistManager;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
-import com.handongapp.cms.service.TbuserService;
+import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,18 +15,18 @@ import java.util.Map;
 @RequestMapping("/api/auth/google")
 public class GoogleLoginController {
 
-    private final TbuserService tbuserService;
+    private final TbUserService tbUserService;
     private final LoginProperties loginProperties;
     private final AuthService authService;
     private final GoogleOAuthService googleOAuthService;
     private final TokenBlacklistManager tokenBlacklistManager;
 
-    public GoogleLoginController(TbuserService tbuserService,
+    public GoogleLoginController(TbUserService tbUserService,
                                  LoginProperties loginProperties,
                                  AuthService authService,
                                  GoogleOAuthService googleOAuthService,
                                  TokenBlacklistManager tokenBlacklistManager) {
-        this.tbuserService = tbuserService;
+        this.tbUserService = tbUserService;
         this.loginProperties = loginProperties;
         this.authService = authService;
         this.googleOAuthService = googleOAuthService;

@@ -8,22 +8,21 @@ import com.handongapp.cms.repository.TbClubRoleRepository;
 import com.handongapp.cms.repository.TbUserClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
-import com.handongapp.cms.service.TbuserService;
+import com.handongapp.cms.service.TbUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.NoPermissionException;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
-public class TbuserServiceImpl implements TbuserService {
+public class TbUserServiceImpl implements TbUserService {
 
     private final TbUserRepository tbUserRepository;
     private final TbClubRoleRepository tbClubRoleRepository;
     private final TbUserClubRoleRepository tbUserClubRoleRepository;
 
-    public TbuserServiceImpl(TbUserRepository tbUserRepository,
+    public TbUserServiceImpl(TbUserRepository tbUserRepository,
                              TbClubRoleRepository tbClubRoleRepository,
                              TbUserClubRoleRepository tbUserClubRoleRepository) {
         this.tbUserRepository = tbUserRepository;
