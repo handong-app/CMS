@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
 @Table(name="tb_program",
         indexes = {
                 @Index(columnList = "deleted")
-                , @Index(columnList = "process")
                 , @Index(columnList = "createdAt")
-                , @Index(columnList = "modifiedAt")
+                , @Index(columnList = "updatedAt")
         }
 )
 public class TbProgram extends AuditingFields {

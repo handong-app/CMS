@@ -9,7 +9,13 @@ import jakarta.persistence.*;
  * <p><b>Design Pattern:</b> Plain Old Java Object, used as a JPA Aggregate Root.</p>
  */
 @Entity
-@Table(name = "tb_course_last_view")
+@Table(name = "tb_course_last_view",
+        indexes = {
+                @Index(columnList = "deleted")
+                , @Index(columnList = "createdAt")
+                , @Index(columnList = "updatedAt")
+        }
+)
 public class TbCourseLastView extends AuditingFields {
 
     /** Owner of the record – UUID (CHAR(32)) */
