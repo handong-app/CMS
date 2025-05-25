@@ -19,7 +19,7 @@ public class TbCourse extends AuditingFields {
     @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String userId;
 
-    @Column(length = 120, nullable = false)
+    @Column(nullable = false)
     private String title;
 
     @Column(length = 100)
