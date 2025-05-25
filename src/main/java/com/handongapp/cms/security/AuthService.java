@@ -21,4 +21,8 @@ public interface AuthService {
     String getSubjectFromAccess(String token);
 
     String getSubjectFromRefresh(String token);
+
+    void saveRefreshToken(String refreshToken, String userId);
+
+    boolean isValidRefreshToken(String userId, String providedToken);
 }

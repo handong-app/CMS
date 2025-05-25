@@ -2,6 +2,7 @@ package com.handongapp.cms.controller;
 
 import com.handongapp.cms.security.AuthService;
 import com.handongapp.cms.security.LoginProperties;
+import com.handongapp.cms.security.TokenBlacklistManager;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbuserService;
@@ -18,15 +19,18 @@ public class GoogleLoginController {
     private final LoginProperties loginProperties;
     private final AuthService authService;
     private final GoogleOAuthService googleOAuthService;
+    private final TokenBlacklistManager tokenBlacklistManager;
 
     public GoogleLoginController(TbuserService tbuserService,
                                  LoginProperties loginProperties,
                                  AuthService authService,
-                                 GoogleOAuthService googleOAuthService) {
+                                 GoogleOAuthService googleOAuthService,
+                                 TokenBlacklistManager tokenBlacklistManager) {
         this.tbuserService = tbuserService;
         this.loginProperties = loginProperties;
         this.authService = authService;
         this.googleOAuthService = googleOAuthService;
+        this.tokenBlacklistManager = tokenBlacklistManager;
     }
 
     /**
@@ -38,19 +42,19 @@ public class GoogleLoginController {
     }
 
     /**
-     * 구글 로그인 콜백 (Authorization Code → Access Token 교환 → 사용자 정보 획득 → JWT 발급)
+     + Google login callback (Authorization Code → Access Token exchange → User info retrieval → JWT issuance)
      */
     @GetMapping("/callback")
     public ResponseEntity<?> callback(@RequestParam("code") String authorizationCode) {
         try {
             if (authorizationCode == null || authorizationCode.trim().isEmpty())
-                return ResponseEntity.badRequest().body(Map.of("error", "인증 코드가 제공되지 않았습니다"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Authorization code not provided"));
 
             GoogleOAuthResponse response = googleOAuthService.authenticate(authorizationCode);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "인증 처리 중 오류가 발생했습니다: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("error", "Authentication error: " + e.getMessage()));
         }
     }
 
@@ -63,7 +67,11 @@ public class GoogleLoginController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Missing or invalid refresh token header"));
 
-        String token = refreshToken.substring(7);
+        String prefix = loginProperties.getJwtTokenPrefix();
+        if (refreshToken.length() <= prefix.length()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token format"));
+        }
+        String token = refreshToken.substring(prefix.length());
 
         try {
             String access = googleOAuthService.refreshAccessToken(token);
@@ -71,8 +79,31 @@ public class GoogleLoginController {
                 return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired refresh token"));
             return ResponseEntity.ok(Map.of("accessToken", access));
 
+        } catch (io.jsonwebtoken.JwtException e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid JWT token: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Token refresh failed: " + e.getMessage()));
         }
+    }
+
+    /**
+     * Process logout by blacklisting the access token
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization", required = false) String accessToken) {
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid or missing token"));
+        }
+
+        String prefix = loginProperties.getJwtTokenPrefix();
+        if (accessToken.length() <= prefix.length()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid token format"));
+        }
+
+        String token = accessToken.substring(prefix.length());
+
+        tokenBlacklistManager.blacklist(token);
+
+        return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 }
