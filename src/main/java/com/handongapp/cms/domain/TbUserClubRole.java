@@ -18,13 +18,13 @@ import lombok.Setter;
 )
 public class TbUserClubRole extends AuditingFields {
 
-    @Column(name = "user_id", length = 32, nullable = false) @Setter
+    @Column(name = "user_id", columnDefinition = "CHAR(32)", nullable = false) @Setter
     private String userId;
 
-    @Column(name = "club_id", length = 32, nullable = false) @Setter
+    @Column(name = "club_id", columnDefinition = "CHAR(32)", nullable = false) @Setter
     private String clubId;
 
-    @Column(name = "role_id", length = 32, nullable = false) @Setter
+    @Column(name = "role_id", columnDefinition = "CHAR(32)", nullable = false) @Setter
     private String roleId;
 
     @Column(name = "generation", nullable = false) @Setter

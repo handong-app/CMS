@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 )
 public class TbProgram extends AuditingFields {
 
-    @Column(name = "club_id", length = 32) @Setter private String clubId;
+    @Column(name = "club_id", columnDefinition = "CHAR(32)") @Setter private String clubId;
 
-    @Column(name = "user_id", length = 32) @Setter private String userId;
+    @Column(name = "user_id", columnDefinition = "CHAR(32)") @Setter private String userId;
 
     @Column(length = 120) @Setter private String name;
 
@@ -33,8 +33,6 @@ public class TbProgram extends AuditingFields {
     @Column(name = "start_date") @Setter private LocalDateTime startDate;
 
     @Column(name = "end_date") @Setter private LocalDateTime endDate;
-
-    @Column(name = "created_at") @Setter private LocalDateTime createdAt;
 
 }
 
