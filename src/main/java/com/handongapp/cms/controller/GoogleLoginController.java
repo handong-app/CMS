@@ -64,10 +64,8 @@ public class GoogleLoginController {
     @GetMapping("/cb")
     public ResponseEntity<?> callback(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails != null) {
-            System.out.println("Logged in user: " + principalDetails.getUsername());
             return ResponseEntity.ok("Success");
         } else {
-            System.out.println("No authentication found!");
             return ResponseEntity.ok("Fail");
         }
     }
