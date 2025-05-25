@@ -10,9 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(indexes = {
         @Index(columnList = "deleted")
-        , @Index(columnList = "process")
         , @Index(columnList = "createdAt")
-        , @Index(columnList = "modifiedAt")
+        , @Index(columnList = "updatedAt")
 }
 )
 public class Tbuser extends AuditingFields{

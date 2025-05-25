@@ -1,5 +1,7 @@
 package com.handongapp.cms.domain;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>TbCommentOfCategory Entity – per-course configurable set of comment

@@ -77,6 +77,9 @@ dependencies {
 //  hibernate Validator
     implementation 'org.hibernate.validator:hibernate-validator'
 
+//  Hibernate Types for JSON mapping
+    implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
+
 // javax API
     implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
