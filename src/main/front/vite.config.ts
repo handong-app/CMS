@@ -8,8 +8,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "https://dummyjson.com/", // Replace with your backend URL (if your backend runs on port 3000)
+        target: "https://dummyjson.com", // Replace with your backend URL (if your backend runs on port 3000)
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
