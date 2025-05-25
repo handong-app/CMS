@@ -14,9 +14,8 @@ import lombok.Setter;
 @Table(name="tb_club",
         indexes = {
                 @Index(columnList = "deleted")
-                , @Index(columnList = "process")
                 , @Index(columnList = "createdAt")
-                , @Index(columnList = "modifiedAt")
+                , @Index(columnList = "updatedAt")
         }
 )
 public class TbClub extends AuditingFields {

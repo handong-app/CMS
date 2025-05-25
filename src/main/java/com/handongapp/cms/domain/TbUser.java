@@ -5,24 +5,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// UUID 가 넘어가도록..
-
 @Getter
 @Entity
 @NoArgsConstructor
 @Table(name="tb_user",
         indexes = {
         @Index(columnList = "deleted")
-        , @Index(columnList = "process")
         , @Index(columnList = "createdAt")
-        , @Index(columnList = "modifiedAt")
+        , @Index(columnList = "updatedAt")
 }
 )
 public class TbUser extends AuditingFields{
 
-    private String userName;
-    private String password;
+    // general login
+    @Setter private String username;
+    @Setter private String password;
 
+    // google login (oauth)
     @Column(length = 21, unique = true) private String googleSub;
     @Column(length = 30)  @Setter private String name;
     @Column(length = 320) @Setter private String email;
@@ -31,15 +30,16 @@ public class TbUser extends AuditingFields{
     @Column(columnDefinition = "CHAR(8)") @Setter private String studentId;
     @Column(name = "is_admin", nullable = false) @Setter private Boolean isAdmin;
 
-    private TbUser(String name, String email, String pictureUrl, Boolean isAdmin) {
+    private TbUser(String id , String name, String email, String picture, Boolean isAdmin) {
+        this.id = id;
         this.name = name;
         this.email = email;
-        this.pictureUrl = pictureUrl;
+        this.picture = picture;
         this.isAdmin = isAdmin;
     }
 
-    public static TbUser of(String name, String email, String picture, Boolean isAdmin) {
-        return new TbUser(name, email, picture, isAdmin);
+    public static TbUser of(String userId, String name, String email, String picture, Boolean isAdmin) {
+        return new TbUser(userId, name, email, picture, isAdmin);
     }
 
 }
