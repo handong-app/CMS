@@ -54,23 +54,6 @@ public class TbuserServiceImpl implements TbuserService {
       * @param googleUserInfoResponse Google user information
       * @return User entity
       */
-//     @Transactional
-//    public TbUser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
-//        // 구글 userId를 기반으로 기존 회원 조회
-//        return tbUserRepository.findByUserId(googleUserInfoResponse.getId())
-//                .orElseGet(() -> {
-//                    // 없으면 새로 생성 및 저장
-//                    return tbUserRepository.save(TbUser.of(
-//                            googleUserInfoResponse.getId(),
-//                            Objects.toString(googleUserInfoResponse.getFamilyName(), "")
-//                                    + Objects.toString(googleUserInfoResponse.getGivenName(), ""),
-//                            googleUserInfoResponse.getEmail(),
-//                            googleUserInfoResponse.getPicture(),
-//                            false
-//                    ));
-//                    tbClubRoleRepository.save(TbClubRole.of(TbClubRole.ClubUserRole.USER, "동아리 유저입니다."));
-//                });
-//    }
     @Transactional
     public TbUser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
         return tbUserRepository.findById(googleUserInfoResponse.getId())
