@@ -23,7 +23,7 @@ public class PrincipalDetailsService implements UserDetailsService {
             customUserId = userId.substring(5);
         }
 
-        TbUser tbuser = tbuserRepository.findByUserId(customUserId)
+        TbUser tbuser = tbuserRepository.findById(customUserId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
         return new PrincipalDetails(tbuser);
     }

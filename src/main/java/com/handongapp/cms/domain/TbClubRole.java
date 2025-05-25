@@ -1,6 +1,7 @@
 package com.handongapp.cms.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name="tb_club_role",
         indexes = {
                 @Index(columnList = "deleted")
@@ -27,5 +29,9 @@ public class TbClubRole extends AuditingFields {
     private ClubUserRole type;
 
     @Column(columnDefinition = "TEXT") @Setter private String description;
+
+    public static TbClubRole of(ClubUserRole type, String description) {
+        return new TbClubRole(type, description);
+    }
 
 }

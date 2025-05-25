@@ -55,7 +55,7 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "ROLE_" + tbuser.getRole());  // ROLE_ 접두사 붙여서 권한 설정 (일반적으로 권한 앞에는 ROLE_ 이 붙음)
+        authorities.add(() -> "ROLE_" + "USER" /*tbuser.getRole()*/);  // ROLE_ 접두사 붙여서 권한 설정 (일반적으로 권한 앞에는 ROLE_ 이 붙음)
         return authorities;
     }
 
