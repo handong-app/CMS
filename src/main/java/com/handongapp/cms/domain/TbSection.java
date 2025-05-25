@@ -22,5 +22,6 @@ public class TbSection extends AuditingFields {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "`order`")
     private Integer order;
 }
