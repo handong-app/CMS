@@ -28,4 +28,15 @@ public class TbUserClubRole extends AuditingFields {
 
     @Column(name = "generation", nullable = false) @Setter
     private Integer generation;
+
+    public TbUserClubRole(String userId, String clubId, String roleId, Integer generation) {
+        this.userId = userId;
+        this.clubId = clubId;
+        this.roleId = roleId;
+        this.generation = generation;
+    }
+
+    public static TbUserClubRole of(String userId, String clubId, String roleId, Integer generation) {
+        return new TbUserClubRole(userId, clubId, roleId, generation);
+    }
 }
