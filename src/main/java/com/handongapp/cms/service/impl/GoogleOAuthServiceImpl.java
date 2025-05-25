@@ -96,8 +96,6 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             Map<String, Object> claims = buildClaims(tbuser);
             return authService.createAccessToken(claims, userOpt.get().getId());
         } else {
-            // userOpt가 없으면 빈 claims로 토큰 생성하거나 예외 처리
-            // userId 변수로 토큰 생성 (userOpt.get() 호출 안 함)
             return authService.createAccessToken(Map.of(), userId);
         }
     }
