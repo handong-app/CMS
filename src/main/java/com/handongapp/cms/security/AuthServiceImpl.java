@@ -61,8 +61,6 @@ public class AuthServiceImpl implements AuthService{
                 .setExpiration(expiry)
                 .signWith(accessKeySecret, SignatureAlgorithm.HS512)
                 .compact();
-
-
     }
 
     public String createRefreshToken(String subject) {
