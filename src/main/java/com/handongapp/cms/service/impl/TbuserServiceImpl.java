@@ -36,7 +36,7 @@ public class TbuserServiceImpl implements TbuserService {
                     name,
                     email,
                     null, // 기본 이미지 URL 설정 가능
-                    TbUser.UserRole.USER
+                    false
             );
             return tbuserRepository.save(newUser);
         }
@@ -61,7 +61,7 @@ public class TbuserServiceImpl implements TbuserService {
                                     + Objects.toString(googleUserInfoResponse.getGivenName(), ""),
                             googleUserInfoResponse.getEmail(),
                             googleUserInfoResponse.getPicture(),
-                            TbUser.UserRole.USER
+                            false
                     ));
                 });
     }
