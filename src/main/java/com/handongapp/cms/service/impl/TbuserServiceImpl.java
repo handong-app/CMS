@@ -63,7 +63,7 @@ public class TbuserServiceImpl implements TbuserService {
       */
     @Transactional
     public TbUser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
-        return tbUserRepository.findById(googleUserInfoResponse.getId())
+        return tbUserRepository.findByGoogleSub(googleUserInfoResponse.getId())
                 .orElseGet(() -> {
                     String allowedDomain = "handong.ac.kr";
                     if (!googleUserInfoResponse.getEmail().toLowerCase().endsWith("@" + allowedDomain)) {
@@ -89,11 +89,7 @@ public class TbuserServiceImpl implements TbuserService {
                             tb.getId(),
                             null
                     );
-
                     tbUserClubRoleRepository.save(userClubRole);
-
-                    tbUserClubRoleRepository.save(TbUserClubRole.of(tbUserRepository.findByGoogleSub(googleUserInfoResponse.getId()).get().getId(), null,
-                            tb.getId(), null));
 
                     return tbuser;
                 });
