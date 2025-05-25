@@ -7,7 +7,13 @@ import jakarta.persistence.*;
  * <p><b>Design Pattern:</b> Aggregate Leaf of <i>Course</i>, managed via a Repository.</p>
  */
 @Entity
-@Table(name = "tb_comment")
+@Table(name = "tb_comment",
+        indexes = {
+                @Index(columnList = "deleted")
+                , @Index(columnList = "createdAt")
+                , @Index(columnList = "updatedAt")
+        }
+)
 public class TbComment extends AuditingFields {
 
     /** Author – UUID */

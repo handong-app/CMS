@@ -11,7 +11,13 @@ import java.util.Map;
  * <p><b>Design Pattern:</b> Leaf of the Composite (NodeGroup).</p>
  */
 @Entity
-@Table(name = "tb_node")
+@Table(name = "tb_node",
+        indexes = {
+                @Index(columnList = "deleted")
+                , @Index(columnList = "createdAt")
+                , @Index(columnList = "updatedAt")
+        }
+)
 public class TbNode extends AuditingFields {
 
     /** Owning group */

@@ -11,7 +11,13 @@ import java.util.List;
  *   Node is the leaf).</p>
  */
 @Entity
-@Table(name = "tb_node_group")
+@Table(name = "tb_node_group",
+        indexes = {
+                @Index(columnList = "deleted")
+                , @Index(columnList = "createdAt")
+                , @Index(columnList = "updatedAt")
+        }
+)
 public class TbNodeGroup extends AuditingFields {
 
     /** Parent Section (UUID) */

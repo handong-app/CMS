@@ -9,7 +9,13 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_program_progress")
+@Table(name = "tb_program_progress",
+        indexes = {
+                @Index(columnList = "deleted")
+                , @Index(columnList = "createdAt")
+                , @Index(columnList = "updatedAt")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

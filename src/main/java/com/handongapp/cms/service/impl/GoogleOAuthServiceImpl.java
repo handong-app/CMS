@@ -1,7 +1,7 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.domain.Tbuser;
-import com.handongapp.cms.repository.TbuserRepository;
+import com.handongapp.cms.domain.TbUser;
+import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.AuthService;
 import com.handongapp.cms.security.LoginProperties;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
@@ -25,13 +25,13 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
     private final LoginProperties loginProperties;
     private final TbuserService tbuserService;
     private final AuthService authService;
-    private final TbuserRepository tbuserRepository;
+    private final TbUserRepository tbuserRepository;
 
     public GoogleOAuthServiceImpl(WebClient.Builder webClientBuilder,
                                   LoginProperties loginProperties,
                                   TbuserService tbuserService,
                                   AuthService authService,
-                                  TbuserRepository tbuserRepository) {
+                                  TbUserRepository tbuserRepository) {
         this.webClient = webClientBuilder.build();
         this.loginProperties = loginProperties;
         this.tbuserService = tbuserService;
@@ -41,10 +41,12 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
     @Override
     public GoogleOAuthResponse authenticate(String authorizationCode) {
+
         // 1. Authorization Code → Access Token 교환
         GoogleTokenResponse token = webClient.post()
                 .uri("https://oauth2.googleapis.com/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Host", "oauth2.googleapis.com")  // 명시적 Host 헤더 추가
                 .body(BodyInserters.fromFormData("code", authorizationCode)
                         .with("client_id", loginProperties.getClientId())
                         .with("client_secret", loginProperties.getClientSecret())
@@ -53,7 +55,6 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .retrieve()
                 .bodyToMono(GoogleTokenResponse.class)
                 .block();
-
         // 2. Access Token → Google 사용자 정보 조회
         GoogleUserInfoResponse userInfo = webClient.get()
                 .uri("https://www.googleapis.com/oauth2/v2/userinfo")
@@ -63,16 +64,16 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .block();
 
         // 3. Member 가입/로그인 처리
-        Tbuser tbuser = tbuserService.processGoogleUser(userInfo);
+        TbUser tbuser = tbuserService.processGoogleUser(userInfo);
 
         // 4. JWT claims 생성
         Map<String, Object> claims = buildClaims(tbuser);
 
-        String access = authService.createAccessToken(claims, tbuser.getUserId());
-        String refresh = authService.createRefreshToken(tbuser.getUserId());
+        String access = authService.createAccessToken(claims, tbuser.getId());
+        String refresh = authService.createRefreshToken(tbuser.getId());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
 
-        authService.saveRefreshToken(refresh, tbuser.getUserId());
+        authService.saveRefreshToken(refresh, tbuser.getId());
 
         return new GoogleOAuthResponse(access, refresh, expires, tbuser);
     }
@@ -89,23 +90,24 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
         }
 
-        Optional<Tbuser> userOpt = tbuserRepository.findByUserId(userId);
+        Optional<TbUser> userOpt = tbuserRepository.findById(userId);
         if (userOpt.isPresent()) {
-            Tbuser tbuser = userOpt.get();
+            TbUser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
-            return authService.createAccessToken(claims, userOpt.get().getUserId());
+            return authService.createAccessToken(claims, userOpt.get().getId());
+        } else {
+            // userOpt가 없으면 빈 claims로 토큰 생성하거나 예외 처리
+            // userId 변수로 토큰 생성 (userOpt.get() 호출 안 함)
+            return authService.createAccessToken(Map.of(), userId);
         }
-        return authService.createAccessToken(Map.of(),  userOpt.get().getUserId());
     }
 
-    private Map<String, Object> buildClaims(Tbuser tbuser) {
+    private Map<String, Object> buildClaims(TbUser tbuser) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
-        claims.put("role", Optional.ofNullable(tbuser.getRole())
-                .map(Enum::name)
-                .orElse("USER"));
-        claims.put("student", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
+        claims.put("role", "USER");  // 로그인 하자마자는 USER로..?
+        claims.put("studentId", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
         return claims;
     }
 

@@ -1,6 +1,6 @@
 package com.handongapp.cms.security.dto;
 
-import com.handongapp.cms.domain.Tbuser;
+import com.handongapp.cms.domain.TbUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +12,5 @@ public class GoogleOAuthResponse {
     private String accessToken;
     private String refreshToken;
     private long expiresIn;
-    private Tbuser member;
+    private TbUser member;
 }
