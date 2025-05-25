@@ -1,6 +1,7 @@
 package com.handongapp.cms.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,9 +20,11 @@ import java.time.LocalDateTime;
 )
 public class TbProgram extends AuditingFields {
 
-    @Column(name = "club_id", columnDefinition = "CHAR(32)") @Setter private String clubId;
+    @Column(name = "club_id", columnDefinition = "CHAR(32)", nullable = false) @Setter @NotBlank
+    private String clubId;
 
-    @Column(name = "user_id", columnDefinition = "CHAR(32)") @Setter private String userId;
+    @Column(name = "user_id", columnDefinition = "CHAR(32)", nullable = false) @Setter @NotBlank
+    private String userId;
 
     @Column(length = 120) @Setter private String name;
 
@@ -29,9 +32,9 @@ public class TbProgram extends AuditingFields {
 
     @Column(columnDefinition = "TEXT") @Setter private String description;
 
-    @Column(name = "start_date") @Setter private LocalDateTime startDate;
+    @Column(name = "start_date", nullable = false) @Setter private LocalDateTime startDate;
 
-    @Column(name = "end_date") @Setter private LocalDateTime endDate;
+    @Column(name = "end_date", nullable = false) @Setter private LocalDateTime endDate;
 
 }
 
