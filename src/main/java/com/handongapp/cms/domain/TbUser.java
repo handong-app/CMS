@@ -30,11 +30,11 @@ public class TbUser extends AuditingFields{
     @Column(columnDefinition = "CHAR(8)") @Setter private String studentId;
     @Column(name = "is_admin", nullable = false) @Setter private Boolean isAdmin;
 
-    private TbUser(String id , String name, String email, String picture, Boolean isAdmin) {
-        this.id = id;
+    private TbUser(String googleSub , String name, String email, String pictureUrl, Boolean isAdmin) {
+        this.googleSub = googleSub;
         this.name = name;
         this.email = email;
-        this.picture = picture;
+        this.pictureUrl = pictureUrl;
         this.isAdmin = isAdmin;
     }
 
