@@ -1,6 +1,6 @@
 package com.handongapp.cms.security;
 
-import com.handongapp.cms.domain.Tbuser;
+import com.handongapp.cms.domain.TbUser;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,13 +11,13 @@ import java.util.Collection;
 @Getter
 public class PrincipalDetails implements UserDetails {
 
-    private Tbuser tbuser;
+    private TbUser tbuser;
 
-    public PrincipalDetails(Tbuser tbuser) {
+    public PrincipalDetails(TbUser tbuser) {
         this.tbuser = tbuser;
     }
 
-    public Tbuser getTbuser() {
+    public TbUser getTbuser() {
         return tbuser;
     }
 

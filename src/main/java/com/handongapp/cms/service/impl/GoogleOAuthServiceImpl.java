@@ -1,7 +1,7 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.domain.Tbuser;
-import com.handongapp.cms.repository.TbuserRepository;
+import com.handongapp.cms.domain.TbUser;
+import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.AuthService;
 import com.handongapp.cms.security.LoginProperties;
 import com.handongapp.cms.security.dto.GoogleOAuthResponse;
@@ -25,13 +25,13 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
     private final LoginProperties loginProperties;
     private final TbuserService tbuserService;
     private final AuthService authService;
-    private final TbuserRepository tbuserRepository;
+    private final TbUserRepository tbuserRepository;
 
     public GoogleOAuthServiceImpl(WebClient.Builder webClientBuilder,
                                   LoginProperties loginProperties,
                                   TbuserService tbuserService,
                                   AuthService authService,
-                                  TbuserRepository tbuserRepository) {
+                                  TbUserRepository tbuserRepository) {
         this.webClient = webClientBuilder.build();
         this.loginProperties = loginProperties;
         this.tbuserService = tbuserService;
@@ -63,7 +63,7 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .block();
 
         // 3. Member 가입/로그인 처리
-        Tbuser tbuser = tbuserService.processGoogleUser(userInfo);
+        TbUser tbuser = tbuserService.processGoogleUser(userInfo);
 
         // 4. JWT claims 생성
         Map<String, Object> claims = buildClaims(tbuser);
@@ -89,16 +89,16 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
         }
 
-        Optional<Tbuser> userOpt = tbuserRepository.findByUserId(userId);
+        Optional<TbUser> userOpt = tbuserRepository.findByUserId(userId);
         if (userOpt.isPresent()) {
-            Tbuser tbuser = userOpt.get();
+            TbUser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
             return authService.createAccessToken(claims, userOpt.get().getUserId());
         }
         return authService.createAccessToken(Map.of(),  userOpt.get().getUserId());
     }
 
-    private Map<String, Object> buildClaims(Tbuser tbuser) {
+    private Map<String, Object> buildClaims(TbUser tbuser) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
