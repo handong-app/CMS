@@ -1,5 +1,7 @@
 package com.handongapp.cms.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.AuthService;
@@ -41,10 +43,12 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
     @Override
     public GoogleOAuthResponse authenticate(String authorizationCode) {
+
         // 1. Authorization Code → Access Token 교환
         GoogleTokenResponse token = webClient.post()
                 .uri("https://oauth2.googleapis.com/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .header("Host", "oauth2.googleapis.com")  // 명시적 Host 헤더 추가
                 .body(BodyInserters.fromFormData("code", authorizationCode)
                         .with("client_id", loginProperties.getClientId())
                         .with("client_secret", loginProperties.getClientSecret())
@@ -53,7 +57,6 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .retrieve()
                 .bodyToMono(GoogleTokenResponse.class)
                 .block();
-
         // 2. Access Token → Google 사용자 정보 조회
         GoogleUserInfoResponse userInfo = webClient.get()
                 .uri("https://www.googleapis.com/oauth2/v2/userinfo")
@@ -94,15 +97,18 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
             TbUser tbuser = userOpt.get();
             Map<String, Object> claims = buildClaims(tbuser);
             return authService.createAccessToken(claims, userOpt.get().getId());
+        } else {
+            // userOpt가 없으면 빈 claims로 토큰 생성하거나 예외 처리
+            // userId 변수로 토큰 생성 (userOpt.get() 호출 안 함)
+            return authService.createAccessToken(Map.of(), userId);
         }
-        return authService.createAccessToken(Map.of(),  userOpt.get().getId());
     }
 
     private Map<String, Object> buildClaims(TbUser tbuser) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
-        claims.put("role", Optional.ofNullable("USER"));
+        claims.put("role", "USER");  // 로그인 하자마자는 USER로..?
         claims.put("studentId", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
         return claims;
     }
