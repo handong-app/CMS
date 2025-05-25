@@ -16,7 +16,7 @@ public class TbSection extends AuditingFields {
     @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String courseId;
 
-    @Column(columnDefinition = "CHAR(32)", nullable = false)
+    @Column(columnDefinition = "CHAR(30)", nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT")
