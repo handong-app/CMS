@@ -13,10 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class TbCourse extends AuditingFields {
-    @Column(length = 32, nullable = false)
+    @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String clubId;
 
-    @Column(length = 32, nullable = false)
+    @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String userId;
 
     @Column(length = 120, nullable = false)

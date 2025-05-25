@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class TbProgramParticipant extends AuditingFields {
+    @Column(columnDefinition = "CHAR(32)", nullable = false)
+    private String programId;
 
-    private Integer programId;
-
-    @Column(length = 32)
+    @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String userId;
 
     private LocalDateTime invitedAt;
