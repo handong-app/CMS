@@ -1,6 +1,6 @@
-package com.example.course.domain;
+package com.handongapp.cms.domain;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import java.util.Map;
@@ -36,17 +36,15 @@ public class TbNode extends AuditingFields {
     private Boolean commentPermitted = Boolean.FALSE;
 
     /** Arbitrary JSON payload – requires hibernate-types dependency */
-    @Type(JsonBinaryType.class)
-    @Column(columnDefinition = "jsonb")
+    @Type(JsonStringType.class)
+    @Column(columnDefinition = "json")
     private Map<String, Object> data;
-}
 
-/**
- * Enumerates the supported node types.
- */
-public enum NodeType {
-    TEXT,
-    IMAGE,
-    VIDEO,
-    QUIZ
+
+    private enum NodeType {
+        TEXT,
+        IMAGE,
+        VIDEO,
+        QUIZ
+    }
 }

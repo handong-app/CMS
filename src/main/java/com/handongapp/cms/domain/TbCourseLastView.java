@@ -1,7 +1,6 @@
-package com.example.course.domain;
+package com.handongapp.cms.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * <p>TbCourseLastView Entity – records the last node-group a user has viewed
