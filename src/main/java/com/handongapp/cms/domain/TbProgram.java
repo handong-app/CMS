@@ -1,0 +1,40 @@
+package com.handongapp.cms.domain;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Entity
+@NoArgsConstructor
+@Table(name="tb_program",
+        indexes = {
+                @Index(columnList = "deleted")
+                , @Index(columnList = "process")
+                , @Index(columnList = "createdAt")
+                , @Index(columnList = "modifiedAt")
+        }
+)
+public class TbProgram extends AuditingFields {
+
+    @Column(name = "club_id", length = 32) @Setter private String clubId;
+
+    @Column(name = "user_id", length = 32) @Setter private String userId;
+
+    @Column(length = 120) @Setter private String name;
+
+    @Column(length = 100) @Setter private String slug;
+
+    @Column(columnDefinition = "TEXT") @Setter private String description;
+
+    @Column(name = "start_date") @Setter private LocalDateTime startDate;
+
+    @Column(name = "end_date") @Setter private LocalDateTime endDate;
+
+    @Column(name = "created_at") @Setter private LocalDateTime createdAt;
+
+}
+

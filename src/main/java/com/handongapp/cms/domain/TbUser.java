@@ -8,7 +8,8 @@ import lombok.Setter;
 @Getter
 @Entity
 @NoArgsConstructor
-@Table(indexes = {
+@Table(name="tb_user",
+        indexes = {
         @Index(columnList = "deleted")
         , @Index(columnList = "process")
         , @Index(columnList = "createdAt")
@@ -17,38 +18,24 @@ import lombok.Setter;
 )
 public class TbUser extends AuditingFields{
 
-    public enum UserRole {
-        SERVICE_ADMIN, CLUB_ADMIN, CLUB_MEMBER, USER
-    }
+    @Column(length = 21, unique = true) private String googleSub;
+    @Column(length = 30)  @Setter private String name;
+    @Column(length = 320) @Setter private String email;
+    @Column(length = 15) @Setter private String phone;
+    @Column(columnDefinition = "TEXT") private String pictureUrl;
+    @Column(length = 8) @Setter private String studentId;
+    @Column(name = "is_admin") @Setter private Boolean isAdmin;
 
-    // general login
-    @Setter private String username;
-    @Setter private String password;
-
-    // google login (oauth)
-    @Setter private String userId;  // googleId를 의미하는!
-    @Setter private String name;
-    @Setter private String email;
-    @Setter private String picture;
-
-    @Setter
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
-
-    @Setter
-    private String studentId;
-
-    private TbUser(String userId , String name, String email, String picture, UserRole role) {
-        this.userId = userId;
+    private TbUser(String googleSub , String name, String email, String pictureUrl, Boolean isAdmin) {
+        this.googleSub = googleSub;
         this.name = name;
         this.email = email;
-        this.picture = picture;
-        this.role = role;
+        this.pictureUrl = pictureUrl;
+        this.isAdmin = isAdmin;
     }
 
-    public static TbUser of(String userId, String name, String email, String picture, UserRole role) {
-        return new TbUser(userId, name, email, picture, role);
+    public static TbUser of(String userId, String name, String email, String picture, Boolean isAdmin) {
+        return new TbUser(userId, name, email, picture, isAdmin);
     }
 
 }
