@@ -102,9 +102,10 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
-        claims.put("role", Optional.ofNullable("USER"))/*, tbuser.getRole())
+        claims.put("role", Optional.ofNullable()/*, tbuser.getRole())
                 .map(Enum::name)
                 .orElse("USER"))*/;
+//                한동대 계정으로만 로그인해서, student Id 가져와지는 코드 필요.
         claims.put("student", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
         return claims;
     }

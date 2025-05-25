@@ -2,6 +2,8 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
+import com.handongapp.cms.domain.enums.ClubUserRole;
+import com.handongapp.cms.domain.enums.ProgramProgressState;
 import com.handongapp.cms.repository.TbClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
@@ -9,6 +11,7 @@ import com.handongapp.cms.service.TbuserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.NoPermissionException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,11 +61,16 @@ public class TbuserServiceImpl implements TbuserService {
     public TbUser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse) {
         return tbUserRepository.findById(googleUserInfoResponse.getId())
                 .orElseGet(() -> {
-//                    if (!tbClubRoleRepository.existsByType(TbClubRole.ClubUserRole.USER)) {
-//                        tbClubRoleRepository.save(
-//                                TbClubRole.of(TbClubRole.ClubUserRole.USER, "동아리 유저입니다.")
-//                        );
-//                    }
+                    String allowedDomain = "handong.ac.kr";
+                    if (!googleUserInfoResponse.getEmail().toLowerCase().endsWith("@" + allowedDomain)) {
+                        try {
+                            throw new NoPermissionException("학교 계정이 아니면 회원가입할 수 없습니다.");
+                        } catch (NoPermissionException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    TbClubRole.of(ClubUserRole.USER, "막 가입한 학생");
 
                     return tbUserRepository.save(
                             TbUser.of(
@@ -76,5 +84,4 @@ public class TbuserServiceImpl implements TbuserService {
                     );
                 });
     }
-
 }
