@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// UUID 가 넘어가도록..
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -27,18 +29,17 @@ public class TbUser extends AuditingFields{
     @Column(length = 15) @Setter private String phone;
     @Column(columnDefinition = "TEXT") private String pictureUrl;
     @Column(columnDefinition = "CHAR(8)") @Setter private String studentId;
-    @Column(name = "is_admin") @Setter private Boolean isAdmin;
+    @Column(name = "is_admin", nullable = false) @Setter private Boolean isAdmin;
 
-    private TbUser(String googleSub , String name, String email, String pictureUrl, Boolean isAdmin) {
-        this.googleSub = googleSub;
+    private TbUser(String name, String email, String pictureUrl, Boolean isAdmin) {
         this.name = name;
         this.email = email;
         this.pictureUrl = pictureUrl;
         this.isAdmin = isAdmin;
     }
 
-    public static TbUser of(String userId, String name, String email, String picture, Boolean isAdmin) {
-        return new TbUser(userId, name, email, picture, isAdmin);
+    public static TbUser of(String name, String email, String picture, Boolean isAdmin) {
+        return new TbUser(name, email, picture, isAdmin);
     }
 
 }

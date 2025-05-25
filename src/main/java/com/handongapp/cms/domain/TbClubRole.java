@@ -1,5 +1,6 @@
 package com.handongapp.cms.domain;
 
+import com.handongapp.cms.domain.enums.ClubUserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +20,6 @@ import lombok.Setter;
         }
 )
 public class TbClubRole extends AuditingFields {
-
-    public enum ClubUserRole {
-        CLUB_ADMIN, CLUB_MEMBER, USER
-    }
 
     @Column(length = 120, nullable = false) @Setter
     @Enumerated(EnumType.STRING)
