@@ -19,7 +19,7 @@ import lombok.*;
 @MappedSuperclass
 public class AuditingFields {
     @Id
-    @Column(length = 32)
+    @Column(columnDefinition = "CHAR(32)")
     private String id;
 
     @Column(nullable = false) //이거는 테이블 컬럼에 속성을 주기 위함 입니다!! not null!!!!
