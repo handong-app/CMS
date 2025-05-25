@@ -1,6 +1,6 @@
 package com.handongapp.cms.security;
 
-import com.handongapp.cms.domain.Tbuser;
+import com.handongapp.cms.domain.TbUser;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,13 +11,13 @@ import java.util.Collection;
 @Getter
 public class PrincipalDetails implements UserDetails {
 
-    private Tbuser tbuser;
+    private TbUser tbuser;
 
-    public PrincipalDetails(Tbuser tbuser) {
+    public PrincipalDetails(TbUser tbuser) {
         this.tbuser = tbuser;
     }
 
-    public Tbuser getTbuser() {
+    public TbUser getTbuser() {
         return tbuser;
     }
 
@@ -55,7 +55,7 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "ROLE_" + tbuser.getRole());  // ROLE_ 접두사 붙여서 권한 설정 (일반적으로 권한 앞에는 ROLE_ 이 붙음)
+        authorities.add(() -> "ROLE_" + "USER" /*tbuser.getRole()*/);  // ROLE_ 접두사 붙여서 권한 설정 (일반적으로 권한 앞에는 ROLE_ 이 붙음)
         return authorities;
     }
 

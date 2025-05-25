@@ -1,7 +1,7 @@
 package com.handongapp.cms.security;
 
-import com.handongapp.cms.domain.Tbuser;
-import com.handongapp.cms.repository.TbuserRepository;
+import com.handongapp.cms.domain.TbUser;
+import com.handongapp.cms.repository.TbUserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class PrincipalDetailsService implements UserDetailsService {
 
-    private final TbuserRepository tbuserRepository;
+    private final TbUserRepository tbuserRepository;
 
-    public PrincipalDetailsService(TbuserRepository tbuserRepository) {
+    public PrincipalDetailsService(TbUserRepository tbuserRepository) {
         this.tbuserRepository = tbuserRepository;
     }
 
@@ -23,7 +23,7 @@ public class PrincipalDetailsService implements UserDetailsService {
             customUserId = userId.substring(5);
         }
 
-        Tbuser tbuser = tbuserRepository.findByUserId(customUserId)
+        TbUser tbuser = tbuserRepository.findById(customUserId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
         return new PrincipalDetails(tbuser);
     }
