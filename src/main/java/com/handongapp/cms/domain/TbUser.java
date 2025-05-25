@@ -15,7 +15,7 @@ import lombok.Setter;
         , @Index(columnList = "modifiedAt")
 }
 )
-public class Tbuser extends AuditingFields{
+public class TbUser extends AuditingFields{
 
     public enum UserRole {
         SERVICE_ADMIN, CLUB_ADMIN, CLUB_MEMBER, USER
@@ -39,7 +39,7 @@ public class Tbuser extends AuditingFields{
     @Setter
     private String studentId;
 
-    private Tbuser(String userId , String name, String email, String picture, UserRole role) {
+    private TbUser(String userId , String name, String email, String picture, UserRole role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -47,8 +47,8 @@ public class Tbuser extends AuditingFields{
         this.role = role;
     }
 
-    public static Tbuser of(String userId, String name, String email, String picture, UserRole role) {
-        return new Tbuser(userId, name, email, picture, role);
+    public static TbUser of(String userId, String name, String email, String picture, UserRole role) {
+        return new TbUser(userId, name, email, picture, role);
     }
 
 }
