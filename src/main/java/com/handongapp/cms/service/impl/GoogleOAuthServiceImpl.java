@@ -66,15 +66,13 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         Tbuser tbuser = tbuserService.processGoogleUser(userInfo);
 
         // 4. JWT claims 생성
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("memberId", tbuser.getUserId());
-        claims.put("email", tbuser.getEmail());
-        claims.put("name", tbuser.getName());
-        claims.put("picture", tbuser.getPicture());
+        Map<String, Object> claims = buildClaims(tbuser);
 
-        String access = authService.createAccessToken(claims, tbuser.getEmail());
-        String refresh = authService.createRefreshToken(tbuser.getEmail());
+        String access = authService.createAccessToken(claims, tbuser.getUserId());
+        String refresh = authService.createRefreshToken(tbuser.getUserId());
         long expires = authService.getAccessClaims(access).getExpiration().getTime();
+
+        authService.saveRefreshToken(refresh, tbuser.getUserId());
 
         return new GoogleOAuthResponse(access, refresh, expires, tbuser);
     }
@@ -84,19 +82,31 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         if (!authService.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("Invalid refresh token");
         }
-        String email = authService.getSubjectFromRefresh(refreshToken);
+        String rawSubject = authService.getSubjectFromRefresh(refreshToken);
+        String userId = rawSubject.replaceFirst("user-", "");
 
-        Optional<Tbuser> userOpt = tbuserRepository.findByEmail(email);
+        if (!authService.isValidRefreshToken(userId, refreshToken)) {
+            throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
+        }
+
+        Optional<Tbuser> userOpt = tbuserRepository.findByUserId(userId);
         if (userOpt.isPresent()) {
-                Tbuser user = userOpt.get();
-                Map<String, Object> claims = new HashMap<>();
-                claims.put("memberId", user.getUserId());
-                claims.put("email", user.getEmail());
-                claims.put("name", user.getName());
-                claims.put("picture", user.getPicture());
-                return authService.createAccessToken(claims, email);
-            }
-        return authService.createAccessToken(Map.of(), email);
-
+            Tbuser tbuser = userOpt.get();
+            Map<String, Object> claims = buildClaims(tbuser);
+            return authService.createAccessToken(claims, userOpt.get().getUserId());
+        }
+        return authService.createAccessToken(Map.of(),  userOpt.get().getUserId());
     }
+
+    private Map<String, Object> buildClaims(Tbuser tbuser) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
+        claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
+        claims.put("role", Optional.ofNullable(tbuser.getRole())
+                .map(Enum::name)
+                .orElse("USER"));
+        claims.put("student", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
+        return claims;
+    }
+
 }
