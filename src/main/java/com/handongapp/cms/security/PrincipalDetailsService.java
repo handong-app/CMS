@@ -17,9 +17,14 @@ public class PrincipalDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Tbuser tbuser = tbuserRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        String customUserId = userId;
+        if (userId.startsWith("user-")) {
+            customUserId = userId.substring(5);
+        }
+
+        Tbuser tbuser = tbuserRepository.findByUserId(customUserId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
         return new PrincipalDetails(tbuser);
     }
 }

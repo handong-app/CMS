@@ -91,6 +91,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+// Caffeine 관련
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
 // Configuration Properties
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 }
