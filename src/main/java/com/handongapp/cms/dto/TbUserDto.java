@@ -1,10 +1,15 @@
 package com.handongapp.cms.dto;
 
+import com.google.api.client.util.DateTime;
 import com.handongapp.cms.domain.TbUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TbUserDto {
 
@@ -62,5 +67,30 @@ public class TbUserDto {
     @Setter
     public class UserProfileImageReqDto {
         private String profileImage;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class UserProfileLastResDto {
+        @Getter
+        @Setter
+        private ArrayList<LastProgramResDto> lastProgramsProfile;
+
+        public static UserProfileLastResDto of(ArrayList<LastProgramResDto> userProfileLastResDto) {
+            return new UserProfileLastResDto(userProfileLastResDto);
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class LastProgramResDto {
+        private String clubId;
+        private String courseId;
+        private String nodeGroupId;
+        private LocalDateTime lastSeenAt;
     }
 }
