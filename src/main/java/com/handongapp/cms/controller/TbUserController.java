@@ -25,12 +25,6 @@ public class TbUserController {
         return ResponseEntity.noContent().build();
     }
 
-//    @GetMapping("/profile")
-//    public ResponseEntity<TbUserDto.UserProfileResDto> getUserProfile(Authentication authentication4r) {
-//
-//        return ResponseEntity.ok().body(resDto);
-//    }
-
     @GetMapping("/profile")
     public ResponseEntity<TbUserDto.UserProfileResDto> getUserProfile(Authentication authentication) {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
