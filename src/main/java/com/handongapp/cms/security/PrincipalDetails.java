@@ -11,24 +11,24 @@ import java.util.Collection;
 @Getter
 public class PrincipalDetails implements UserDetails {
 
-    private TbUser tbuser;
+    private TbUser tbUser;
 
-    public PrincipalDetails(TbUser tbuser) {
-        this.tbuser = tbuser;
+    public PrincipalDetails(TbUser tbUser) {
+        this.tbUser = tbUser;
     }
 
-    public TbUser getTbuser() {
-        return tbuser;
+    public TbUser getTbUser() {
+        return tbUser;
     }
 
     @Override
     public String getPassword() {
-        return tbuser.getPassword();
+        return tbUser.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return tbuser.getId();
+        return tbUser.getId();
     }
 
     @Override
