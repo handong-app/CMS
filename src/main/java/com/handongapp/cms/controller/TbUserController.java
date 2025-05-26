@@ -33,7 +33,6 @@ public class TbUserController {
     public ResponseEntity<TbUserDto.UserProfileResDto> getUserProfile(Authentication authentication) {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         String userId = principalDetails.getUsername();
-
         Optional<TbUserDto.UserProfileResDto> resDto = tbUserService.findUserId(userId);
 
         return resDto
