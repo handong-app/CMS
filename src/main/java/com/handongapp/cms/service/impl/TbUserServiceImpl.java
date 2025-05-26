@@ -94,6 +94,14 @@ public class TbUserServiceImpl implements TbUserService {
         return userProfileResDto;
     }
 
+    @Override
+    @Transactional
+    public void updateUserProfileImage(TbUserDto.UserProfileImageReqDto reqDto, String userId) {
+        tbUserRepository.findById(userId).ifPresent(tbUser -> {
+            tbUser.setPictureUrl(reqDto.getProfileImage());
+        });
+    }
+
 
     private void validateEmailDomain(String email, String allowedDomain) {
         if (email == null || !email.toLowerCase().endsWith("@" + allowedDomain)) {

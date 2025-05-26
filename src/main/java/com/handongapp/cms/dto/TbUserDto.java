@@ -56,5 +56,11 @@ public class TbUserDto {
         }
     }
 
-
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public class UserProfileImageReqDto {
+        private String profileImage;
+    }
 }
