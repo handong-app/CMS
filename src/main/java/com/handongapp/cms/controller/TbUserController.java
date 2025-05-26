@@ -51,4 +51,13 @@ public class TbUserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/profile/last")
+    public ResponseEntity<TbUserDto.UserProfileLastResDto> getLastUser(Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String userId = principalDetails.getUsername();
+
+        TbUserDto.UserProfileLastResDto resDto = tbUserService.getLastUserByNodeGroup(userId);
+        return ResponseEntity.ok(resDto);
+    }
+
 }

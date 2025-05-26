@@ -12,4 +12,5 @@ public interface TbUserService {
     void updateUserProfile(TbUserDto.UserProfileReqDto reqDto, String userId);
     Optional<TbUserDto.UserProfileResDto> findUserId(String userId);
     void updateUserProfileImage(TbUserDto.UserProfileImageReqDto reqDto, String userId);
+    TbUserDto.UserProfileLastResDto getLastUserByNodeGroup(String userId);
 }
