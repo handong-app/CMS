@@ -69,9 +69,6 @@ public class TbUserServiceImpl implements TbUserService {
                                         false
                                 )
                         );
-                        // todo: change dto..
-                        TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
-                        assignUserClubRole(tbuser, tb);
 
                         return tbuser;
                     });
