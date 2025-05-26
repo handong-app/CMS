@@ -30,13 +30,30 @@ public class TbUserDto {
     @NoArgsConstructor
     @Getter
     @Setter
-    public static class UpdateUserProfileReqDto {
+    public static class UserProfileReqDto {
         private String userId;
         private String name;
         private String studentId;
         private String email;
         private String phone;
         private String profileImage;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class UserProfileResDto {
+        private String userId;
+        private String name;
+        private String studentId;
+        private String email;
+        private String phone;
+        private String profileImage;
+
+        public static UserProfileResDto of(TbUser user) {
+            return new UserProfileResDto(user.getId(), user.getName(), user.getStudentId(), user.getEmail(), user.getPhone(), user.getPictureUrl());
+        }
     }
 
 
