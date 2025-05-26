@@ -74,7 +74,11 @@ public class TbUserServiceImpl implements TbUserService {
 
     @Override
     @Transactional
-    public void updateUserProfile(TbUserDto.UserProfileReqDto reqDto) {
+    public void updateUserProfile(TbUserDto.UserProfileReqDto reqDto, String userId) {
+        if (!userId.equals(reqDto.getUserId())) {
+            throw new RuntimeException("Invalid user access");
+        }
+
         tbUserRepository.findById(reqDto.getUserId()).ifPresent(tbUser -> {
             tbUser.setName(reqDto.getName());
             tbUser.setStudentId(reqDto.getStudentId());

@@ -20,8 +20,12 @@ public class TbUserController {
     }
 
     @PatchMapping("/profile")
-    public ResponseEntity<Void> updateProfile(@RequestBody TbUserDto.UserProfileReqDto reqDto) {
-        tbUserService.updateUserProfile(reqDto);
+    public ResponseEntity<Void> updateProfile(@RequestBody TbUserDto.UserProfileReqDto reqDto,
+                                              Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String userId = principalDetails.getUsername();
+
+        tbUserService.updateUserProfile(reqDto, userId);
         return ResponseEntity.noContent().build();
     }
 
