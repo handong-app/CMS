@@ -103,9 +103,9 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         ensureTokenMatchesCache(userId, refreshToken);
 
         TbUser user = tbUserRepository.findById(userId)
-                .orElse(null);
+                .orElseThrow(() -> new InvalidTokenException("사용자를 찾을 수 없습니다."));
 
-        Map<String, Object> claims = (user != null) ? buildClaims(user) : Map.of();
+        Map<String, Object> claims = buildClaims(user);
         return authService.createAccessToken(claims, userId);
     }
 
