@@ -4,6 +4,7 @@ import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
 import com.handongapp.cms.domain.enums.ClubUserRole;
+import com.handongapp.cms.dto.TbUserDto;
 import com.handongapp.cms.repository.TbClubRoleRepository;
 import com.handongapp.cms.repository.TbUserClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class TbUserServiceImpl implements TbUserService {
@@ -69,6 +71,19 @@ public class TbUserServiceImpl implements TbUserService {
                     return tbuser;
                 });
     }
+
+    @Override
+    @Transactional
+    public void updateUserProfile(TbUserDto.UpdateUserProfileReqDto reqDto) {
+        tbUserRepository.findById(reqDto.getUserId()).ifPresent(tbUser -> {
+            tbUser.setName(reqDto.getName());
+            tbUser.setStudentId(reqDto.getStudentId());
+            tbUser.setEmail(reqDto.getEmail());
+            tbUser.setPhone(reqDto.getPhone());
+            tbUser.setPictureUrl(reqDto.getProfileImage());
+        });
+    }
+
 
     private void validateEmailDomain(String email, String allowedDomain) {
         if (email == null || !email.toLowerCase().endsWith("@" + allowedDomain)) {
