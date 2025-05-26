@@ -56,7 +56,7 @@ public class TbUserController {
         String userId = principalDetails.getUsername();
 
         TbUserDto.UserProfileLastResDto resDto = tbUserService.getLastUserByNodeGroup(userId);
-        return ResponseEntity.ok(resDto);
+        return resDto != null ? ResponseEntity.ok(resDto) : ResponseEntity.ok(new TbUserDto.UserProfileLastResDto());
     }
 
 }
