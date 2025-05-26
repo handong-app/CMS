@@ -88,7 +88,7 @@ public class TbUserServiceImpl implements TbUserService {
         if (!userId.equals(customUserId))
             throw new RuntimeException("Invalid user access");
 
-        tbUserRepository.findById(reqDto.getUserId()).ifPresent(tbUser -> {
+        tbUserRepository.findById(customUserId).ifPresent(tbUser -> {
             tbUser.setName(reqDto.getName());
             tbUser.setStudentId(reqDto.getStudentId());
             tbUser.setEmail(reqDto.getEmail());
