@@ -101,7 +101,7 @@ public class TbUserServiceImpl implements TbUserService {
         @Transactional
         public void updateUserProfileImage(TbUserDto.UserProfileImageReqDto reqDto, String userId) {
             tbUserRepository.findById(userId).ifPresent(tbUser -> {
-                tbUser.setPictureUrl(reqDto.getProfileImage());
+                tbUser.setPictureUrl(reqDto.getPictureUrl());
             });
         }
 

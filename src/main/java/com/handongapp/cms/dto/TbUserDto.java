@@ -66,7 +66,7 @@ public class TbUserDto {
     @Getter
     @Setter
     public class UserProfileImageReqDto {
-        private String profileImage;
+        private String pictureUrl;
     }
 
     @AllArgsConstructor
