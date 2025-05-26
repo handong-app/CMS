@@ -74,7 +74,7 @@ public class TbUserServiceImpl implements TbUserService {
 
     @Override
     @Transactional
-    public void updateUserProfile(TbUserDto.UpdateUserProfileReqDto reqDto) {
+    public void updateUserProfile(TbUserDto.UserProfileReqDto reqDto) {
         tbUserRepository.findById(reqDto.getUserId()).ifPresent(tbUser -> {
             tbUser.setName(reqDto.getName());
             tbUser.setStudentId(reqDto.getStudentId());
@@ -82,6 +82,12 @@ public class TbUserServiceImpl implements TbUserService {
             tbUser.setPhone(reqDto.getPhone());
             tbUser.setPictureUrl(reqDto.getProfileImage());
         });
+    }
+
+    @Override
+    public Optional<TbUserDto.UserProfileResDto> findUserId(String userId) {
+        Optional<TbUserDto.UserProfileResDto> userProfileResDto = Optional.of(TbUserDto.UserProfileResDto.of(tbUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"))));
+        return userProfileResDto;
     }
 
 
