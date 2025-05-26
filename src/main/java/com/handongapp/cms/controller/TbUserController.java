@@ -41,4 +41,14 @@ public class TbUserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/image")
+    public ResponseEntity<Void> updateUserProfileImage(@RequestBody TbUserDto.UserProfileImageReqDto reqDto,
+                                              Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String userId = principalDetails.getUsername();
+
+        tbUserService.updateUserProfileImage(reqDto, userId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
