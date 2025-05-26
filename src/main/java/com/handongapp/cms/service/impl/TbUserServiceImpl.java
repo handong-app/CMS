@@ -3,7 +3,6 @@ package com.handongapp.cms.service.impl;
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
-import com.handongapp.cms.domain.enums.ClubUserRole;
 import com.handongapp.cms.dto.TbUserDto;
 import com.handongapp.cms.mapper.TbUserMapper;
 import com.handongapp.cms.repository.TbClubRoleRepository;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class TbUserServiceImpl implements TbUserService {
@@ -94,8 +92,8 @@ public class TbUserServiceImpl implements TbUserService {
         }
 
         @Override
-        public Optional<TbUserDto.UserProfileResDto> findUserId(String userId) {
-            Optional<TbUserDto.UserProfileResDto> userProfileResDto = Optional.of(TbUserDto.UserProfileResDto.of(tbUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"))));
+        public TbUserDto.UserProfileResDto findUserId(String userId) {
+            TbUserDto.UserProfileResDto userProfileResDto = TbUserDto.UserProfileResDto.of(tbUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
             return userProfileResDto;
         }
 
