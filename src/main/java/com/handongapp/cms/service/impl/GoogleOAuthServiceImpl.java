@@ -90,7 +90,7 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", Optional.ofNullable(tbUser.getEmail()).orElse(""));
         claims.put("name", Optional.ofNullable(tbUser.getName()).orElse(""));
-        claims.put("role", "USER");  // 로그인 하자마자는 USER로..?
+        claims.put("isAdmin", tbUser.getIsAdmin());
         claims.put("studentId", Optional.ofNullable(tbUser.getStudentId()).orElse(""));
         return claims;
     }
@@ -103,9 +103,9 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
         ensureTokenMatchesCache(userId, refreshToken);
 
         TbUser user = tbUserRepository.findById(userId)
-                .orElse(null);
+                .orElseThrow(() -> new InvalidTokenException("사용자를 찾을 수 없습니다."));
 
-        Map<String, Object> claims = (user != null) ? buildClaims(user) : Map.of();
+        Map<String, Object> claims = buildClaims(user);
         return authService.createAccessToken(claims, userId);
     }
 
