@@ -10,7 +10,7 @@ public interface TbUserService {
     TbUser saveOrUpdateUser(String userId, String email, String name);
     TbUser processGoogleUser(GoogleUserInfoResponse googleUserInfoResponse);
     void updateUserProfile(TbUserDto.UserProfileReqDto reqDto, String userId);
-    Optional<TbUserDto.UserProfileResDto> findUserId(String userId);
+    TbUserDto.UserProfileResDto findUserId(String userId);
     void updateUserProfileImage(TbUserDto.UserProfileImageReqDto reqDto, String userId);
     TbUserDto.UserProfileLastResDto getLastUserByNodeGroup(String userId);
 }
