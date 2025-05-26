@@ -11,25 +11,25 @@ import java.util.Collection;
 @Getter
 public class PrincipalDetails implements UserDetails {
 
-    private TbUser tbuser;
+    private TbUser tbUser;
 
-    public PrincipalDetails(TbUser tbuser) {
-        this.tbuser = tbuser;
+    public PrincipalDetails(TbUser tbUser) {
+        this.tbUser = tbUser;
     }
 
-    public TbUser getTbuser() {
-        return tbuser;
+    public TbUser getTbUser() {
+        return tbUser;
     }
 
     @Override
     public String getPassword() {
-        return tbuser.getPassword();
+        return tbUser.getPassword();
     }
 
     @Override
     public String getUsername() {
 //        return tbuser.getUsername();
-        return tbuser.getEmail();  // 난 email 기반을 작업을 하니.. mismatch지만..
+        return tbUser.getEmail();  // 난 email 기반을 작업을 하니.. mismatch지만..
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "ROLE_" + "USER" /*tbuser.getRole()*/);  // ROLE_ 접두사 붙여서 권한 설정 (일반적으로 권한 앞에는 ROLE_ 이 붙음)
+        authorities.add(() -> "need change code" /*tbuser.getRole()*/);  // ROLE_ 접두사 붙여서 권한 설정 (일반적으로 권한 앞에는 ROLE_ 이 붙음)
         return authorities;
     }
 

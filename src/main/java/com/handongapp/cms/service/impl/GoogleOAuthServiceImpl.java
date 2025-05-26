@@ -8,7 +8,7 @@ import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 import com.handongapp.cms.security.dto.GoogleTokenResponse;
 import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.service.GoogleOAuthService;
-import com.handongapp.cms.service.TbuserService;
+import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -20,30 +20,48 @@ import java.util.Optional;
 
 @Service
 public class GoogleOAuthServiceImpl implements GoogleOAuthService {
+    // 클래스 상단에 로거 선언
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(GoogleOAuthServiceImpl.class);
 
     private final WebClient webClient;
     private final LoginProperties loginProperties;
-    private final TbuserService tbuserService;
+    private final TbUserService tbUserService;
     private final AuthService authService;
-    private final TbUserRepository tbuserRepository;
+    private final TbUserRepository tbUserRepository;
 
     public GoogleOAuthServiceImpl(WebClient.Builder webClientBuilder,
                                   LoginProperties loginProperties,
-                                  TbuserService tbuserService,
+                                  TbUserService tbUserService,
                                   AuthService authService,
-                                  TbUserRepository tbuserRepository) {
+                                  TbUserRepository tbUserRepository) {
         this.webClient = webClientBuilder.build();
         this.loginProperties = loginProperties;
-        this.tbuserService = tbuserService;
+        this.tbUserService = tbUserService;
         this.authService = authService;
-        this.tbuserRepository = tbuserRepository;
+        this.tbUserRepository = tbUserRepository;
     }
 
     @Override
     public GoogleOAuthResponse authenticate(String authorizationCode) {
 
-        // 1. Authorization Code → Access Token 교환
-        GoogleTokenResponse token = webClient.post()
+        GoogleTokenResponse token = getAccessToken(authorizationCode);
+        GoogleUserInfoResponse userInfo = getUserInfo(token.getAccessToken());
+        TbUser tbUser = tbUserService.processGoogleUser(userInfo);
+
+        Map<String, Object> claims = buildClaims(tbUser);
+        String access = authService.createAccessToken(claims, tbUser.getId());
+        String refresh = authService.createRefreshToken(tbUser.getId());
+        long expires = authService.getAccessClaims(access).getExpiration().getTime();
+
+        authService.saveRefreshToken(refresh, tbUser.getId());
+
+        return new GoogleOAuthResponse(access, refresh, expires, tbUser);
+    }
+
+
+    GoogleTokenResponse getAccessToken(String authorizationCode) {
+        return webClient.post()
                 .uri("https://oauth2.googleapis.com/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .header("Host", "oauth2.googleapis.com")  // 명시적 Host 헤더 추가
@@ -51,64 +69,68 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                         .with("client_id", loginProperties.getClientId())
                         .with("client_secret", loginProperties.getClientSecret())
                         .with("redirect_uri", loginProperties.getRedirectUri())
-                        .with("grant_type", "authorization_code"))
+                        .with("grant_type", "authorization_code")
+                )
                 .retrieve()
                 .bodyToMono(GoogleTokenResponse.class)
                 .block();
-        // 2. Access Token → Google 사용자 정보 조회
-        GoogleUserInfoResponse userInfo = webClient.get()
+    }
+
+
+    public GoogleUserInfoResponse getUserInfo(String accessToken) {
+        return webClient.get()
                 .uri("https://www.googleapis.com/oauth2/v2/userinfo")
-                .header("Authorization", "Bearer " + token.getAccessToken())
+                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .bodyToMono(GoogleUserInfoResponse.class)
                 .block();
+    }
 
-        // 3. Member 가입/로그인 처리
-        TbUser tbuser = tbuserService.processGoogleUser(userInfo);
-
-        // 4. JWT claims 생성
-        Map<String, Object> claims = buildClaims(tbuser);
-
-        String access = authService.createAccessToken(claims, tbuser.getId());
-        String refresh = authService.createRefreshToken(tbuser.getId());
-        long expires = authService.getAccessClaims(access).getExpiration().getTime();
-
-        authService.saveRefreshToken(refresh, tbuser.getId());
-
-        return new GoogleOAuthResponse(access, refresh, expires, tbuser);
+    private Map<String, Object> buildClaims(TbUser tbUser) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", Optional.ofNullable(tbUser.getEmail()).orElse(""));
+        claims.put("name", Optional.ofNullable(tbUser.getName()).orElse(""));
+        claims.put("isAdmin", tbUser.getIsAdmin());
+        claims.put("studentId", Optional.ofNullable(tbUser.getStudentId()).orElse(""));
+        return claims;
     }
 
     @Override
     public String refreshAccessToken(String refreshToken) {
-        if (!authService.validateRefreshToken(refreshToken)) {
-            throw new IllegalArgumentException("Invalid refresh token");
-        }
-        String rawSubject = authService.getSubjectFromRefresh(refreshToken);
-        String userId = rawSubject.replaceFirst("user-", "");
+        validateRefreshToken(refreshToken);
 
-        if (!authService.isValidRefreshToken(userId, refreshToken)) {
-            throw new IllegalArgumentException("Refresh Token is not recognized or reused.");
-        }
+        String userId = extractUserId(refreshToken);
+        ensureTokenMatchesCache(userId, refreshToken);
 
-        Optional<TbUser> userOpt = tbuserRepository.findById(userId);
-        if (userOpt.isPresent()) {
-            TbUser tbuser = userOpt.get();
-            Map<String, Object> claims = buildClaims(tbuser);
-            return authService.createAccessToken(claims, userOpt.get().getId());
-        } else {
-            // userOpt가 없으면 빈 claims로 토큰 생성하거나 예외 처리
-            // userId 변수로 토큰 생성 (userOpt.get() 호출 안 함)
-            return authService.createAccessToken(Map.of(), userId);
+        TbUser user = tbUserRepository.findById(userId)
+                .orElseThrow(() -> new InvalidTokenException("사용자를 찾을 수 없습니다."));
+
+        Map<String, Object> claims = buildClaims(user);
+        return authService.createAccessToken(claims, userId);
+    }
+
+    private void validateRefreshToken(String token) {
+        if (!authService.validateRefreshToken(token)) {
+            throw new InvalidTokenException("리프레시 토큰 형식이 유효하지 않습니다.");
         }
     }
 
-    private Map<String, Object> buildClaims(TbUser tbuser) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("email", Optional.ofNullable(tbuser.getEmail()).orElse(""));
-        claims.put("name", Optional.ofNullable(tbuser.getName()).orElse(""));
-        claims.put("role", "USER");  // 로그인 하자마자는 USER로..?
-        claims.put("studentId", Optional.ofNullable(tbuser.getStudentId()).orElse(""));
-        return claims;
+    private String extractUserId(String refreshToken) {
+        return authService.getSubjectFromRefresh(refreshToken)
+                .replaceFirst("^user-", "");
     }
 
+    private void ensureTokenMatchesCache(String userId, String suppliedToken) {
+        if (!authService.isValidRefreshToken(userId, suppliedToken)) {
+            throw new TokenReuseException("재사용되었거나 서버에 없는 리프레시 토큰입니다.");
+        }
+    }
+
+    public static class InvalidTokenException extends RuntimeException {
+        public InvalidTokenException(String message) { super(message); }
+    }
+
+    public static class TokenReuseException extends RuntimeException {
+        public TokenReuseException(String message) { super(message); }
+    }
 }
