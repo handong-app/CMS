@@ -31,10 +31,10 @@ public class TbUserServiceImpl implements TbUserService {
                              TbClubRoleRepository tbClubRoleRepository,
                              TbUserClubRoleRepository tbUserClubRoleRepository,
                              TbUserMapper tbUserMapper) {
+                             TbUserClubRoleRepository tbUserClubRoleRepository) {
         this.tbUserRepository = tbUserRepository;
         this.tbClubRoleRepository = tbClubRoleRepository;
         this.tbUserClubRoleRepository = tbUserClubRoleRepository;
-        this.tbUserMapper = tbUserMapper;
     }
 
     public TbUser saveOrUpdateUser(String userId, String email, String name) {
@@ -129,6 +129,7 @@ public class TbUserServiceImpl implements TbUserService {
         return Objects.toString(userInfo.getFamilyName(), "") + Objects.toString(userInfo.getGivenName(), "");
     }
 
+    // maybe using next time.
     private void assignUserClubRole(TbUser tbUser, TbClubRole clubRole) {
         TbUserClubRole userClubRole = TbUserClubRole.of(tbUser.getId(), null, clubRole.getId(), null);
         tbUserClubRoleRepository.save(userClubRole);

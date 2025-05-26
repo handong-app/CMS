@@ -64,9 +64,19 @@ public class GoogleLoginController {
     @GetMapping("/cb")
     public ResponseEntity<?> callback(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails != null) {
-            return ResponseEntity.ok("Success");
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Authentication successful",
+                    "user", Map.of(
+                            "id", principalDetails.getUsername(),
+                            "email", principalDetails.getTbUser().getEmail()
+                    )
+            ));
         } else {
-            return ResponseEntity.ok("Fail");
+            return ResponseEntity.status(401).body(Map.of(
+                    "status", "fail",
+                    "message", "Authentication failed"
+            ));
         }
     }
 
