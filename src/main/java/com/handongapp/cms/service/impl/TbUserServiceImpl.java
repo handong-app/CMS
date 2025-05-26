@@ -3,8 +3,6 @@ package com.handongapp.cms.service.impl;
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
-import com.handongapp.cms.domain.enums.ClubUserRole;
-import com.handongapp.cms.repository.TbClubRoleRepository;
 import com.handongapp.cms.repository.TbUserClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
 import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
@@ -18,14 +16,11 @@ import java.util.Objects;
 public class TbUserServiceImpl implements TbUserService {
 
     private final TbUserRepository tbUserRepository;
-    private final TbClubRoleRepository tbClubRoleRepository;
     private final TbUserClubRoleRepository tbUserClubRoleRepository;
 
     public TbUserServiceImpl(TbUserRepository tbUserRepository,
-                             TbClubRoleRepository tbClubRoleRepository,
                              TbUserClubRoleRepository tbUserClubRoleRepository) {
         this.tbUserRepository = tbUserRepository;
-        this.tbClubRoleRepository = tbClubRoleRepository;
         this.tbUserClubRoleRepository = tbUserClubRoleRepository;
     }
 
@@ -62,10 +57,6 @@ public class TbUserServiceImpl implements TbUserService {
                                     false
                             )
                     );
-                    // todo: change dto..
-                    TbClubRole tb = tbClubRoleRepository.save(TbClubRole.of(ClubUserRole.USER, "동아리 가입이 되지 않은 학생"));
-                    assignUserClubRole(tbuser, tb);
-
                     return tbuser;
                 });
     }
@@ -80,6 +71,7 @@ public class TbUserServiceImpl implements TbUserService {
         return Objects.toString(userInfo.getFamilyName(), "") + Objects.toString(userInfo.getGivenName(), "");
     }
 
+    // maybe using next time.
     private void assignUserClubRole(TbUser tbUser, TbClubRole clubRole) {
         TbUserClubRole userClubRole = TbUserClubRole.of(tbUser.getId(), null, clubRole.getId(), null);
         tbUserClubRoleRepository.save(userClubRole);
