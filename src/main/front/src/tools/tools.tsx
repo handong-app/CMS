@@ -1,7 +1,11 @@
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { ko } from "date-fns/locale";
+import { JSX } from "react";
 
-export function formatTimestamp(timestamp: string, dayWeek = false) {
+export function formatTimestamp(
+  timestamp: string | number | Date,
+  dayWeek: boolean = false
+): string {
   const date = new Date(timestamp);
   const dateFormat = dayWeek
     ? "yyyy년 MM월 dd일 EEEE a h:mm"
@@ -10,12 +14,11 @@ export function formatTimestamp(timestamp: string, dayWeek = false) {
   return format(date, dateFormat, { locale: ko });
 }
 
-export function formatRelativeOrAbsoluteTimestamp(timestamp: string) {
+export function formatTimestampRelativeOrAbsolute(timestamp: string): string {
   const now = new Date();
   const date = new Date(timestamp);
   const diffMs = now.getTime() - date.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
   if (diffHours < 24) {
     return formatDistanceToNowStrict(date, { addSuffix: true, locale: ko });
   } else {
@@ -24,7 +27,7 @@ export function formatRelativeOrAbsoluteTimestamp(timestamp: string) {
 }
 
 // Function to detect URLs and convert them to hyperlinks
-export const convertTextToLinks = (text: string) => {
+export function convertTextToLinks(text: string): (JSX.Element | string)[] {
   // Regular expression to detect URLs
   const urlRegex = /(https?:\/\/[^\s]+)/g;
 
@@ -41,19 +44,19 @@ export const convertTextToLinks = (text: string) => {
     // Otherwise, return the text as it is
     return <span key={index}>{part}</span>;
   });
-};
+}
 
-export const removeDuplicates = (arr: any[], key: string) => {
-  const seen = new Set();
+export function removeDuplicates<T, K extends keyof T>(arr: T[], key: K): T[] {
+  const seen = new Set<T[K]>();
   return arr.filter((item) => {
-    const val = item[key]; // Get the property value to check
+    const val = item[key];
     if (seen.has(val)) {
-      return false; // Skip if it's already in the set
+      return false;
     }
-    seen.add(val); // Otherwise, add to set and keep the item
+    seen.add(val);
     return true;
   });
-};
+}
 
 export const getExtensionFromUrl = (url: string) => {
   const cleanUrl = url.split("?")[0]; // Remove anything after '?'
@@ -65,7 +68,7 @@ export const getExtensionFromUrl = (url: string) => {
 };
 
 // Function to check if the URL is an image
-export const isImage = (url: string) => {
+export function isImage(url: string): boolean {
   const imageExtensions = [
     "jpg",
     "jpeg",
@@ -77,17 +80,38 @@ export const isImage = (url: string) => {
     "apng",
     "ico",
   ];
-
-  const extension = getExtensionFromUrl(url); // Get cleaned extension
+  const extension = getExtensionFromUrl(url);
+  if (!extension) return false;
   return imageExtensions.includes(extension);
-};
+}
 
-// Function to check if the URL is a video
-export const isVideo = (url: string) => {
-  const videoExtensions = ["mp4", "webm", "ogg", "mov", "avi"];
-  const extension = getExtensionFromUrl(url); // Get cleaned extension
+export function isVideo(url: string): boolean {
+  const videoExtensions = [
+    "mp4",
+    "webm",
+    "ogg",
+    "mov",
+    "avi",
+    "wmv",
+    "flv",
+    "mkv",
+    "m4v",
+    "3gp",
+  ];
+  const extension = getExtensionFromUrl(url);
+  if (!extension) return false;
   return videoExtensions.includes(extension);
-};
+}
+
+// Calculate net character difference between two strings
+export function calculateDiffChange(
+  oldValue: string,
+  newValue: string
+): string {
+  let diff = newValue.length - oldValue.length;
+  if (diff === 0) return "일치";
+  return `${diff > 0 ? "+" : ""}${diff}`;
+}
 
 export const getDateString = () => {
   const date = new Date();
