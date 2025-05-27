@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   formatTimestamp,
-  formatRelativeOrAbsoluteTimestamp,
+  formatTimestampRelativeOrAbsolute,
   convertTextToLinks,
   removeDuplicates,
   getExtensionFromUrl,
@@ -26,16 +26,16 @@ describe("formatTimestamp", () => {
   });
 });
 
-describe("formatRelativeOrAbsoluteTimestamp", () => {
+describe("formatTimestampRelativeOrAbsolute", () => {
   it("returns relative time if within 24 hours", () => {
     const now = new Date();
     const date = new Date(now.getTime() - 1000 * 60 * 60); // 1시간 전
-    const result = formatRelativeOrAbsoluteTimestamp(date.toISOString());
+    const result = formatTimestampRelativeOrAbsolute(date.toISOString());
     expect(result).toMatch(/전$/);
   });
   it("returns absolute time if over 24 hours", () => {
     const date = new Date("2025-05-25T12:00:00");
-    const result = formatRelativeOrAbsoluteTimestamp(date.toISOString());
+    const result = formatTimestampRelativeOrAbsolute(date.toISOString());
     expect(result).toMatch(/2025년 05월 25일/);
   });
 });
@@ -91,6 +91,7 @@ describe("isVideo", () => {
   });
   it("returns false for non-video extension", () => {
     expect(isVideo("http://a.com/test.png")).toBe(false);
+    expect(isVideo("http://a.com/test")).toBe(false);
   });
 });
 
