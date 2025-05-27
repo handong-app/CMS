@@ -57,8 +57,11 @@ export const removeDuplicates = (arr: any[], key: string) => {
 
 export const getExtensionFromUrl = (url: string) => {
   const cleanUrl = url.split("?")[0]; // Remove anything after '?'
-  const ext = cleanUrl.split(".").pop();
-  return ext ? ext.toLowerCase() : ""; // Get the file extension safely
+  const lastSlash = cleanUrl.lastIndexOf("/");
+  const fileName = lastSlash !== -1 ? cleanUrl.slice(lastSlash + 1) : cleanUrl;
+  const dotIdx = fileName.lastIndexOf(".");
+  if (dotIdx <= 0) return ""; // 확장자가 없거나 숨김파일(.git 등)인 경우
+  return fileName.slice(dotIdx + 1).toLowerCase();
 };
 
 // Function to check if the URL is an image
