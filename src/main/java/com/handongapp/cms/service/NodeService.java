@@ -1,15 +1,13 @@
 package com.handongapp.cms.service;
 
-import com.handongapp.cms.dto.NodeCreateRequest;
-import com.handongapp.cms.dto.NodeResponse;
-import com.handongapp.cms.dto.NodeUpdateRequest;
+import com.handongapp.cms.dto.NodeDto;
 
 import java.util.List;
 
 public interface NodeService {
-    NodeResponse create(String nodeGroupId, NodeCreateRequest req);
-    NodeResponse get(String nodeId);
-    List<NodeResponse> listByGroup(String nodeGroupId);
-    NodeResponse update(String nodeId, NodeUpdateRequest req);
+    NodeDto.Response create(NodeDto.CreateRequest req);
+    NodeDto.Response get(String nodeId);
+    List<NodeDto.Response> listByGroup(String nodeGroupId);
+    NodeDto.Response update(String nodeId, NodeDto.UpdateRequest req);
     void deleteSoft(String nodeId);
 }
