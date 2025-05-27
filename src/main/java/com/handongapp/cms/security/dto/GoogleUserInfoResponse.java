@@ -1,5 +1,6 @@
 package com.handongapp.cms.security.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,10 +10,10 @@ import lombok.Setter;
 @Setter
 public class GoogleUserInfoResponse {
     private String id;       // 구글 고유 아이디
-    private boolean verified_email;
+    @JsonProperty("verified_email") private boolean verifiedEmail;
     private String email;    // 구글 이메일
-    private String given_name;
-    private String family_name;
+    @JsonProperty("given_name")  private String givenName;
+    @JsonProperty("family_name")  private String familyName;
     private String picture;
     private String locale;
 }
