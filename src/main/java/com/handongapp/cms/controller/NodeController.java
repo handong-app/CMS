@@ -1,8 +1,6 @@
 package com.handongapp.cms.controller;
 
-import com.handongapp.cms.dto.NodeCreateRequest;
-import com.handongapp.cms.dto.NodeResponse;
-import com.handongapp.cms.dto.NodeUpdateRequest;
+import com.handongapp.cms.dto.NodeDto;
 import com.handongapp.cms.service.NodeService;
 //import com.handongapp.cms.service.validator.CourseHierarchyValidator;
 import jakarta.validation.Valid;
@@ -21,19 +19,20 @@ public class NodeController {
     //private final CourseHierarchyValidator validator;
 
     @PostMapping
-    public ResponseEntity<NodeResponse> create(
+    public ResponseEntity<NodeDto.Response> create(
             @PathVariable String courseId,
             @PathVariable String sectionId,
             @PathVariable String nodeGroupId, 
-            @RequestBody @Valid NodeCreateRequest req) {
+            @RequestBody @Valid NodeDto.CreateRequest req) {
 
         //validator.validateNodeGroupHierarchy(courseId, sectionId, nodeGroupId);
-        NodeResponse result = nodeService.create(nodeGroupId, req);
+        req.setNodeGroupId(nodeGroupId); // URL의 nodeGroupId를 DTO에 설정
+        NodeDto.Response result = nodeService.create(req); // nodeGroupId 파라미터 없이 호출
         return ResponseEntity.ok(result);
     }
 
     @GetMapping
-    public ResponseEntity<List<NodeResponse>> list(
+    public ResponseEntity<List<NodeDto.Response>> list(
             @PathVariable String courseId,
             @PathVariable String sectionId,
             @PathVariable String nodeGroupId) {
@@ -43,7 +42,7 @@ public class NodeController {
     }
 
     @GetMapping("/{nodeId}")
-    public ResponseEntity<NodeResponse> get(
+    public ResponseEntity<NodeDto.Response> get(
             @PathVariable String courseId,
             @PathVariable String sectionId,
             @PathVariable String nodeGroupId,
@@ -54,12 +53,12 @@ public class NodeController {
     }
 
     @PatchMapping("/{nodeId}")
-    public ResponseEntity<NodeResponse> update(
+    public ResponseEntity<NodeDto.Response> update(
             @PathVariable String courseId,
             @PathVariable String sectionId,
             @PathVariable String nodeGroupId,
             @PathVariable String nodeId,
-            @RequestBody @Valid NodeUpdateRequest req) {
+            @RequestBody @Valid NodeDto.UpdateRequest req) {
 
         //validator.validateNodeGroupHierarchy(courseId, sectionId, nodeGroupId);
         return ResponseEntity.ok(nodeService.update(nodeId, req));
