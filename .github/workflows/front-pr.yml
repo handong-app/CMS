@@ -29,11 +29,4 @@ jobs:
       - name: Run Vitest
         id: vitest
         run: |
-          npx vitest run --reporter=default > vitest-report.txt
-
-      - name: Annotate PR with Vitest results
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          path: src/main/front/vitest-report.txt
-          header: "Vitest 결과"
-          hide_and_recreate: true
+          npx vitest run
