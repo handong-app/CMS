@@ -1,8 +1,7 @@
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { ko } from "date-fns/locale";
-import { diffWords } from "diff";
 
-export function formatTimestamp(timestamp, dayWeek = false) {
+export function formatTimestamp(timestamp: string, dayWeek = false) {
   const date = new Date(timestamp);
   const dateFormat = dayWeek
     ? "yyyy년 MM월 dd일 EEEE a h:mm"
@@ -11,10 +10,10 @@ export function formatTimestamp(timestamp, dayWeek = false) {
   return format(date, dateFormat, { locale: ko });
 }
 
-export function formatRelativeOrAbsoluteTimestamp(timestamp) {
+export function formatRelativeOrAbsoluteTimestamp(timestamp: string) {
   const now = new Date();
   const date = new Date(timestamp);
-  const diffMs = now - date;
+  const diffMs = now.getTime() - date.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 
   if (diffHours < 24) {
@@ -25,7 +24,7 @@ export function formatRelativeOrAbsoluteTimestamp(timestamp) {
 }
 
 // Function to detect URLs and convert them to hyperlinks
-export const convertTextToLinks = (text) => {
+export const convertTextToLinks = (text: string) => {
   // Regular expression to detect URLs
   const urlRegex = /(https?:\/\/[^\s]+)/g;
 
@@ -44,7 +43,7 @@ export const convertTextToLinks = (text) => {
   });
 };
 
-export const removeDuplicates = (arr, key) => {
+export const removeDuplicates = (arr: any[], key: string) => {
   const seen = new Set();
   return arr.filter((item) => {
     const val = item[key]; // Get the property value to check
@@ -56,13 +55,14 @@ export const removeDuplicates = (arr, key) => {
   });
 };
 
-export const getExtensionFromUrl = (url) => {
+export const getExtensionFromUrl = (url: string) => {
   const cleanUrl = url.split("?")[0]; // Remove anything after '?'
-  return cleanUrl.split(".").pop().toLowerCase(); // Get the file extension
+  const ext = cleanUrl.split(".").pop();
+  return ext ? ext.toLowerCase() : ""; // Get the file extension safely
 };
 
 // Function to check if the URL is an image
-export const isImage = (url) => {
+export const isImage = (url: string) => {
   const imageExtensions = [
     "jpg",
     "jpeg",
@@ -80,7 +80,7 @@ export const isImage = (url) => {
 };
 
 // Function to check if the URL is a video
-export const isVideo = (url) => {
+export const isVideo = (url: string) => {
   const videoExtensions = ["mp4", "webm", "ogg", "mov", "avi"];
   const extension = getExtensionFromUrl(url); // Get cleaned extension
   return videoExtensions.includes(extension);
@@ -95,48 +95,22 @@ export const getDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
-export const calculateDiffChange = (oldValue, newValue) => {
-  const changes = diffWords(oldValue, newValue);
-
-  let added = 0;
-  let removed = 0;
-
-  // Iterate over the diff chunks to calculate additions and deletions
-  changes.forEach((part) => {
-    if (part.added) {
-      added += part.value.length;
-    } else if (part.removed) {
-      removed += part.value.length;
-    }
-  });
-
-  // Format the result with added and removed changes
-  let result = "";
-  if (added > 0) result += `+${added}`;
-  if (removed > 0) result += (result.length > 0 ? " " : "") + `-${removed}`;
-
-  const diff = added - removed;
-  if (added === 0 && removed === 0) return "일치";
-  if (diff === 0) return "0";
-  return `${diff > 0 ? "+" : ""}${diff}`;
-  // return result || "No changes";
-};
-
-export function splitHtmlBr(str) {
-  if (typeof str !== "string") return str;
-  // "운영없음" 등은 그대로 반환
-  const BR_REGEX = /<br\s*\/?>/i; // <br>, <br/>, <br /> 모두 매칭
+export function splitHtmlBr(str: string): string[] {
+  if (typeof str !== "string") return [str as unknown as string];
+  const BR_REGEX = /<br\s*\/?>/i;
   if (BR_REGEX.test(str)) {
     return str.split(BR_REGEX);
   }
   return [str];
 }
 
-export function getCurrentWeekdayString(date = new Date()) {
+export function getCurrentWeekdayString(date: Date = new Date()): string {
   // 2025년 3월 3일(월) 개강 기준
   const semesterStart = new Date(2025, 2, 3); // 월은 0부터 시작 (2=3월)
   const msPerDay = 1000 * 60 * 60 * 24;
-  const daysPassed = Math.floor((date - semesterStart) / msPerDay);
+  const daysPassed = Math.floor(
+    (date.getTime() - semesterStart.getTime()) / msPerDay
+  );
   const week = Math.floor(daysPassed / 7) + 1;
   const weekdays = [
     "일요일",
