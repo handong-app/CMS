@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ProductItem from "../components/ProductItem/ProductItem";
 import { ProductItemProps } from "../types/product.types";
+import { useFetchBe } from "../tools/api";
 
 function ProductView() {
   const { id } = useParams();
@@ -9,14 +10,12 @@ function ProductView() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchBe = useFetchBe();
+
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    fetch(`https://dummyjson.com/products/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("데이터를 불러오지 못했습니다");
-        return res.json();
-      })
+    fetchBe("/products/" + id)
       .then((data) => {
         setProduct(data);
         setError(null);
