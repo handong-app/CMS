@@ -23,9 +23,9 @@ public class NodeServiceImpl implements NodeService {
     @Transactional
     public NodeDto.Response create(NodeDto.CreateRequest req) {
         NodeDataValidator.validate(req.getType(), req.getData());
-        TbNode entity = TbNode.fromCreateRequest(req);
+        TbNode entity = req.toEntity(); 
         TbNode savedNode = tbNodeRepository.save(entity);
-        return savedNode.toDto();
+        return NodeDto.Response.from(savedNode); 
     }
 
     @Override
@@ -33,7 +33,7 @@ public class NodeServiceImpl implements NodeService {
     public NodeDto.Response get(String nodeId) {
         TbNode node = tbNodeRepository.findByIdAndDeleted(nodeId, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Node not found with id: " + nodeId));
-        return node.toDto();
+        return NodeDto.Response.from(node); 
     }
 
     @Override
@@ -41,7 +41,7 @@ public class NodeServiceImpl implements NodeService {
     public List<NodeDto.Response> listByGroup(String nodeGroupId) {
         return tbNodeRepository.findByNodeGroupIdAndDeletedOrderByOrderAsc(nodeGroupId, "N")
                 .stream()
-                .map(TbNode::toDto)
+                .map(NodeDto.Response::from) 
                 .collect(Collectors.toList());
     }
 
@@ -53,8 +53,8 @@ public class NodeServiceImpl implements NodeService {
         if (req.getData() != null) {
             NodeDataValidator.validate(entity.getType(), req.getData());
         }
-        entity.updateFromUpdateRequest(req);
-        return entity.toDto();
+        req.applyTo(entity); 
+        return NodeDto.Response.from(entity); 
     }
 
     @Override

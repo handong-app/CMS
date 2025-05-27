@@ -36,13 +36,27 @@ public class NodeDto {
             this.createdAt = createdAt;
             this.updatedAt = updatedAt;
         }
+
+        public static Response from(TbNode entity) {
+            if (entity == null) return null;
+            return new Response(
+                    entity.getId(),
+                    entity.getNodeGroupId(),
+                    entity.getType(),
+                    entity.getCommentPermitted(),
+                    entity.getData(),
+                    entity.getOrder(),
+                    entity.getAttachmentUrl(),
+                    entity.getCreatedAt(),
+                    entity.getUpdatedAt()
+            );
+        }
     }
 
     // CreateRequest DTO
     @Data
     public static class CreateRequest {
-        // @NotBlank // @NotBlank 제거
-        private String nodeGroupId; // final 제거, Lombok이 getter/setter 생성
+        private String nodeGroupId;
         
         @NotNull
         private final TbNode.NodeType type;
@@ -51,18 +65,25 @@ public class NodeDto {
         private final Integer order;
         private final String attachmentUrl;
 
-        // 생성자는 유지하되, nodeGroupId는 setter로 설정될 것을 기대
-        // 또는, nodeGroupId를 받는 생성자를 유지하고, 컨트롤러에서 new CreateRequest(...) 시 null을 전달 후 setter로 설정
-        // 여기서는 nodeGroupId를 받는 생성자를 유지하고, 컨트롤러에서 new CreateRequest를 직접 만들지 않으므로
-        // Jackson이 JSON 바디를 객체로 변환할 때 이 생성자를 사용하지 않거나, nodeGroupId가 JSON에 없으면 null로 들어옴.
-        // 컨트롤러에서 setter로 덮어쓰게 됨.
         public CreateRequest(String nodeGroupId, TbNode.NodeType type, Boolean commentPermitted, Map<String, Object> data, Integer order, String attachmentUrl) {
-            this.nodeGroupId = nodeGroupId; // final이 아니므로 여기서 할당 가능
+            this.nodeGroupId = nodeGroupId;
             this.type = type;
             this.commentPermitted = commentPermitted;
             this.data = data;
             this.order = order;
             this.attachmentUrl = attachmentUrl;
+        }
+
+        public TbNode toEntity() {
+            TbNode node = new TbNode();
+            node.setNodeGroupId(this.nodeGroupId); // DTO의 nodeGroupId 사용
+            node.setType(this.type);
+            node.setCommentPermitted(this.commentPermitted);
+            node.setData(this.data);
+            node.setOrder(this.order);
+            node.setAttachmentUrl(this.attachmentUrl);
+            // id, deleted, createdAt, updatedAt는 AuditingFields 또는 JPA에 의해 자동 관리
+            return node;
         }
     }
 
@@ -79,6 +100,21 @@ public class NodeDto {
             this.data = data;
             this.order = order;
             this.attachmentUrl = attachmentUrl;
+        }
+
+        public void applyTo(TbNode entity) {
+            if (this.commentPermitted != null) {
+                entity.setCommentPermitted(this.commentPermitted);
+            }
+            if (this.data != null) {
+                entity.setData(this.data);
+            }
+            if (this.order != null) {
+                entity.setOrder(this.order);
+            }
+            if (this.attachmentUrl != null) {
+                entity.setAttachmentUrl(this.attachmentUrl);
+            }
         }
     }
 }
