@@ -1,0 +1,40 @@
+name: Front PR Vitest
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/front-pr.yml"
+      - "src/main/front/**"
+
+jobs:
+  vitest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/main/front
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Vitest
+        id: vitest
+        run: |
+          npx vitest run --reporter=json > vitest-report.json
+          npx vitest run --reporter=default
+
+      - name: Annotate PR with Vitest results
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: src/main/front/vitest-report.json
+          header: "Vitest 결과"
+          hide_and_recreate: true
