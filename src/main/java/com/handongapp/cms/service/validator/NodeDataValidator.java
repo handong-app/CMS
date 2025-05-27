@@ -3,8 +3,6 @@ package com.handongapp.cms.service.validator;
 import com.handongapp.cms.domain.TbNode.NodeType;
 import java.util.*;
 
-import static com.handongapp.cms.domain.TbNode.NodeType.*;
-
 /*
  * spring component가 아닌 static 방식으로 작성한 이유 : 
  *  - 다른 component와의 의존성 없이 독립적으로 사용할 수 있도록 하기 위함
