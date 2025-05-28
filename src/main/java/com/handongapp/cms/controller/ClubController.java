@@ -6,6 +6,8 @@ import com.handongapp.cms.service.CourseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/clubs/{clubName}")
 public class ClubController {
@@ -45,8 +47,8 @@ public class ClubController {
     // 이거까지는 내가!
     @GetMapping("/courses")
     public ResponseEntity<?> getCoursesList(@PathVariable String clubName ,@RequestParam String programId) {
-        courseService.getCoursesList(clubName, programId);
-        return null;
+        List<TbClubDto.ClubCourseListResDto> courseList = courseService.getCourseList(clubName, programId);
+        return ResponseEntity.ok(courseList);
     }
     // tb_program_progress의 program_id , tb_program_couse_의 program_id
     // course id랑

@@ -23,5 +23,5 @@ public class TbProgramCourse extends AuditingFields {
     @Column(columnDefinition = "CHAR(32)", nullable = false)
     private String programId;
     @Column(columnDefinition = "CHAR(32)", nullable = false)
-    private String userId;
+    private String courseId;
 }
