@@ -1,4 +1,4 @@
-package com.handongapp.cms.dto;
+package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbNode;
 import jakarta.validation.constraints.NotNull;
