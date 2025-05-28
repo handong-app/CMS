@@ -1,13 +1,13 @@
-package com.handongapp.cms.service.impl;
+package com.handongapp.cms.auth.service.impl;
 
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.repository.TbUserRepository;
-import com.handongapp.cms.security.AuthService;
+import com.handongapp.cms.auth.service.AuthService;
 import com.handongapp.cms.security.LoginProperties;
-import com.handongapp.cms.security.dto.GoogleOAuthResponse;
-import com.handongapp.cms.security.dto.GoogleTokenResponse;
-import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
-import com.handongapp.cms.service.GoogleOAuthService;
+import com.handongapp.cms.auth.dto.GoogleOAuthResponse;
+import com.handongapp.cms.auth.dto.GoogleTokenResponse;
+import com.handongapp.cms.auth.dto.GoogleUserInfoResponse;
+import com.handongapp.cms.auth.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package com.handongapp.cms.security;
 
+import com.handongapp.cms.auth.service.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

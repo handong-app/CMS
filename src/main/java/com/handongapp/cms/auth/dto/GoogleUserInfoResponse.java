@@ -1,4 +1,4 @@
-package com.handongapp.cms.security.dto;
+package com.handongapp.cms.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

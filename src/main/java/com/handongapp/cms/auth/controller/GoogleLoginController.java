@@ -1,11 +1,11 @@
-package com.handongapp.cms.controller;
+package com.handongapp.cms.auth.controller;
 
-import com.handongapp.cms.security.AuthService;
+import com.handongapp.cms.auth.service.AuthService;
 import com.handongapp.cms.security.LoginProperties;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.security.TokenBlacklistManager;
-import com.handongapp.cms.security.dto.GoogleOAuthResponse;
-import com.handongapp.cms.service.GoogleOAuthService;
+import com.handongapp.cms.auth.dto.GoogleOAuthResponse;
+import com.handongapp.cms.auth.service.GoogleOAuthService;
 import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

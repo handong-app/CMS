@@ -1,7 +1,6 @@
 package com.handongapp.cms.service;
 
 import com.handongapp.cms.dto.TbClubDto;
-import com.handongapp.cms.security.dto.GoogleOAuthResponse;
 
 public interface ClubService {
 
