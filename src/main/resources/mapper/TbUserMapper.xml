@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.handongapp.cms.mapper.TbUserMapper">
+
+    <select id="findLastNodeGroupByCourseForUser" parameterType="String" resultType="com.handongapp.cms.dto.TbUserDto$LastProgramResDto">
+        SELECT
+            club.id as clubId,
+            course.id as courseId,
+            node_group.id as nodeGroupId,
+            program_progress.last_seen_at as lastSeenAt
+        FROM tb_program_progress program_progress
+                 JOIN tb_node_group node_group ON program_progress.node_group_id = node_group.id
+                 JOIN tb_section sect ON node_group.section_id = sect.id
+                 JOIN tb_course course ON sect.course_id = course.id
+                 JOIN tb_club club ON club.id = course.club_id
+        WHERE program_progress.user_id = #{userId}
+          AND (course.id, program_progress.last_seen_at) IN (
+            SELECT
+                c.id, MAX(pp.last_seen_at)
+            FROM tb_program_progress pp
+                     JOIN tb_node_group ng ON pp.node_group_id = ng.id
+                     JOIN tb_section s ON ng.section_id = s.id
+                     JOIN tb_course c ON s.course_id = c.id
+            WHERE pp.user_id = #{userId}
+            GROUP BY c.id
+        )
+
+    </select>
+
+</mapper>
