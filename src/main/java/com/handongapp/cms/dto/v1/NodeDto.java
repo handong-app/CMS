@@ -125,7 +125,7 @@ public class NodeDto {
     @Setter
     @Getter
     public static class NodeBaseDto {
-        private ProgramProgressState type;
-        private String order;
+        private TbNode.NodeType type;
+        private Integer order;
     }
 }
