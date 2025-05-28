@@ -26,7 +26,7 @@ public class TbUser extends AuditingFields{
     @Column(length = 30)  @Setter private String name;
     @Column(length = 320) @Setter private String email;
     @Column(length = 15) @Setter private String phone;
-    @Column(columnDefinition = "TEXT") private String pictureUrl;
+    @Column(columnDefinition = "TEXT") @Setter private String pictureUrl;
     @Column(columnDefinition = "CHAR(8)") @Setter private String studentId;
     @Column(name = "is_admin", nullable = false) @Setter private Boolean isAdmin;
 
