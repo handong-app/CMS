@@ -1,3 +1,4 @@
+import { Box } from "@mui/system";
 import React from "react";
 
 export interface TopBannerProps {
@@ -8,15 +9,16 @@ export interface TopBannerProps {
 
 const TopBanner: React.FC<TopBannerProps> = ({ title, subtitle, image }) => {
   return (
-    <div
-      style={{
+    <Box
+      sx={{
+        margin: "0 auto",
         position: "relative",
-        width: "100%",
-        height: 200,
+        maxWidth: "100%",
+        height: 300,
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        justifyContent: "flex-start",
+        justifyContent: "center",
         background: "#222",
       }}
     >
@@ -34,7 +36,7 @@ const TopBanner: React.FC<TopBannerProps> = ({ title, subtitle, image }) => {
           opacity: 0.6,
         }}
       />
-      <div style={{ position: "relative", zIndex: 2, padding: "0 2rem" }}>
+      <Box sx={{ position: "relative", zIndex: 2, padding: "0 2rem" }}>
         <h1
           style={{
             color: "#fff",
@@ -55,8 +57,8 @@ const TopBanner: React.FC<TopBannerProps> = ({ title, subtitle, image }) => {
         >
           {subtitle}
         </h2>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

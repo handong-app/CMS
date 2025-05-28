@@ -1,5 +1,6 @@
 import React from "react";
 import CourseItem from "../components/course/CourseItem";
+import { Box } from "@mui/system";
 
 function ProgramPage() {
   const dummyCourses = [
@@ -20,7 +21,7 @@ function ProgramPage() {
     },
   ];
   return (
-    <div style={{ display: "flex", gap: 24 }}>
+    <Box sx={{ display: "flex", gap: 24 }}>
       {dummyCourses.map((course, idx) => (
         <CourseItem
           key={course.name + idx}
@@ -29,7 +30,7 @@ function ProgramPage() {
           progress={course.progress}
         />
       ))}
-    </div>
+    </Box>
   );
 }
 
