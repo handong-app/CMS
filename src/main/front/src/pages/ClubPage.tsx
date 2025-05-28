@@ -18,7 +18,7 @@ function ClubPage() {
         <ClubBadge text="2025년도 GBC" />
       </Box>
       <Box mt={4}>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
+        <Typography variant="h5" fontWeight={700} mb={2}>
           마지막으로 본 강의
         </Typography>
         <ContinueNodeGroup
@@ -31,7 +31,7 @@ function ClubPage() {
         />
       </Box>
       <Box mt={4}>
-        <Typography variant="h5" fontWeight={700} gutterBottom>
+        <Typography variant="h5" fontWeight={700} mb={2}>
           전체 강의
         </Typography>
         <CourseList />
