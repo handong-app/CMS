@@ -1,4 +1,4 @@
-package com.handongapp.cms.security;
+package com.handongapp.cms.auth.service;
 
 import io.jsonwebtoken.Claims;
 

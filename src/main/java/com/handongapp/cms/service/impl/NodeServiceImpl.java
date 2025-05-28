@@ -1,7 +1,7 @@
 package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbNode;
-import com.handongapp.cms.dto.NodeDto;
+import com.handongapp.cms.dto.v1.NodeDto;
 import com.handongapp.cms.repository.TbNodeRepository;
 import com.handongapp.cms.service.NodeService;
 import com.handongapp.cms.service.validator.NodeDataValidator;

@@ -1,6 +1,9 @@
-package com.handongapp.cms.security;
+package com.handongapp.cms.auth.service.impl;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.handongapp.cms.auth.service.AuthService;
+import com.handongapp.cms.security.LoginProperties;
+import com.handongapp.cms.security.TokenBlacklistManager;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -11,10 +14,9 @@ import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final LoginProperties loginProperties;
