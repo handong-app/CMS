@@ -13,3 +13,9 @@ Coding standards, domain knowledge, and preferences that AI should follow.
 // This encourages atomic, focused tests and improves readability and maintainability.
 // Example: it('renders the title', () => { expect(...).to.exist }) // GOOD
 // it('renders title and subtitle', () => { expect(...); expect(...); }) // BAD
+
+// Copilot Rule: Avoid rendering components in beforeEach or beforeAll for test setup.
+// Instead, create a helper function (e.g., renderComponent) and call it within each test case to ensure test isolation and independence.
+// Example:
+// const renderComponent = () => render(<MyComponent ... />);
+// it('renders something', () => { renderComponent(); expect(...).to.exist; });
