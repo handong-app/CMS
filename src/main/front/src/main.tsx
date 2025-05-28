@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import "./index.css";
 import ProductView from "./pages/ProductView.tsx";
 import ProgramPage from "./pages/ProgramPage.tsx";
+import ClubPage from "./pages/ClubPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
   {
     path: "/product/:id",
     element: <ProductView />,
+  },
+  {
+    path: "/:club",
+    element: <ClubPage />,
   },
   {
     path: "/:club/program/:program_name",
