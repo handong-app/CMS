@@ -12,7 +12,21 @@ export interface CourseItemProps {
 
 const CourseItem: React.FC<CourseItemProps> = ({ name, picture, progress }) => {
   return (
-    <Card sx={{ maxWidth: 345, position: "relative", overflow: "hidden" }}>
+    <Card
+      sx={{
+        maxWidth: 345,
+        position: "relative",
+        overflow: "hidden",
+        transition:
+          "transform 0.18s cubic-bezier(.4,1.3,.5,1), box-shadow 0.18s cubic-bezier(.4,1.3,.5,1)",
+        boxShadow: 3,
+        cursor: "pointer",
+        "&:hover": {
+          transform: "translateY(-4px) scale(1.025)",
+          boxShadow: 8,
+        },
+      }}
+    >
       <CardMedia
         component="img"
         image={picture}
