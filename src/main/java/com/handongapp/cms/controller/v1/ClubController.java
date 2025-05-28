@@ -1,4 +1,4 @@
-package com.handongapp.cms.controller;
+package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.TbClubDto;
 import com.handongapp.cms.service.ClubService;
