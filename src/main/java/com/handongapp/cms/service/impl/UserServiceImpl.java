@@ -24,11 +24,11 @@ public class UserServiceImpl implements UserService {
     private final UserClubRoleRepository userClubRoleRepository;
     private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository UserRepository,
+    public UserServiceImpl(UserRepository userRepository,
                            ClubRoleRepository clubRoleRepository,
                            UserClubRoleRepository userClubRoleRepository,
                            UserMapper userMapper) {
-            this.userRepository = UserRepository;
+            this.userRepository = userRepository;
             this.clubRoleRepository = clubRoleRepository;
             this.userClubRoleRepository = userClubRoleRepository;
             this.userMapper = userMapper;
