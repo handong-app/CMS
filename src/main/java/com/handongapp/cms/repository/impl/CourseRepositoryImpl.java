@@ -1,8 +1,8 @@
-package com.handongapp.cms.repository.Impl;
+package com.handongapp.cms.repository.impl;
 
 import com.handongapp.cms.domain.*;
-import com.handongapp.cms.dto.TbClubDto;
-import com.handongapp.cms.repository.Custom.CourseRepositoryCustom;
+import com.handongapp.cms.dto.v1.ClubDto;
+import com.handongapp.cms.repository.CourseRepositoryCustom;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,7 +23,7 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
     // programId로 tb_course랑 연결해서 picture_url 받아오기
 
     @Override
-    public List<TbClubDto.ClubCourseListResDto> findCoursesByClubAndProgram(String clubName, String programId) {
+    public List<ClubDto.ClubCourseListResDto> findCoursesByClubIdAndProgramId(String clubName, String programId) {
         QTbClub club = QTbClub.tbClub;
         QTbProgram program = QTbProgram.tbProgram;
         QTbUser user = QTbUser.tbUser;
@@ -32,7 +32,7 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
 
         return queryFactory
                 .select(Projections.constructor(
-                        TbClubDto.ClubCourseListResDto.class,
+                        ClubDto.ClubCourseListResDto.class,
                         course.title.as("courseTitle"),
                         user.name.as("programCreator"),
                         course.description.as("courseDescription"),
