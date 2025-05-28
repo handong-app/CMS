@@ -3,13 +3,13 @@ package com.handongapp.cms.service.impl;
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
-import com.handongapp.cms.dto.TbUserDto;
+import com.handongapp.cms.dto.v1.UserDto;
 import com.handongapp.cms.mapper.TbUserMapper;
-import com.handongapp.cms.repository.TbClubRoleRepository;
-import com.handongapp.cms.repository.TbUserClubRoleRepository;
-import com.handongapp.cms.repository.TbUserRepository;
+import com.handongapp.cms.repository.ClubRoleRepository;
+import com.handongapp.cms.repository.UserClubRoleRepository;
+import com.handongapp.cms.repository.UserRepository;
 import com.handongapp.cms.auth.dto.GoogleUserInfoResponse;
-import com.handongapp.cms.service.TbUserService;
+import com.handongapp.cms.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,17 +17,17 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
-public class TbUserServiceImpl implements TbUserService {
+public class UserServiceImpl implements UserService {
 
-    private final TbUserRepository tbUserRepository;
-    private final TbClubRoleRepository tbClubRoleRepository;
-    private final TbUserClubRoleRepository tbUserClubRoleRepository;
+    private final UserRepository tbUserRepository;
+    private final ClubRoleRepository tbClubRoleRepository;
+    private final UserClubRoleRepository tbUserClubRoleRepository;
     private final TbUserMapper tbUserMapper;
 
-    public TbUserServiceImpl(TbUserRepository tbUserRepository,
-                             TbClubRoleRepository tbClubRoleRepository,
-                             TbUserClubRoleRepository tbUserClubRoleRepository,
-                             TbUserMapper tbUserMapper) {
+    public UserServiceImpl(UserRepository tbUserRepository,
+                           ClubRoleRepository tbClubRoleRepository,
+                           UserClubRoleRepository tbUserClubRoleRepository,
+                           TbUserMapper tbUserMapper) {
             this.tbUserRepository = tbUserRepository;
             this.tbClubRoleRepository = tbClubRoleRepository;
             this.tbUserClubRoleRepository = tbUserClubRoleRepository;
@@ -74,7 +74,7 @@ public class TbUserServiceImpl implements TbUserService {
 
         @Override
         @Transactional
-        public void updateUserProfile(TbUserDto.UserProfileReqDto reqDto, String userId) {
+        public void updateUserProfile(UserDto.UserProfileReqDto reqDto, String userId) {
             String customUserId = "";
             if (reqDto.getUserId().startsWith("user-"))
                 customUserId = reqDto.getUserId().substring(5);
@@ -92,24 +92,24 @@ public class TbUserServiceImpl implements TbUserService {
         }
 
         @Override
-        public TbUserDto.UserProfileResDto findUserId(String userId) {
-            TbUserDto.UserProfileResDto userProfileResDto = TbUserDto.UserProfileResDto.of(tbUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+        public UserDto.UserProfileResDto findUserId(String userId) {
+            UserDto.UserProfileResDto userProfileResDto = UserDto.UserProfileResDto.of(tbUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
             return userProfileResDto;
         }
 
         @Override
         @Transactional
-        public void updateUserProfileImage(TbUserDto.UserProfileImageReqDto reqDto, String userId) {
+        public void updateUserProfileImage(UserDto.UserProfileImageReqDto reqDto, String userId) {
             tbUserRepository.findById(userId).ifPresent(tbUser -> {
                 tbUser.setPictureUrl(reqDto.getPictureUrl());
             });
         }
 
         @Override
-        public TbUserDto.UserProfileLastResDto getLastUserByNodeGroup(String userId) {
-            ArrayList<TbUserDto.LastProgramResDto> userProfileLastResDto
-                    = (ArrayList<TbUserDto.LastProgramResDto>) tbUserMapper.findLastNodeGroupByCourseForUser(userId);
-            return userProfileLastResDto.isEmpty() ? null : TbUserDto.UserProfileLastResDto.of(userProfileLastResDto);
+        public UserDto.UserProfileLastResDto getLastUserByNodeGroup(String userId) {
+            ArrayList<UserDto.LastProgramResDto> userProfileLastResDto
+                    = (ArrayList<UserDto.LastProgramResDto>) tbUserMapper.findLastNodeGroupByCourseForUser(userId);
+            return userProfileLastResDto.isEmpty() ? null : UserDto.UserProfileLastResDto.of(userProfileLastResDto);
         }
 
 

@@ -1,4 +1,4 @@
-package com.handongapp.cms.dto;
+package com.handongapp.cms.dto.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-public class TbClubDto {
+public class ClubDto {
 
     @Getter
     public static class ClubProfileResDto {

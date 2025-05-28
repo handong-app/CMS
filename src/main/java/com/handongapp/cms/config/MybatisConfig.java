@@ -17,7 +17,7 @@ public class MybatisConfig {
     public SqlSessionFactory sqlSessionFactory(@Qualifier("dataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
-        sqlSessionFactoryBean.setTypeAliasesPackage("com.handongapp.cms.dto");
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.handongapp.cms.dto.v1, com.handongapp.cms.domain");
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*.xml"));
         return sqlSessionFactoryBean.getObject();
     }

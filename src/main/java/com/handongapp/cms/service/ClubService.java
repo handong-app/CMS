@@ -1,16 +1,16 @@
 package com.handongapp.cms.service;
 
-import com.handongapp.cms.dto.TbClubDto;
+import com.handongapp.cms.dto.v1.ClubDto;
 
 public interface ClubService {
 
-    TbClubDto.ClubProfileResDto getClubProfile(String clubName);
+    ClubDto.ClubProfileResDto getClubProfile(String clubName);
 
-    void updateClubProfile(String clubName, TbClubDto.ClubProfileReqDto clubProfileResDto);
+    void updateClubProfile(String clubName, ClubDto.ClubProfileReqDto clubProfileResDto);
 
     void getAllProgramsList(String clubName);
 
     void getProgramInfo(String clubName, String programName);
 
-    TbClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName);
+    ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName);
 }

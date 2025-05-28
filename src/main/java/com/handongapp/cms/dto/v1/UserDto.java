@@ -1,6 +1,5 @@
-package com.handongapp.cms.dto;
+package com.handongapp.cms.dto.v1;
 
-import com.google.api.client.util.DateTime;
 import com.handongapp.cms.domain.TbUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
-public class TbUserDto {
+public class UserDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
