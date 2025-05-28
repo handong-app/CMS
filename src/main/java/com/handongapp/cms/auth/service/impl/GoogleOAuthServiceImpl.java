@@ -60,7 +60,8 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
     }
 
 
-    GoogleTokenResponse getAccessToken(String authorizationCode) {
+    @Override
+    public GoogleTokenResponse getAccessToken(String authorizationCode) {
         return webClient.post()
                 .uri("https://oauth2.googleapis.com/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -76,7 +77,7 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .block();
     }
 
-
+    @Override
     public GoogleUserInfoResponse getUserInfo(String accessToken) {
         return webClient.get()
                 .uri("https://www.googleapis.com/oauth2/v2/userinfo")
