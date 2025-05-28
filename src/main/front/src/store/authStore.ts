@@ -23,10 +23,10 @@ const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user }),
     }),
     {
-      name: "auth-storage", // localStorage key 이름
+      name: "auth", // localStorage key
       partialize: (state) => ({
         jwtToken: state.jwtToken,
-        user: state.user,
+        user: state.user ? { name: state.user.name } : null, // ❗ 최소 정보만
       }),
     }
   )
