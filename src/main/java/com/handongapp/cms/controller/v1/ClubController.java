@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/clubs/{clubName}")
+@RequestMapping("api/v1/clubs/{clubName}")
 public class ClubController {
 
     private final ClubService clubService;
