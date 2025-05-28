@@ -1,7 +1,6 @@
 package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbNode;
-import com.handongapp.cms.domain.enums.ProgramProgressState;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
