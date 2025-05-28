@@ -29,4 +29,11 @@ public class TbClub extends AuditingFields {
     @Column(columnDefinition = "TEXT") @URL @Setter private String bannerUrl;
 
     @Column(columnDefinition = "TEXT") @Setter  private String description;
+
+    public TbClub(String name, String slug, String bannerUrl, String description) {
+        this.name = name;
+        this.slug = slug;
+        this.bannerUrl = bannerUrl;
+        this.description = description;
+    }
 }
