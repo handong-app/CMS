@@ -5,7 +5,7 @@ import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
 import com.handongapp.cms.repository.TbUserClubRoleRepository;
 import com.handongapp.cms.repository.TbUserRepository;
-import com.handongapp.cms.security.dto.GoogleUserInfoResponse;
+import com.handongapp.cms.auth.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.service.TbUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
