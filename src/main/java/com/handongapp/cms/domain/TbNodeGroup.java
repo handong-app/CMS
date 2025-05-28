@@ -1,8 +1,6 @@
 package com.handongapp.cms.domain;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>TbNodeGroup Entity – logical grouping of Nodes inside a Course Section.</p>

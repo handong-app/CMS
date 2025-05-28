@@ -125,7 +125,6 @@ public class NodeDto {
     @Setter
     @Getter
     public static class NodeBaseDto {
-        //        private String title;  // 노드에 title 추가해야하나?
         private ProgramProgressState type;
         private String order;
     }

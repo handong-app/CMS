@@ -8,8 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface NodeRepository extends JpaRepository<TbNode, String> {
-    List<TbNode> findByNodeGroupIdAndDeleted(String nodeGroupId, String deleted);
-
     Optional<TbNode> findByIdAndDeleted(String id, String deleted);
 
     List<TbNode> findByNodeGroupIdAndDeletedOrderByOrderAsc(String nodeGroupId, String deleted);
