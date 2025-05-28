@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import TopBanner from "./TopBanner";
+import "@testing-library/jest-dom";
 
 describe("TopBanner", () => {
   const renderTopBanner = () =>
@@ -13,23 +14,23 @@ describe("TopBanner", () => {
 
   it("renders the title", () => {
     renderTopBanner();
-    expect(screen.getByText("Welcome to the Club")).to.exist;
+    expect(screen.getByText("Welcome to the Club")).toBeInTheDocument();
   });
 
   it("renders the subtitle", () => {
     renderTopBanner();
-    expect(screen.getByText("Grow together with us!")).to.exist;
+    expect(screen.getByText("Grow together with us!")).toBeInTheDocument();
   });
 
   it("renders the banner image", () => {
     renderTopBanner();
     const img = screen.getByAltText(/banner/i);
-    expect(img).to.exist;
+    expect(img).toBeInTheDocument();
   });
 
   it("banner image has correct src", () => {
     renderTopBanner();
     const img = screen.getByAltText(/banner/i);
-    expect(img.getAttribute("src")).to.equal("https://example.com/banner.jpg");
+    expect(img).toHaveAttribute("src", "https://example.com/banner.jpg");
   });
 });
