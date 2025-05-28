@@ -32,6 +32,14 @@ cloud:
       static: us-east-1
     path-style-access-enabled: true
 
+rabbitmq:
+  queue:
+    transcode-request: ${TRANSCODE_REQUEST_QUEUE}
+  host: ${RABBITMQ_HOST}
+  port: ${RABBITMQ_PORT}
+  username: ${RABBITMQ_USERNAME}
+  password: ${RABBITMQ_PASSWORD}
+
 google:
   oauth:
     client-id: ${OAUTH_GOOGLE_CLIENT_ID:${OAUTH_GOOGLE_CLIENT_ID_DEFAULT}}
