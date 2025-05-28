@@ -44,29 +44,16 @@ public class ClubController {
         return ResponseEntity.ok().build();
     }
 
-    // 이거까지는 내가!
     @GetMapping("/courses")
     public ResponseEntity<?> getCoursesList(@PathVariable String clubName ,@RequestParam String programId) {
         List<ClubDto.ClubCourseListResDto> courseList = courseService.getCourseList(clubName, programId);
         return ResponseEntity.ok(courseList);
     }
-    // tb_program_progress의 program_id , tb_program_couse_의 program_id
-    // course id랑
-
 
     @GetMapping("/courses/{courseName}")
     public ResponseEntity<?>getCourseInfo(@PathVariable String clubName, @PathVariable String courseName) {
         ClubDto.ClubCourseInfoResDto clubCourseInfoResDto = clubService.getCourseInfo(clubName, courseName);
         return ResponseEntity.ok().body(clubCourseInfoResDto);
     }
-    // 코스 제목, 제작자, 코스 설명, 코스 대표 이미지 주소
-    // 코스 댓글 카테고리 목록 > 카테고리 정보 (코스별로 pre define)
-    // > 카테고리 이름, slug, emoji, ..
-
 }
 
-//동아리의 프로그램 목록 개발 > 프로그램 정보 배열 필요
-//프로그램 정보 api > 프로그램 이름, 프로그램 설명, 코스목록 api의 필터링과 사용
-//프로그램 정보 > 코스 목록 api 필요
-//코스 목록 api  > 코스 정보 api 필요 + filtering
-//코스 정보 api 개발 시작
