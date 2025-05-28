@@ -1,5 +1,6 @@
 // src/utils/auth.ts
 
+
 export const initiateGoogleLogin = async () => {
   try {
     const res = await fetch("http://localhost:8080/api/auth/google/client-id");
