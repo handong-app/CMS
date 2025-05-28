@@ -76,10 +76,10 @@ public class ClubDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ClubCourseListResDto {
-        private String courseTitle; // tbCourse의 title
-        private String programCreator; // tbCourse의 userId타고, tbUses 가서 name 얻어와
-        private String courseDescription; // 코스 설명
-        private String coursePictureUrl; // 코스 대표 사진
+        private String courseTitle;
+        private String programCreator;
+        private String courseDescription;
+        private String coursePictureUrl;
     }
 
 }
