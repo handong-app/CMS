@@ -1,5 +1,6 @@
 package com.handongapp.cms.config;
 
+import com.handongapp.cms.auth.service.impl.AuthServiceImpl;
 import com.handongapp.cms.security.*;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
