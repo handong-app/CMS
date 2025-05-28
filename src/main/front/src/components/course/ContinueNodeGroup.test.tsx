@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom/vitest";
+import "@testing-library/jest-dom";
 import ContinueNodeGroup from "./ContinueNodeGroup";
 
 describe("ContinueNodeGroup", () => {
