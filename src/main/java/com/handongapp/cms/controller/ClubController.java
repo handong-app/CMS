@@ -1,6 +1,6 @@
 package com.handongapp.cms.controller;
 
-import com.handongapp.cms.dto.TbClubDto;
+import com.handongapp.cms.dto.v1.TbClubDto;
 import com.handongapp.cms.service.ClubService;
 import com.handongapp.cms.service.CourseService;
 import org.springframework.http.ResponseEntity;

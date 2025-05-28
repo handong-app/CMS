@@ -1,4 +1,4 @@
-package com.handongapp.cms.dto;
+package com.handongapp.cms.dto.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

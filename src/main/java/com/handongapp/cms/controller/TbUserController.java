@@ -1,13 +1,11 @@
 package com.handongapp.cms.controller;
 
-import com.handongapp.cms.dto.TbUserDto;
+import com.handongapp.cms.dto.v1.TbUserDto;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.TbUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")

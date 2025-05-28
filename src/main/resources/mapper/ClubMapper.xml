@@ -5,30 +5,29 @@
 
 <mapper namespace="com.handongapp.cms.mapper.ClubMapper">
 
-    <resultMap id="CourseInfoMap" type="com.handongapp.cms.dto.TbClubDto$ClubCourseInfoResDto">
+    <resultMap id="CourseInfoMap" type="com.handongapp.cms.dto.v1.TbClubDto$ClubCourseInfoResDto">
         <result column="course_title" property="courseTitle"/>
         <result column="program_creator" property="programCreator"/>
         <result column="course_description" property="courseDescription"/>
         <result column="course_picture_url" property="coursePictureUrl"/>
 
-        <collection property="categoryList" ofType="com.handongapp.cms.dto.CategoryOfCommentDto$CategoryOfCommentBaseDto">
+        <collection property="categoryList" ofType="com.handongapp.cms.dto.v1.CategoryOfCommentDto$CategoryOfCommentBaseDto">
             <result column="category_slug" property="slug"/>
             <result column="category_label" property="label"/>
             <result column="category_emoji" property="emoji"/>
         </collection>
 
-        <collection property="sectionList" ofType="com.handongapp.cms.dto.SectionDto$SectionBaseDto">
+        <collection property="sectionList" ofType="com.handongapp.cms.dto.v1.SectionDto$SectionBaseDto">
             <result column="section_title" property="title"/>
             <result column="section_order" property="order"/>
         </collection>
 
-        <collection property="nodeGroupList" ofType="com.handongapp.cms.dto.NodeGroupDto$NodeGroupBaseDto">
+        <collection property="nodeGroupList" ofType="com.handongapp.cms.dto.v1.NodeGroupDto$NodeGroupBaseDto">
             <result column="node_group_title" property="title"/>
             <result column="node_group_order" property="order"/>
         </collection>
 
-        <collection property="nodeList" ofType="com.handongapp.cms.dto.NodeDto$NodeBaseDto">
-            <result column="node_title" property="title"/>
+        <collection property="nodeList" ofType="com.handongapp.cms.dto.v1.NodeDto$NodeBaseDto">
             <result column="node_type" property="type"/>
             <result column="node_order" property="order"/>
         </collection>
@@ -51,7 +50,6 @@
             ng.title AS node_group_title,
             ng.`order` AS node_group_order,
 
-            n.title AS node_title,
             n.`type` AS node_type,
             n.`order` AS node_order
 
