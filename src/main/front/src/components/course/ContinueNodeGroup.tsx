@@ -28,7 +28,7 @@ const ContinueNodeGroup: React.FC<ContinueNodeGroupProps> = ({
   return (
     <Card
       sx={{
-        maxWidth: "100%",
+        width: "100%",
         margin: "auto",
         borderRadius: 3,
         boxShadow: 6,
