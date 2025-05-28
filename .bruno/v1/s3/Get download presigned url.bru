@@ -1,0 +1,21 @@
+meta {
+  name: Get download presigned url
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:{{PORT}}/api/v1/s3/download-url?filename=1748450057529-the_path.mp4
+  body: none
+  auth: inherit
+}
+
+params:query {
+  filename: 1748450057529-the_path.mp4
+}
+
+body:json {
+  {
+    "key": "1748450166785-the path.mp4"
+  }
+}

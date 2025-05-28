@@ -1,0 +1,18 @@
+meta {
+  name: Get upload presigned url
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:{{PORT}}/api/v1/s3/upload-url
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "filename": "1748193451965-cap-flow.mp4",
+    "contentType": "video/mp4"
+  }
+}
