@@ -1,9 +1,9 @@
 package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbClub;
-import com.handongapp.cms.dto.v1.TbClubDto;
+import com.handongapp.cms.dto.v1.ClubDto;
 import com.handongapp.cms.mapper.ClubMapper;
-import com.handongapp.cms.repository.TbClubRepository;
+import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.service.ClubService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -11,19 +11,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClubServiceImpl implements ClubService {
 
-    private final TbClubRepository clubRepository;
+    private final ClubRepository clubRepository;
     private final ClubMapper clubMapper;
 
-    public ClubServiceImpl(TbClubRepository clubRepository,
+    public ClubServiceImpl(ClubRepository clubRepository,
                            ClubMapper clubMapper) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
     }
 
     @Override
-    public TbClubDto.ClubProfileResDto getClubProfile(String clubName) {
+    public ClubDto.ClubProfileResDto getClubProfile(String clubName) {
             return clubRepository.findByName(clubName)
-            .map(club -> new TbClubDto.ClubProfileResDto(
+            .map(club -> new ClubDto.ClubProfileResDto(
             club.getName(),
             club.getSlug(),
             club.getDescription(),
@@ -34,7 +34,7 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     @Transactional
-    public void updateClubProfile(String clubName, TbClubDto.ClubProfileReqDto clubProfileResDto) {
+    public void updateClubProfile(String clubName, ClubDto.ClubProfileReqDto clubProfileResDto) {
         clubRepository.save(new TbClub(clubName, clubProfileResDto.getSlug(), clubProfileResDto.getDescription(), clubProfileResDto.getBannerUrl()));
     }
 
@@ -49,7 +49,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public TbClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName) {
+    public ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName) {
         return clubMapper.getCourseInfo(clubName, courseName);
     }
 

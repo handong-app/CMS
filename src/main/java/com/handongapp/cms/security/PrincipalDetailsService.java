@@ -1,7 +1,7 @@
 package com.handongapp.cms.security;
 
 import com.handongapp.cms.domain.TbUser;
-import com.handongapp.cms.repository.TbUserRepository;
+import com.handongapp.cms.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class PrincipalDetailsService implements UserDetailsService {
 
-    private final TbUserRepository tbuserRepository;
+    private final UserRepository tbuserRepository;
 
-    public PrincipalDetailsService(TbUserRepository tbuserRepository) {
+    public PrincipalDetailsService(UserRepository tbuserRepository) {
         this.tbuserRepository = tbuserRepository;
     }
 

@@ -2,7 +2,7 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbNode;
 import com.handongapp.cms.dto.v1.NodeDto;
-import com.handongapp.cms.repository.TbNodeRepository;
+import com.handongapp.cms.repository.NodeRepository;
 import com.handongapp.cms.service.NodeService;
 import com.handongapp.cms.service.validator.NodeDataValidator;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NodeServiceImpl implements NodeService {
 
-    private final TbNodeRepository tbNodeRepository;
+    private final NodeRepository tbNodeRepository;
 
     @Override
     @Transactional
