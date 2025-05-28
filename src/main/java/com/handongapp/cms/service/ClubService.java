@@ -8,9 +8,5 @@ public interface ClubService {
 
     void updateClubProfile(String clubName, ClubDto.ClubProfileReqDto clubProfileResDto);
 
-    void getAllProgramsList(String clubName);
-
-    void getProgramInfo(String clubName, String programName);
-
     ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName);
 }

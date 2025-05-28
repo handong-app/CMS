@@ -32,18 +32,6 @@ public class ClubController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/programs")
-    public ResponseEntity<?> getProgramsList(@PathVariable String clubName) {
-        clubService.getAllProgramsList(clubName);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/programs/{programName}")
-    public ResponseEntity<?> getProgramInfo(@PathVariable String clubName, @PathVariable String programName) {
-        clubService.getProgramInfo(clubName, programName);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/courses")
     public ResponseEntity<?> getCoursesList(@PathVariable String clubName ,@RequestParam String programId) {
         List<ClubDto.ClubCourseListResDto> courseList = courseService.getCourseList(clubName, programId);
