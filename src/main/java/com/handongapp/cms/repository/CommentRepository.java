@@ -1,9 +1,9 @@
 package com.handongapp.cms.repository;
 
-import com.handongapp.cms.domain.TbUserClubRole;
+import com.handongapp.cms.domain.TbComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TbUserClubRoleRepository extends JpaRepository<TbUserClubRole, String> {
+public interface CommentRepository extends JpaRepository<TbComment, String> {
 }

@@ -5,7 +5,7 @@
 
 <mapper namespace="com.handongapp.cms.mapper.ClubMapper">
 
-    <resultMap id="CourseInfoMap" type="com.handongapp.cms.dto.v1.TbClubDto$ClubCourseInfoResDto">
+    <resultMap id="CourseInfoMap" type="com.handongapp.cms.dto.v1.ClubDto$ClubCourseInfoResDto">
         <result column="course_title" property="courseTitle"/>
         <result column="program_creator" property="programCreator"/>
         <result column="course_description" property="courseDescription"/>

@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class TbUserDto {
+public class UserDto {
 
     @AllArgsConstructor
     @NoArgsConstructor

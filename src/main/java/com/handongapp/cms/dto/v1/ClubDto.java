@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-public class TbClubDto {
+public class ClubDto {
 
     @Getter
     public static class ClubProfileResDto {
