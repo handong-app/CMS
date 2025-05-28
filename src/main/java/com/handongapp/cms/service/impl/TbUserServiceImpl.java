@@ -3,7 +3,7 @@ package com.handongapp.cms.service.impl;
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
-import com.handongapp.cms.dto.TbUserDto;
+import com.handongapp.cms.dto.v1.TbUserDto;
 import com.handongapp.cms.mapper.TbUserMapper;
 import com.handongapp.cms.repository.TbClubRoleRepository;
 import com.handongapp.cms.repository.TbUserClubRoleRepository;

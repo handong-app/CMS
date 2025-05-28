@@ -1,6 +1,6 @@
 package com.handongapp.cms.mapper;
 
-import com.handongapp.cms.dto.TbUserDto;
+import com.handongapp.cms.dto.v1.TbUserDto;
 
 import java.util.List;
 

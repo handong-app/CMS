@@ -1,7 +1,7 @@
 package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbClub;
-import com.handongapp.cms.dto.TbClubDto;
+import com.handongapp.cms.dto.v1.TbClubDto;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.TbClubRepository;
 import com.handongapp.cms.service.ClubService;

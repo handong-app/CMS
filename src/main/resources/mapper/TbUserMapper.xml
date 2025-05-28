@@ -4,7 +4,7 @@
 
 <mapper namespace="com.handongapp.cms.mapper.TbUserMapper">
 
-    <select id="findLastNodeGroupByCourseForUser" parameterType="String" resultType="com.handongapp.cms.dto.TbUserDto$LastProgramResDto">
+    <select id="findLastNodeGroupByCourseForUser" parameterType="String" resultType="com.handongapp.cms.dto.v1.TbUserDto$LastProgramResDto">
         SELECT
             club.id as clubId,
             course.id as courseId,

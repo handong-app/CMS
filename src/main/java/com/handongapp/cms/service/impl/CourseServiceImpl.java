@@ -1,7 +1,6 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.dto.TbClubDto;
-import com.handongapp.cms.repository.Custom.CourseRepositoryCustom;
+import com.handongapp.cms.dto.v1.TbClubDto;
 import com.handongapp.cms.repository.TbCourseRepository;
 import com.handongapp.cms.service.CourseService;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,6 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<TbClubDto.ClubCourseListResDto> getCourseList(String clubName, String programId) {
-        return courseRepository.findCoursesByClubAndProgram(clubName, programId);
+        return courseRepository.findCoursesByClubIdAndProgramId(clubName, programId);
     }
 }

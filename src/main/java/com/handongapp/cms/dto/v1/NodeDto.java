@@ -1,8 +1,10 @@
 package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbNode;
+import com.handongapp.cms.domain.enums.ProgramProgressState;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -116,5 +118,15 @@ public class NodeDto {
                 entity.setAttachmentUrl(this.attachmentUrl);
             }
         }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class NodeBaseDto {
+        //        private String title;  // 노드에 title 추가해야하나?
+        private ProgramProgressState type;
+        private String order;
     }
 }

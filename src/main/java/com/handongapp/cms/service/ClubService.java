@@ -1,6 +1,6 @@
 package com.handongapp.cms.service;
 
-import com.handongapp.cms.dto.TbClubDto;
+import com.handongapp.cms.dto.v1.TbClubDto;
 
 public interface ClubService {
 
