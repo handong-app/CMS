@@ -47,7 +47,7 @@ public class TbNode extends AuditingFields {
     private Map<String, Object> data;
 
 
-    private enum NodeType {
+    public enum NodeType {
         TEXT,
         IMAGE,
         VIDEO,
