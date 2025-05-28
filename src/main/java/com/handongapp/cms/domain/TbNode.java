@@ -2,6 +2,7 @@ package com.handongapp.cms.domain;
 
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import java.util.Map;
 
@@ -10,7 +11,11 @@ import java.util.Map;
  *
  * <p><b>Design Pattern:</b> Leaf of the Composite (NodeGroup).</p>
  */
+@Getter 
+@Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "tb_node",
         indexes = {
                 @Index(columnList = "deleted")

@@ -5,6 +5,8 @@ on:
     types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - "src/**"
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   pull-requests: write
