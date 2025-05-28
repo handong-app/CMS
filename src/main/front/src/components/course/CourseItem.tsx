@@ -30,7 +30,7 @@ const CourseItem: React.FC<CourseItemProps> = ({ name, picture, progress }) => {
       <CardMedia
         component="img"
         image={picture}
-        alt="course picture"
+        alt={`${name} 코스 이미지`}
         sx={{ height: 220, width: "100%", objectFit: "cover" }}
       />
       {/* Overlay for text and progress */}
@@ -70,6 +70,7 @@ const CourseItem: React.FC<CourseItemProps> = ({ name, picture, progress }) => {
         </Typography>
         <LinearProgress
           variant="determinate"
+          aria-label={`${name} 코스 진행률 ${progress}%`}
           value={progress}
           sx={{
             height: 10,

@@ -5,9 +5,16 @@ export interface TopBannerProps {
   title: string;
   subtitle: string;
   image: string;
+  altText?: string;
 }
 
-const TopBanner: React.FC<TopBannerProps> = ({ title, subtitle, image }) => {
+const TopBanner: React.FC<TopBannerProps> = ({
+  title,
+  subtitle,
+  image,
+  altText,
+}) => {
+  const computedAlt = altText || `${title} banner`;
   return (
     <Box
       sx={{
@@ -24,7 +31,7 @@ const TopBanner: React.FC<TopBannerProps> = ({ title, subtitle, image }) => {
     >
       <img
         src={image}
-        alt="banner"
+        alt={computedAlt}
         style={{
           position: "absolute",
           top: 0,
@@ -37,26 +44,28 @@ const TopBanner: React.FC<TopBannerProps> = ({ title, subtitle, image }) => {
         }}
       />
       <Box sx={{ position: "relative", zIndex: 2, padding: "0 2rem" }}>
-        <h1
-          style={{
-            color: "#fff",
-            margin: 0,
-            fontSize: "2rem",
+        <Box
+          component="h1"
+          sx={{
+            color: (theme: any) => theme.palette.common.white,
+            fontSize: { xs: "1.5rem", sm: "2rem" },
             fontWeight: 700,
+            m: 0,
           }}
         >
           {title}
-        </h1>
-        <h2
-          style={{
-            color: "#fff",
-            margin: 0,
-            fontSize: "1.2rem",
+        </Box>
+        <Box
+          component="h2"
+          sx={{
+            color: (theme: any) => theme.palette.grey[100],
+            fontSize: { xs: "1rem", sm: "1.2rem" },
             fontWeight: 400,
+            m: 0,
           }}
         >
           {subtitle}
-        </h2>
+        </Box>
       </Box>
     </Box>
   );

@@ -6,6 +6,8 @@ import "./index.css";
 import ProductView from "./pages/ProductView.tsx";
 import ProgramPage from "./pages/ProgramPage.tsx";
 import ClubPage from "./pages/ClubPage.tsx";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./styles/theme";
 
 const router = createBrowserRouter([
   {
@@ -17,17 +19,20 @@ const router = createBrowserRouter([
     element: <ProductView />,
   },
   {
-    path: "/:club",
+    path: "/club/:club",
     element: <ClubPage />,
   },
   {
-    path: "/:club/program/:program_name",
+    path: "/club/:club/program/:program_name",
     element: <ProgramPage />,
   },
 ]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </StrictMode>
 );
