@@ -80,11 +80,6 @@ public class TbClubDto {
         private String programCreator; // tbCourse의 userId타고, tbUses 가서 name 얻어와
         private String courseDescription; // 코스 설명
         private String coursePictureUrl; // 코스 대표 사진
-
-        List<CategoryOfCommentDto.CategoryOfCommentBaseDto> categoryList; // tbCourse id랑 엮어서 가져오면 됨.
-        List<SectionDto.SectionBaseDto> sectionList;
-        List<NodeGroupDto.NodeGroupBaseDto> nodeGroupList;
-        List<NodeDto.NodeBaseDto> nodeList; // nodeGroup id랑 엮어서 가져오면 됨>
     }
 
 }
