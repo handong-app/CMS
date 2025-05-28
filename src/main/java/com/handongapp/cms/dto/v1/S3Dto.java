@@ -35,7 +35,7 @@ public class S3Dto {
     @NoArgsConstructor
     public static class UploadCompleteDto {
         private String filename;
-        private String contentType;
+        private String filetype;
     }
 
     @Builder
