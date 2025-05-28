@@ -17,7 +17,7 @@ describe("CourseItem", () => {
         progress={course.progress}
       />
     );
-    const img = screen.getByAltText(/course picture/i);
+    const img = screen.getByAltText(`${course.name} 코스 이미지`);
     expect(document.body.contains(img)).to.be.true;
     expect(img.getAttribute("src")).to.equal(course.picture);
   });

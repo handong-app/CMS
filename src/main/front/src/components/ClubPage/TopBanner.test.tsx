@@ -1,15 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import TopBanner from "./TopBanner";
 import "@testing-library/jest-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../../styles/theme";
 
 describe("TopBanner", () => {
   const renderTopBanner = () =>
     render(
-      <TopBanner
-        title="Welcome to the Club"
-        subtitle="Grow together with us!"
-        image="https://example.com/banner.jpg"
-      />
+      <ThemeProvider theme={theme}>
+        <TopBanner
+          title="Welcome to the Club"
+          subtitle="Grow together with us!"
+          image="https://example.com/banner.jpg"
+        />
+      </ThemeProvider>
     );
 
   it("renders the title", () => {
