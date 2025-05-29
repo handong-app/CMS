@@ -145,4 +145,5 @@ const ProfileRegistrationPage: React.FC = () => {
   );
 };
 
+
 export default ProfileRegistrationPage;
