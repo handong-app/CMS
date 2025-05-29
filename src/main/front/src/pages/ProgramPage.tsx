@@ -26,7 +26,7 @@ function ProgramPage() {
           backgroundColor: "rgba(255, 255, 255, 0.06)",
         }}
       >
-        <CourseLeaderboard myName="이성실" />
+        <CourseLeaderboard myName="서노력" />
       </Box>
 
       <Box display={"flex"} gap={3} mt={1}>

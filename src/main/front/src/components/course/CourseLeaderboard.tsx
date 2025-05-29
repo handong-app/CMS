@@ -9,9 +9,11 @@ import {
   Typography,
   Box,
   LinearProgress,
+  Button,
 } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { formatTimestampRelativeOrAbsolute } from "../../tools/tools";
+import { useState } from "react";
 
 export interface CourseLeaderboardItem {
   name: string;
@@ -49,6 +51,56 @@ const defaultItems: CourseLeaderboardItem[] = [
     progress: 40,
     lastStudiedAt: "2025-05-26T15:00:00",
   },
+  {
+    name: "오열심",
+    progress: 55,
+    lastStudiedAt: "2025-05-27T10:45:00",
+  },
+  {
+    name: "유도전",
+    progress: 35,
+    lastStudiedAt: "2025-05-25T14:20:00",
+  },
+  {
+    name: "임성장",
+    progress: 80,
+    lastStudiedAt: "2025-05-28T19:00:00",
+  },
+  {
+    name: "문새벽",
+    progress: 25,
+    lastStudiedAt: "2025-05-24T07:30:00",
+  },
+  {
+    name: "장도전",
+    progress: 50,
+    lastStudiedAt: "2025-05-26T21:10:00",
+  },
+  {
+    name: "배지각",
+    progress: 65,
+    lastStudiedAt: "2025-05-27T23:55:00",
+  },
+  {
+    name: "신성실",
+    progress: 90,
+    lastStudiedAt: "2025-05-29T08:00:00",
+  },
+  {
+    name: "황근면",
+    progress: 30,
+    lastStudiedAt: "2025-05-25T09:40:00",
+  },
+  {
+    name: "서노력",
+    progress: 45,
+    lastStudiedAt: "2025-05-26T18:15:00",
+  },
+  {
+    name: "조성취",
+    progress: 20,
+    lastStudiedAt: "2025-05-23T16:00:00",
+  },
 ];
 
 interface HighlightOptions {
@@ -59,6 +111,7 @@ function CourseLeaderboard({
   items,
   myName,
 }: CourseLeaderboardProps & HighlightOptions) {
+  const [showAll, setShowAll] = useState(false);
   // 정렬: 학습율 내림차순, 동점이면 마지막 학습 최근순
   const data = (items && items.length > 0 ? items : defaultItems)
     .slice()
@@ -75,25 +128,50 @@ function CourseLeaderboard({
   // 꼴등(마지막) 인덱스
   const lastIdx = data.length - 1;
 
-  // 보여줄 row: 1등, 2등, 3등, 내 등수(중복X), 꼴등(중복X)
-  const showIdxSet = new Set<number>();
-  for (let i = 0; i < Math.min(3, data.length); ++i) showIdxSet.add(i);
-  if (myIdx >= 0 && !showIdxSet.has(myIdx)) showIdxSet.add(myIdx);
-  if (lastIdx >= 0 && !showIdxSet.has(lastIdx)) showIdxSet.add(lastIdx);
-  const showIdxArr = Array.from(showIdxSet).sort((a, b) => a - b);
+  // 보여줄 row: 1등, 2등, 3등, 내 등수(중복X), 꼴등(중복X) 또는 전체
+  let showIdxArr: number[];
+  if (showAll) {
+    showIdxArr = Array.from({ length: data.length }, (_, i) => i);
+  } else {
+    const showIdxSet = new Set<number>();
+    for (let i = 0; i < Math.min(3, data.length); ++i) showIdxSet.add(i);
+    if (myIdx >= 0 && !showIdxSet.has(myIdx)) showIdxSet.add(myIdx);
+    if (lastIdx >= 0 && !showIdxSet.has(lastIdx)) showIdxSet.add(lastIdx);
+    showIdxArr = Array.from(showIdxSet).sort((a, b) => a - b);
+  }
 
   return (
     <Box>
-      <Typography
-        variant="h6"
-        fontWeight={700}
-        mb={1}
-        display="flex"
-        alignItems="center"
-        gap={1}
-      >
-        <EmojiEventsIcon sx={{ color: "#FFD700", fontSize: 22 }} /> 리더보드
-      </Typography>
+      <Box display="flex" alignItems="center" gap={1} mb={1}>
+        <Typography
+          variant="h6"
+          fontWeight={700}
+          display="flex"
+          alignItems="center"
+          gap={1}
+          sx={{ flex: 1 }}
+        >
+          <EmojiEventsIcon sx={{ color: "#FFD700", fontSize: 22 }} /> 리더보드
+        </Typography>
+        {data.length > 5 && (
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            sx={{
+              minWidth: 80,
+              fontWeight: 500,
+              borderRadius: 2,
+              py: 0.5,
+              px: 1.5,
+              fontSize: 14,
+            }}
+            onClick={() => setShowAll((v) => !v)}
+          >
+            {showAll ? "간략히" : "전체보기"}
+          </Button>
+        )}
+      </Box>
       <TableContainer
         component={Paper}
         sx={{ background: "rgba(255,255,255,0.04)", boxShadow: 0 }}
@@ -107,11 +185,11 @@ function CourseLeaderboard({
               >
                 #
               </TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>이름</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
+              <TableCell sx={{ fontWeight: 700, width: "1%" }}>이름</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 700, width: "100%" }}>
                 학습율
               </TableCell>
-              <TableCell align="center" sx={{ fontWeight: 700 }}>
+              <TableCell align="center" sx={{ fontWeight: 700, width: "1%" }}>
                 마지막 학습
               </TableCell>
             </TableRow>
@@ -149,7 +227,7 @@ function CourseLeaderboard({
                       color: isTop
                         ? "#FFD700"
                         : isMyRow
-                        ? (theme) => theme.palette.primary.light
+                        ? (theme) => theme.palette.primary.main
                         : undefined,
                     }}
                   >
@@ -159,8 +237,10 @@ function CourseLeaderboard({
                     sx={{
                       fontWeight: isTop || isMyRow ? 700 : 400,
                       color: isMyRow
-                        ? (theme) => theme.palette.primary.light
+                        ? (theme) => theme.palette.primary.main
                         : undefined,
+                      "white-space": "nowrap",
+                      textAlign: "center",
                     }}
                   >
                     {row.name}
@@ -179,35 +259,31 @@ function CourseLeaderboard({
                   </TableCell>
                   <TableCell align="center">
                     <Box display="flex" alignItems="center" gap={1}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={row.progress}
-                        sx={
-                          isMyRow
-                            ? {
-                                width: 60,
-                                height: 8,
-                                borderRadius: 4,
-                                background: "rgba(255,255,255,0.15)",
-                                "& .MuiLinearProgress-bar": {
-                                  backgroundColor: (theme) =>
-                                    theme.palette.primary.light,
-                                },
-                              }
-                            : {
-                                width: 60,
-                                height: 8,
-                                borderRadius: 4,
-                                background: "rgba(255,255,255,0.15)",
-                              }
-                        }
-                      />
-                      <Typography variant="body2" sx={{ minWidth: 32 }}>
+                      <Box sx={{ flex: 1, minWidth: 60 }}>
+                        <LinearProgress
+                          variant="determinate"
+                          value={row.progress}
+                          sx={{
+                            width: "100%",
+                            height: 8,
+                            borderRadius: 4,
+                            background: "rgba(255,255,255,0.15)",
+                            // "& .MuiLinearProgress-bar": {
+                            //   backgroundColor: (theme) =>
+                            //     theme.palette.primary.dark,
+                            // },
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="body2" sx={{ minWidth: 32, ml: 1 }}>
                         {row.progress}%
                       </Typography>
                     </Box>
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "#b0b0b0" }}>
+                  <TableCell
+                    align="center"
+                    sx={{ color: "#b0b0b0", "white-space": "nowrap" }}
+                  >
                     {formatTimestampRelativeOrAbsolute(row.lastStudiedAt)}
                   </TableCell>
                 </TableRow>
@@ -219,5 +295,4 @@ function CourseLeaderboard({
     </Box>
   );
 }
-
 export default CourseLeaderboard;
