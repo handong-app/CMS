@@ -209,12 +209,6 @@ function CourseLeaderboard({
                     isMeAndLast
                       ? {
                           background: "rgba(255, 0, 0, 0.18)",
-                          animation: "shake 0.25s 2",
-                          "@keyframes shake": {
-                            "0%, 100%": { transform: "translateX(0)" },
-                            "25%": { transform: "translateX(-2px)" },
-                            "75%": { transform: "translateX(2px)" },
-                          },
                         }
                       : isMyRow
                       ? { background: "rgba(0,82,204,0.18)" }
