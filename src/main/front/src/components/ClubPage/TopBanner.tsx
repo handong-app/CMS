@@ -6,6 +6,8 @@ export interface TopBannerProps {
   title: string;
   subtitle: string;
   image: string;
+  textJustify?: React.CSSProperties["textAlign"];
+  height?: number;
   altText?: string;
 }
 
@@ -13,21 +15,24 @@ const TopBanner: React.FC<TopBannerProps> = ({
   title,
   subtitle,
   image,
+  height = 300,
+  textJustify = "center",
   altText,
 }) => {
   const computedAlt = altText || `${title} banner`;
   const [imgError, setImgError] = React.useState(false);
   return (
     <Box
+      data-testid="top-banner"
       sx={{
         margin: "0 auto",
         position: "relative",
         maxWidth: "100%",
-        height: 300,
+        height,
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: textJustify,
         background: "#222",
       }}
     >
