@@ -205,19 +205,30 @@ function CourseLeaderboard({
               return (
                 <TableRow
                   key={row.name}
-                  sx={
-                    isMeAndLast
-                      ? {
-                          background: "rgba(255, 0, 0, 0.18)",
-                        }
+                  sx={{
+                    ...(isMeAndLast
+                      ? { background: "rgba(255, 0, 0, 0.18)" }
                       : isMyRow
                       ? { background: "rgba(0,82,204,0.18)" }
                       : isTop
                       ? { background: "rgba(255,215,0,0.10)" }
                       : isLast
                       ? { background: "rgba(255,0,0,0.08)" }
-                      : undefined
-                  }
+                      : {}),
+                    transition: "background 0.2s",
+                    "&:hover": {
+                      background: isMeAndLast
+                        ? "rgba(255, 0, 0, 0.28)"
+                        : isMyRow
+                        ? "rgba(0,82,204,0.28)"
+                        : isTop
+                        ? "rgba(255,215,0,0.18)"
+                        : isLast
+                        ? "rgba(255,0,0,0.16)"
+                        : "rgba(255,255,255,0.10)",
+                      cursor: "default",
+                    },
+                  }}
                 >
                   <TableCell
                     align="center"
