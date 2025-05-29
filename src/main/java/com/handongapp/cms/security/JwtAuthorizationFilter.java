@@ -1,5 +1,6 @@
 package com.handongapp.cms.security;
 
+import com.handongapp.cms.auth.service.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,16 +15,19 @@ import java.io.IOException;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final AuthServiceImpl authServiceImpl;
+    private final AuthService authService;
     private final UserDetailsService userDetailsService;
     private final LoginProperties loginProperties;
+    private final TokenBlacklistManager tokenBlacklistManager;
 
-    public JwtAuthorizationFilter(AuthServiceImpl authServiceImpl,
+    public JwtAuthorizationFilter(AuthService authService,
                                   UserDetailsService userDetailsService,
-                                  LoginProperties loginProperties) {
-        this.authServiceImpl = authServiceImpl;
+                                  LoginProperties loginProperties,
+                                  TokenBlacklistManager tokenBlacklistManager) {
+        this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.loginProperties = loginProperties;
+        this.tokenBlacklistManager = tokenBlacklistManager;
     }
 
     @Override
@@ -40,13 +44,26 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         String token = header.substring(loginProperties.getJwtTokenPrefix().length());
 
-        if (!authServiceImpl.validateAccessToken(token)) {
-            filterChain.doFilter(request, response);
+        if (tokenBlacklistManager.isBlacklisted(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("해당 토큰은 로그아웃 처리된 토큰입니다.");
             return;
         }
 
-        String email = authServiceImpl.getSubjectFromAccess(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (!authService.validateAccessToken(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("유효하지 않은 토큰입니다.");
+            return;
+        }
+
+        String userId = authService.getSubjectFromAccess(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+
+        if (userDetails == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("인증 정보를 찾을 수 없습니다.");
+            return;
+        }
 
         if (logger.isDebugEnabled()) {
             userDetails.getAuthorities().forEach(a ->

@@ -1,25 +1,24 @@
+import { useMemo } from "react";
+import { useNavigate } from "react-router";
+
 import { serverRootUrl } from "../constants";
 import useAuthStore from "../store/authStore"; // Recoil 대신 Zustand 스토어 임포트
-import { useMemo } from "react";
 
-export const fetchBe = (
+export function fetchBe(
   jwtValue: string | null,
   path: string,
-  method = "GET",
-  body?: any
-) =>
-  new Promise((res, rej) => {
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" = "GET",
+  body?: Record<string, unknown>,
+  onUnauthorized?: () => void
+): Promise<any> {
+  return new Promise((res, rej) => {
     const initStuff: RequestInit = {
       headers: new Headers(),
       method,
     };
     if (body && !["GET", "HEAD"].includes(method)) {
-      if (body instanceof FormData) {
-        initStuff["body"] = body;
-      } else {
-        (initStuff.headers as Headers).set("Content-Type", "application/json");
-        initStuff["body"] = JSON.stringify(body);
-      }
+      (initStuff.headers as Headers).set("Content-Type", "application/json");
+      initStuff["body"] = JSON.stringify(body);
     }
     if (jwtValue)
       (initStuff.headers as Headers).set("Authorization", `Bearer ${jwtValue}`);
@@ -29,7 +28,11 @@ export const fetchBe = (
         if (doc.status === 401) {
           // user not logged in
           localStorage.clear();
-          window.location.href = "/land"; // back to home screen.
+          if (onUnauthorized) {
+            onUnauthorized();
+          } else {
+            window.location.href = "/land"; // back to home screen.
+          }
           return rej({ errorMsg: "로그인을 다시해주세요." });
         }
         doc
@@ -55,16 +58,21 @@ export const fetchBe = (
             });
           });
       })
-
       .catch((err) => rej(err));
   });
+}
 
 export const useFetchBe = () => {
   const jwtToken = useAuthStore((state) => state.jwtToken); // Zustand 스토어에서 jwtToken 가져오기
+  const navigate = useNavigate();
   return useMemo(
     () =>
-      (path: string, method = "GET", body?: any) =>
-        fetchBe(jwtToken, path, method, body),
-    [jwtToken]
+      (
+        path: string,
+        method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" = "GET",
+        body?: Record<string, unknown>
+      ) =>
+        fetchBe(jwtToken, path, method, body, () => navigate("/land")),
+    [jwtToken, navigate]
   );
 };

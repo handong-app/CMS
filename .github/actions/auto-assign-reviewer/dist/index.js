@@ -116,6 +116,19 @@ async function run() {
         }
         const author = pr.user.login;
         core.info(`PR author: ${author}`);
+        // Check for coderabbitai[bot] approval
+        const reviews = await octokit.rest.pulls.listReviews({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            pull_number: pr.number,
+        });
+        const coderabbitaiApproval = reviews.data.find((review) => review.user?.login === "coderabbitai[bot]" &&
+            review.state === "APPROVED");
+        if (!coderabbitaiApproval) {
+            core.info("coderabbitai[bot] has not approved this PR. Skipping reviewer assignment.");
+            return;
+        }
+        core.info("coderabbitai[bot] has approved the PR. Proceeding with reviewer assignment.");
         // Reviewer 선정 & 할당
         const reviewers = await getCandidates(token);
         if (reviewers.length > 0) {
