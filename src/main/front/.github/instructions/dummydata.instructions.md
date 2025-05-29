@@ -1,4 +1,8 @@
-// Copilot Rule: When using default (dummy) data for a component, always define and export an explicit props type (e.g., MyComponentProps) for the component.
+---
+applyTo: "**/*.{ts,tsx}"
+---
+
+Coding standards, domain knowledge, and preferences that AI should follow.// Copilot Rule: When using default (dummy) data for a component, always define and export an explicit props type (e.g., MyComponentProps) for the component.
 // The default data should match the props type structure, and the component should accept the data as a prop, falling back to the default only if the prop is not provided.
 // This ensures type safety, reusability, and clarity for both real and dummy data usage.
 // Example:

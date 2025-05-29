@@ -1,5 +1,6 @@
-import { Box } from "@mui/system";
+import Box from "@mui/material/Box";
 import React from "react";
+import { Theme } from "@mui/material/styles";
 
 export interface TopBannerProps {
   title: string;
@@ -15,6 +16,7 @@ const TopBanner: React.FC<TopBannerProps> = ({
   altText,
 }) => {
   const computedAlt = altText || `${title} banner`;
+  const [imgError, setImgError] = React.useState(false);
   return (
     <Box
       sx={{
@@ -29,25 +31,48 @@ const TopBanner: React.FC<TopBannerProps> = ({
         background: "#222",
       }}
     >
-      <img
-        src={image}
-        alt={computedAlt}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          zIndex: 1,
-          opacity: 0.6,
-        }}
-      />
+      {!imgError ? (
+        <img
+          src={image}
+          alt={computedAlt}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 1,
+            opacity: 0.6,
+          }}
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "#333",
+            zIndex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: 0.7,
+          }}
+        >
+          <span style={{ color: "#fff", fontSize: "1.2rem" }}>
+            Image not available
+          </span>
+        </Box>
+      )}
       <Box sx={{ position: "relative", zIndex: 2, padding: "0 2rem" }}>
         <Box
           component="h1"
           sx={{
-            color: (theme: any) => theme.palette.common.white,
+            color: (theme: Theme) => theme.palette.common.white,
             fontSize: { xs: "1.5rem", sm: "2rem" },
             fontWeight: 700,
             m: 0,
@@ -58,7 +83,7 @@ const TopBanner: React.FC<TopBannerProps> = ({
         <Box
           component="h2"
           sx={{
-            color: (theme: any) => theme.palette.grey[100],
+            color: (theme: Theme) => theme.palette.grey[100],
             fontSize: { xs: "1rem", sm: "1.2rem" },
             fontWeight: 400,
             m: 0,

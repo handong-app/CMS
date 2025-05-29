@@ -1,5 +1,5 @@
 ---
-applyTo: "**"
+applyTo: "**/*.{test.ts,test.tsx}"
 ---
 
 Coding standards, domain knowledge, and preferences that AI should follow.
