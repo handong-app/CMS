@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import { jwtDecode } from "jwt-decode";
 
-const baseUrl = "http://localhost:8080";
+const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 interface GoogleOAuthResponse {
   accessToken: string;
