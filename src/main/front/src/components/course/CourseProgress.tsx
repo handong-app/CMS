@@ -9,30 +9,15 @@ interface CourseProgressProps {
 
 function CourseProgress({ value }: CourseProgressProps) {
   const theme = useTheme();
-  
+
   // value가 0-1 범위를 벗어나는 경우 경고 및 보정
   const normalizedValue = Math.max(0, Math.min(1, value));
-  
+
   if (value !== normalizedValue) {
     console.warn(
       `CourseProgress: value는 0-1 사이여야 합니다. 받은 값: ${value}, 보정된 값: ${normalizedValue}`
     );
   }
-
-  return (
-    <CircularProgressbar
-      value={normalizedValue}
-      maxValue={1}
-      text={`${Math.round(normalizedValue * 100)}%`}
-      /* …기존의 다른 props… */
-    />
-  );
-}
-
-export default CourseProgress;
-
-function CourseProgress({ value }: CourseProgressProps) {
-  const theme = useTheme();
 
   return (
     <CircularProgressbar
