@@ -30,7 +30,7 @@ function ClubPage() {
           lastViewedAt="2025-05-28 22:10"
         />
       </Box>
-      <Box mt={4}>
+      <Box my={4}>
         <Typography variant="h5" fontWeight={700} mb={2}>
           전체 강의
         </Typography>
