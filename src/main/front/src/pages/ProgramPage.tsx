@@ -18,23 +18,28 @@ function ProgramPage() {
       />
 
       <Box
+        display={"flex"}
+        gap={2}
+        my={2}
+        px={2}
+        py={3}
         sx={{
-          flexBasis: "50%",
-          width: "100%",
-          my: 2,
-          p: 2,
-          backgroundColor: "rgba(255, 255, 255, 0.06)",
+          borderRadius: 3,
+          boxShadow: 6,
+          // backgroundColor: "rgba(255, 255, 255, 0.02)",
+          background: "linear-gradient(135deg, #23243a 60%, #181818 100%)",
         }}
       >
-        <CourseLeaderboard myName="서노력" />
-      </Box>
-
-      <Box display={"flex"} gap={5} mt={2} p={3}>
-        <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
+        <Box
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"center"}
+          width={"30%"}
+        >
           <Typography variant="h5" fontWeight={700} align="left">
-            학습상황
+            학습현황
           </Typography>
-          <Box width={150} mt={2}>
+          <Box width={128} mt={2}>
             <CourseProgress value={0.45} />
           </Box>
         </Box>
@@ -45,9 +50,9 @@ function ProgramPage() {
           justifyContent="center"
           alignItems="center"
         >
-          <Box sx={{ mb: 2, alignSelf: "flex-start" }}>
+          <Box sx={{ alignSelf: "center" }}>
             <Typography variant="h5" fontWeight={700}>
-              마지막으로 본 강의
+              마지막 진도
             </Typography>
           </Box>
           <Box
@@ -56,6 +61,7 @@ function ProgramPage() {
             alignItems="center"
             width="100%"
             justifyContent="center"
+            mr={2}
           >
             <ContinueNodeGroup
               theme="dark"
@@ -64,9 +70,24 @@ function ProgramPage() {
               onContinue={() => alert("Continue to last lesson!")}
               thumbnail="https://images.unsplash.com/photo-1519125323398-675f0ddb6308"
               lastViewedAt="2025-05-28 22:10"
+              background="rgba(255, 255, 255, 0.05)"
             />
           </Box>
         </Box>
+      </Box>
+
+      <Box
+        sx={{
+          flexBasis: "50%",
+          width: "100%",
+          my: 2,
+          p: 2,
+          backgroundColor: "rgba(255, 255, 255, 0.06)",
+          borderRadius: 3,
+          boxShadow: 6,
+        }}
+      >
+        <CourseLeaderboard myName="서노력" />
       </Box>
 
       <Box my={4}>
