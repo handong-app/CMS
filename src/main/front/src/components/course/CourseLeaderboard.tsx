@@ -209,14 +209,12 @@ function CourseLeaderboard({
                     isMeAndLast
                       ? {
                           background: "rgba(255, 0, 0, 0.18)",
-                        {
-                          background: "rgba(255, 0, 0, 0.18)",
-+                         "@keyframes shake": {
-+                           "0%, 100%": { transform: "translateX(0)" },
-+                           "25%":       { transform: "translateX(-2px)" },
-+                           "75%":       { transform: "translateX(2px)" }
-+                         },
                           animation: "shake 0.25s 2",
+                          "@keyframes shake": {
+                            "0%, 100%": { transform: "translateX(0)" },
+                            "25%": { transform: "translateX(-2px)" },
+                            "75%": { transform: "translateX(2px)" },
+                          },
                         }
                       : isMyRow
                       ? { background: "rgba(0,82,204,0.18)" }
@@ -246,7 +244,7 @@ function CourseLeaderboard({
                       color: isMyRow
                         ? (theme) => theme.palette.primary.main
                         : undefined,
-                      "white-space": "nowrap",
+                      whiteSpace: "nowrap",
                       textAlign: "center",
                     }}
                   >
@@ -275,10 +273,6 @@ function CourseLeaderboard({
                             height: 8,
                             borderRadius: 4,
                             background: "rgba(255,255,255,0.15)",
-                            // "& .MuiLinearProgress-bar": {
-                            //   backgroundColor: (theme) =>
-                            //     theme.palette.primary.dark,
-                            // },
                           }}
                         />
                       </Box>
@@ -289,7 +283,7 @@ function CourseLeaderboard({
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ color: "#b0b0b0", "white-space": "nowrap" }}
+                    sx={{ color: "#b0b0b0", whiteSpace: "nowrap" }}
                   >
                     {formatTimestampRelativeOrAbsolute(row.lastStudiedAt)}
                   </TableCell>
