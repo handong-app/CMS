@@ -1,8 +1,7 @@
 package com.handongapp.cms.config;
 
-import com.handongapp.cms.security.AuthServiceImpl;
-import com.handongapp.cms.security.JwtAuthorizationFilter;
-import com.handongapp.cms.security.LoginProperties;
+import com.handongapp.cms.auth.service.impl.AuthServiceImpl;
+import com.handongapp.cms.security.*;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,14 +26,18 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final CorsFilterConfiguration corsFilterConfiguration;
     private final LoginProperties loginProperties;
+    private final TokenBlacklistManager tokenBlacklistManager;
 
     public SecurityConfig(AuthServiceImpl authServiceImpl,
                           UserDetailsService userDetailsService,
-                          CorsFilterConfiguration corsFilterConfiguration, LoginProperties loginProperties) {
+                          CorsFilterConfiguration corsFilterConfiguration,
+                          LoginProperties loginProperties,
+                          TokenBlacklistManager tokenBlacklistManager) {
         this.authServiceImpl = authServiceImpl;
         this.userDetailsService = userDetailsService;
         this.corsFilterConfiguration = corsFilterConfiguration;
         this.loginProperties = loginProperties;
+        this.tokenBlacklistManager = tokenBlacklistManager;
     }
 
     @Bean
@@ -54,8 +56,12 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new JwtExceptionHandlers.JwtAuthenticationEntryPoint())
+                        .accessDeniedHandler(new JwtExceptionHandlers.JwtAccessDeniedHandler())
+                )
                 .addFilterBefore(
-                        new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties),
+                        new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties, tokenBlacklistManager),
                         UsernamePasswordAuthenticationFilter.class
                 )
 
