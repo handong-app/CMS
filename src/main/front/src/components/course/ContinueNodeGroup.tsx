@@ -6,12 +6,15 @@ import {
   Box,
   Typography,
 } from "@mui/material";
+import { ResponsiveStyleValue } from "@mui/system";
+import { Property } from "csstype";
 
 export interface ContinueNodeGroupProps {
   theme: "light" | "dark";
   courseName: string;
   lessonName: string;
   onContinue: () => void;
+  background?: ResponsiveStyleValue<Property.Background<string | number>>;
   thumbnail?: string;
   lastViewedAt?: string;
 }
@@ -23,6 +26,7 @@ const ContinueNodeGroup: React.FC<ContinueNodeGroupProps> = ({
   onContinue,
   thumbnail,
   lastViewedAt,
+  background,
 }) => {
   const isDark = theme === "dark";
   return (
@@ -32,7 +36,9 @@ const ContinueNodeGroup: React.FC<ContinueNodeGroupProps> = ({
         margin: "auto",
         borderRadius: 3,
         boxShadow: 6,
-        background: isDark
+        background: background
+          ? background
+          : isDark
           ? "linear-gradient(135deg, #23243a 60%, #181818 100%)"
           : "#fff",
         color: isDark ? "#fff" : "#222",
