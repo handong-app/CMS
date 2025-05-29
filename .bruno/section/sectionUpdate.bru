@@ -1,0 +1,23 @@
+meta {
+  name: sectionUpdate
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:8080/api/v1/clubs/07a666b73c4211f08af90242ac140006/courses/new-course/sections/d6b1bbac310847e09a1785eb24f9e380
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "수정된 섹션 제목",
+    "description": "수정된 섹션 설명입니다.",
+    "order": 2
+  }
+}

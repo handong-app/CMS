@@ -1,0 +1,29 @@
+meta {
+  name: Update Comment
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/api/v1/targets/{{targetId}}/comments/{{commentIdToUpdate}}?userId={{userId}}
+  body: json
+  auth: none
+}
+
+params:query {
+  userId: {{userId}}
+}
+
+body:json {
+  {
+    "content": "댓글 내용이 수정되었습니다.",
+    "categoryId": "updatedCategory456"
+  }
+}
+
+vars:pre-request {
+  targetId: b8856eed3e2c49a089576a3fd42be3f9
+  commentIdToUpdate: 3451f4b435c642bfa56b13a87f4e529b
+  userId: asdf
+  baseUrl: http://localhost:8080
+}
