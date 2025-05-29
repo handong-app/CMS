@@ -1,7 +1,6 @@
 package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbNode;
-import com.handongapp.cms.domain.enums.ProgramProgressState;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -125,8 +124,7 @@ public class NodeDto {
     @Setter
     @Getter
     public static class NodeBaseDto {
-        //        private String title;  // 노드에 title 추가해야하나?
-        private ProgramProgressState type;
-        private String order;
+        private TbNode.NodeType type;
+        private Integer order;
     }
 }

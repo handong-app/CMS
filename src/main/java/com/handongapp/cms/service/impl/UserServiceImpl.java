@@ -4,7 +4,7 @@ import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
 import com.handongapp.cms.dto.v1.UserDto;
-import com.handongapp.cms.mapper.TbUserMapper;
+import com.handongapp.cms.mapper.UserMapper;
 import com.handongapp.cms.repository.ClubRoleRepository;
 import com.handongapp.cms.repository.UserClubRoleRepository;
 import com.handongapp.cms.repository.UserRepository;
@@ -19,29 +19,29 @@ import java.util.Objects;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository tbUserRepository;
-    private final ClubRoleRepository tbClubRoleRepository;
-    private final UserClubRoleRepository tbUserClubRoleRepository;
-    private final TbUserMapper tbUserMapper;
+    private final UserRepository userRepository;
+    private final ClubRoleRepository clubRoleRepository;
+    private final UserClubRoleRepository userClubRoleRepository;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository tbUserRepository,
-                           ClubRoleRepository tbClubRoleRepository,
-                           UserClubRoleRepository tbUserClubRoleRepository,
-                           TbUserMapper tbUserMapper) {
-            this.tbUserRepository = tbUserRepository;
-            this.tbClubRoleRepository = tbClubRoleRepository;
-            this.tbUserClubRoleRepository = tbUserClubRoleRepository;
-            this.tbUserMapper = tbUserMapper;
+    public UserServiceImpl(UserRepository userRepository,
+                           ClubRoleRepository clubRoleRepository,
+                           UserClubRoleRepository userClubRoleRepository,
+                           UserMapper userMapper) {
+            this.userRepository = userRepository;
+            this.clubRoleRepository = clubRoleRepository;
+            this.userClubRoleRepository = userClubRoleRepository;
+            this.userMapper = userMapper;
         }
 
         public TbUser saveOrUpdateUser(String userId, String email, String name) {
-            return tbUserRepository.findById(userId)
+            return userRepository.findById(userId)
                     .map(user -> {
                         user.setEmail(email);
                         user.setName(name);
-                        return tbUserRepository.save(user);
+                        return userRepository.save(user);
                     })
-                    .orElseGet(() -> tbUserRepository.save(TbUser.of( userId, name, email, null, false)));
+                    .orElseGet(() -> userRepository.save(TbUser.of( userId, name, email, null, false)));
         }
 
         /**
@@ -56,9 +56,9 @@ public class UserServiceImpl implements UserService {
             String allowedDomain = "handong.ac.kr";
             validateEmailDomain(googleUserInfoResponse.getEmail(), allowedDomain);
 
-            return tbUserRepository.findByGoogleSub(googleUserInfoResponse.getId())
+            return userRepository.findByGoogleSub(googleUserInfoResponse.getId())
                     .orElseGet(() -> {
-                        TbUser tbuser = tbUserRepository.save(
+                        TbUser tbuser = userRepository.save(
                                 TbUser.of(
                                         googleUserInfoResponse.getId(),
                                         buildUserName(googleUserInfoResponse),
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
             if (!userId.equals(customUserId))
                 throw new RuntimeException("Invalid user access");
 
-            tbUserRepository.findById(customUserId).ifPresent(tbUser -> {
+            userRepository.findById(customUserId).ifPresent(tbUser -> {
                 tbUser.setName(reqDto.getName());
                 tbUser.setStudentId(reqDto.getStudentId());
                 tbUser.setEmail(reqDto.getEmail());
@@ -93,14 +93,14 @@ public class UserServiceImpl implements UserService {
 
         @Override
         public UserDto.UserProfileResDto findUserId(String userId) {
-            UserDto.UserProfileResDto userProfileResDto = UserDto.UserProfileResDto.of(tbUserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+            UserDto.UserProfileResDto userProfileResDto = UserDto.UserProfileResDto.of(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
             return userProfileResDto;
         }
 
         @Override
         @Transactional
         public void updateUserProfileImage(UserDto.UserProfileImageReqDto reqDto, String userId) {
-            tbUserRepository.findById(userId).ifPresent(tbUser -> {
+            userRepository.findById(userId).ifPresent(tbUser -> {
                 tbUser.setPictureUrl(reqDto.getPictureUrl());
             });
         }
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         @Override
         public UserDto.UserProfileLastResDto getLastUserByNodeGroup(String userId) {
             ArrayList<UserDto.LastProgramResDto> userProfileLastResDto
-                    = (ArrayList<UserDto.LastProgramResDto>) tbUserMapper.findLastNodeGroupByCourseForUser(userId);
+                    = (ArrayList<UserDto.LastProgramResDto>) userMapper.findLastNodeGroupByCourseForUser(userId);
             return userProfileLastResDto.isEmpty() ? null : UserDto.UserProfileLastResDto.of(userProfileLastResDto);
         }
 
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
         // maybe using next time.
         private void assignUserClubRole(TbUser tbUser, TbClubRole clubRole) {
             TbUserClubRole userClubRole = TbUserClubRole.of(tbUser.getId(), null, clubRole.getId(), null);
-            tbUserClubRoleRepository.save(userClubRole);
+            userClubRoleRepository.save(userClubRole);
         }
 
         public static class InvalidEmailDomainException extends RuntimeException {

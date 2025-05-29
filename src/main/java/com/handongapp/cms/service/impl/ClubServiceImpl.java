@@ -39,16 +39,6 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public void getAllProgramsList(String clubName) {
-
-    }
-
-    @Override
-    public void getProgramInfo(String clubName, String programName) {
-
-    }
-
-    @Override
     public ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName) {
         return clubMapper.getCourseInfo(clubName, courseName);
     }
