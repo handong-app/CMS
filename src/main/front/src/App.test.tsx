@@ -1,33 +1,29 @@
 import { render, screen } from "@testing-library/react";
-import { it, expect, describe } from "vitest";
-import userEvent from "@testing-library/user-event";
+import { describe, it, expect } from "vitest";
 import "@testing-library/jest-dom";
 import App from "./App";
+import { MemoryRouter } from "react-router-dom";
 
 describe("App Component", () => {
-  it("renders Vite and React logos", () => {
-    render(<App />);
+  it("renders the logo image", () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
 
-    const viteLogo = screen.getByAltText("Vite logo");
-    const reactLogo = screen.getByAltText("React logo");
-
-    expect(viteLogo).toBeInTheDocument();
-    expect(reactLogo).toBeInTheDocument();
+    const logo = screen.getByAltText("Logo");
+    expect(logo).toBeInTheDocument();
   });
 
-  it("displays the initial count", () => {
-    render(<App />);
+  it("renders the Login button", () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
 
-    const countElement = screen.getByText(/count is 0/i);
-    expect(countElement).toBeInTheDocument();
-  });
-
-  it("increments count when button is clicked", async () => {
-    render(<App />);
-    const button = screen.getByRole("button", { name: /count is 0/i });
-    await userEvent.click(button);
-
-    const updatedCountElement = await screen.findByText(/count is 1/i);
-    expect(updatedCountElement).toBeInTheDocument();
+    const loginButton = screen.getByRole("button", { name: "Login" });
+    expect(loginButton).toBeInTheDocument();
   });
 });
