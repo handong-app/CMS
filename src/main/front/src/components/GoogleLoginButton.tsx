@@ -1,7 +1,7 @@
 // src/components/GoogleLoginButton.tsx
 import React from 'react';
 
-const baseUrl = 'http://localhost:8080';
+const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 const GoogleLoginButton: React.FC = () => {
   const onLoginClick = async () => {
