@@ -17,11 +17,6 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
         this.queryFactory = queryFactory;
     }
 
-    // clubName으로 tb_club 찾고,
-    // club.id로 tb_program의 club_id로 연결하고,
-    // programId로 tb_program에서 정보 가져오고,
-    // programId로 tb_course랑 연결해서 picture_url 받아오기
-
     @Override
     public List<ClubDto.ClubCourseListResDto> findCoursesByClubIdAndProgramId(String clubName, String programId) {
         QTbClub club = QTbClub.tbClub;

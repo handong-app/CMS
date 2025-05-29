@@ -13,6 +13,6 @@ public class NodeGroupDto {
     @Setter
     public static class NodeGroupBaseDto {
         private String title;
-        private String order;
+        private Integer order;
     }
 }
