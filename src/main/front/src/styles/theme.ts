@@ -5,6 +5,7 @@ const theme = createTheme({
     mode: "dark",
     primary: {
       main: "#0052CC", // 서비스 메인 블루 (WCAG AA 대비율 ≥ 4.5)
+      light: "#7AB8FF", // main보다 더 연한 블루
       contrastText: "#fff",
     },
     secondary: {
