@@ -45,7 +45,7 @@ function ProgramPage() {
           justifyContent="center"
           alignItems="center"
         >
-          <Box sx={{ mb: 2, align: "left", sx: { alignSelf: "flex-start" } }}>
+          <Box sx={{ mb: 2, alignSelf: "flex-start" }}>
             <Typography variant="h5" fontWeight={700}>
               마지막으로 본 강의
             </Typography>
