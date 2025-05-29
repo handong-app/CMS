@@ -8,7 +8,7 @@ describe("TopCourseBanner", () => {
     producer: "Test Producer",
     image: "https://example.com/banner.jpg",
     altText: "Test Banner Alt",
-    courseDiscription: "Test course description.",
+    courseDescription: "Test course description.",
     onContinue: vi.fn(),
   };
 

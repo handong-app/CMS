@@ -11,9 +11,9 @@ function CoursePage() {
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
       <TopCourseBanner
-        title="시스템 해킹과 보안"
-        producer="20학번 이승현"
-        courseDiscription="이 강의는 시스템 해킹과 보안에 대한 기초부터 심화까지 다룹니다. 다양한 해킹 기법과 방어 전략을 배우며, 실제 사례를 통해 실력을 향상시킬 수 있습니다."
+        title={courseDummyData.courseTitle}
+        producer={courseDummyData.instructor}
+        courseDescription="이 강의는 시스템 해킹과 보안에 대한 기초부터 심화까지 다룹니다. 다양한 해킹 기법과 방어 전략을 배우며, 실제 사례를 통해 실력을 향상시킬 수 있습니다."
         image="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg"
         onContinue={() => alert("Continue to last lesson!")}
       />
