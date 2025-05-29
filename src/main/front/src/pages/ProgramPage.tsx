@@ -18,50 +18,94 @@ function ProgramPage() {
       />
 
       <Box
-        display={"flex"}
-        gap={2}
+        display="flex"
+        width="100%"
         my={2}
-        px={2}
-        py={3}
+        // p={2}
+        gap={2}
         sx={{
-          borderRadius: 3,
-          boxShadow: 6,
-          // backgroundColor: "rgba(255, 255, 255, 0.02)",
-          background: "linear-gradient(135deg, #23243a 60%, #181818 100%)",
+          // borderRadius: 3,
+          // boxShadow: 6,
+          // background: "linear-gradient(135deg, #23243a 60%, #181818 100%)",
+          alignItems: "stretch",
         }}
       >
+        {/* 왼쪽: 학습현황 */}
         <Box
-          display={"flex"}
-          flexDirection={"column"}
-          alignItems={"center"}
-          width={"30%"}
-        >
-          <Typography variant="h5" fontWeight={700} align="left">
-            학습현황
-          </Typography>
-          <Box width={128} mt={2}>
-            <CourseProgress value={0.45} />
-          </Box>
-        </Box>
-        <Box
-          flexGrow={1}
           display="flex"
           flexDirection="column"
-          justifyContent="center"
           alignItems="center"
+          justifyContent="flex-start"
+          width="30%"
         >
-          <Box sx={{ alignSelf: "center" }}>
-            <Typography variant="h5" fontWeight={700}>
-              마지막 진도
-            </Typography>
+          {/* <Typography
+            variant="h5"
+            fontWeight={700}
+            align="center"
+            sx={{
+              mb: 2,
+              height: 40,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            학습현황
+          </Typography> */}
+          <Box
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="space-evenly"
+            width="100%"
+            sx={{
+              background: "rgba(255, 255, 255, 0.05)",
+              borderRadius: 3,
+              boxShadow: 6,
+              p: 2,
+            }}
+          >
+            <Box width={96}>
+              <CourseProgress value={0.45} />
+            </Box>
+            <Box textAlign="center">
+              <Typography variant="body1" color="text.secondary">
+                진행한 강의
+              </Typography>
+              <Typography variant="h5" fontWeight={700}>
+                3개
+              </Typography>
+            </Box>
           </Box>
+        </Box>
+        {/* 오른쪽: 마지막 진도 */}
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="flex-start"
+          flexGrow={1}
+        >
+          {/* <Typography
+            variant="h5"
+            fontWeight={700}
+            align="center"
+            sx={{
+              mb: 2,
+              height: 40,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            마지막 진도
+          </Typography> */}
           <Box
             display="flex"
             flexGrow={1}
             alignItems="center"
             width="100%"
             justifyContent="center"
-            mr={2}
           >
             <ContinueNodeGroup
               theme="dark"
