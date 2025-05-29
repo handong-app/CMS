@@ -10,17 +10,23 @@ interface UserInfo {
 interface AuthState {
   jwtToken: string | null;
   user: UserInfo | null;
+  refreshToken: string | null;
   setJwtToken: (token: string | null) => void;
+  setRefreshToken: (token: string | null) => void;
   setUser: (user: UserInfo | null) => void;
+  clearAuth: () => void;
 }
 
 const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       jwtToken: null,
+      refreshToken: null,
       user: null,
       setJwtToken: (token) => set({ jwtToken: token }),
+      setRefreshToken: (token) => set({ refreshToken: token }), 
       setUser: (user) => set({ user }),
+      clearAuth: () => set({ jwtToken: null, refreshToken: null, user: null }),
     }),
     {
       name: "auth", // localStorage key
