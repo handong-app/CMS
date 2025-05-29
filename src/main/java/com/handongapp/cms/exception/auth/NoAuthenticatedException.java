@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * 해당 메서드 권한 없을 경우 사용되는 예외처리
- * HttpStatus FORBIDDEN
+ * HttpStatus UNAUTHORIZED
  */
 @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
 @NoArgsConstructor
