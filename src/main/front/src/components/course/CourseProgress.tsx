@@ -25,12 +25,15 @@ function CourseProgress({ value }: CourseProgressProps) {
       maxValue={1}
       text={`${value * 100}%`}
       styles={buildStyles({
-        // Import useTheme from MUI
         pathColor: theme.palette.primary.main,
         textColor: theme.palette.text.primary,
         trailColor: theme.palette.grey[300],
         backgroundColor: theme.palette.background.paper,
       })}
+      aria-label="학습 진행률"
+      aria-valuenow={Math.round(normalizedValue * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
     />
   );
 }
