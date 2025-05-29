@@ -33,7 +33,7 @@ function CourseList({ courses }: CourseListProps) {
     <Box sx={{ display: "flex", gap: 2 }}>
       {data.map((course, idx) => (
         <CourseItem
-          key={course.name + idx}
+          key={`course-${idx}-${course.name}`}
           name={course.name}
           picture={course.picture}
           progress={course.progress}
