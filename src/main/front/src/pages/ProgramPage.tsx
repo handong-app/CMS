@@ -31,6 +31,7 @@ function ProgramPage() {
           gap={2}
           sx={{
             alignItems: "stretch",
+            cursor: "default",
           }}
         >
           {/* 왼쪽: 학습현황 */}
