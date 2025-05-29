@@ -1,8 +1,9 @@
 package com.handongapp.cms.domain;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * <p>TbNodeGroup Entity – logical grouping of Nodes inside a Course Section.</p>
@@ -11,6 +12,9 @@ import java.util.List;
  *   Node is the leaf).</p>
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "tb_node_group",
         indexes = {
                 @Index(columnList = "deleted")
