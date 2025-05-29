@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router-dom"; // ✅ react-router-dom 사용
 import App from "./App.tsx";
 import "./index.css";
 import ProductView from "./pages/ProductView.tsx";
@@ -9,25 +9,26 @@ import ClubPage from "./pages/ClubPage.tsx";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./styles/theme";
 
-import LandingPage from "./pages/LandingPage"; // 랜딩 페이지 추가
-import GoogleCallback from "./pages/GoogleCallback"; // 콜백 추가
-import ProfileRegistrationPage from "./pages/ProfileRegistrationPage"; // 프로필 등록 페이지 추가
+// 페이지 컴포넌트
+import LandingPage from "./pages/LandingPage.tsx";
+import GoogleCallback from "./pages/GoogleCallback.tsx";
+import ProfileRegistrationPage from "./pages/ProfileRegistrationPage.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    children: [ // ✅ 여기에 LandingPage 포함시켜야 Outlet이 동작함
+    children: [
       {
-        path: "",
+        index: true, // 👉 기본 경로로 접속 시 LandingPage 렌더링
         element: <LandingPage />,
       },
       {
-        path: "/google/callback",
+        path: "google/callback",
         element: <GoogleCallback />,
       },
       {
-        path: "/register",
+        path: "register",
         element: <ProfileRegistrationPage />,
       },
     ],
@@ -45,7 +46,6 @@ const router = createBrowserRouter([
     element: <ProgramPage />,
   },
 ]);
-
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
