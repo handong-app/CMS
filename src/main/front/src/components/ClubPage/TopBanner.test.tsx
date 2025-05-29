@@ -37,4 +37,34 @@ describe("TopBanner", () => {
     const img = screen.getByAltText(/banner/i);
     expect(img).toHaveAttribute("src", "https://example.com/banner.jpg");
   });
+
+  it("applies custom height prop", () => {
+    const { container } = render(
+      <ThemeProvider theme={theme}>
+        <TopBanner
+          title="Height Test"
+          subtitle="Subtitle"
+          image="https://example.com/banner.jpg"
+          height={500}
+        />
+      </ThemeProvider>
+    );
+
+    expect(container.firstChild).toHaveStyle("height: 500px");
+  });
+
+  it("applies custom textJustify prop", () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <TopBanner
+          title="Justify Test"
+          subtitle="Subtitle"
+          image="https://example.com/banner.jpg"
+          textJustify="end"
+        />
+      </ThemeProvider>
+    );
+    const topBanner = screen.getByTestId("top-banner");
+    expect(topBanner).toHaveStyle("justify-content: end");
+  });
 });
