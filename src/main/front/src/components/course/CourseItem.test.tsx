@@ -33,7 +33,7 @@ describe("CourseItem", () => {
     expect(screen.getByText(course.name)).to.exist;
   });
 
-  it.skip("renders course progress", () => {
+  it("renders course progress bar with correct value", () => {
     render(
       <CourseItem
         name={course.name}
@@ -41,6 +41,10 @@ describe("CourseItem", () => {
         progress={course.progress}
       />
     );
-    expect(screen.getByText(/70%/)).to.exist;
+    const progressBar = screen.getByRole("progressbar");
+    expect(progressBar).toHaveAttribute(
+      "aria-valuenow",
+      course.progress.toString()
+    );
   });
 });
