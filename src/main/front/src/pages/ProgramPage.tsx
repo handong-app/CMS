@@ -8,7 +8,7 @@ import CourseLeaderboard from "../components/course/CourseLeaderboard";
 
 function ProgramPage() {
   return (
-    <Box maxWidth={980} margin="auto">
+    <Box maxWidth={980} margin="auto" px={3}>
       <TopBanner
         title="GBC 2025년도 프로그램"
         subtitle="함께 성장하는 GBC 2025년도 프로그램에 오신 것을 환영합니다!"
