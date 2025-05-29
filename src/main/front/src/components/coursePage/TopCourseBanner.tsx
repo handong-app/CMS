@@ -7,7 +7,7 @@ export interface TopBannerProps {
   producer: string;
   image: string;
   altText?: string;
-  courseDiscription?: string;
+  courseDescription?: string;
   onContinue: () => void;
 }
 
@@ -16,7 +16,7 @@ const TopCourseBanner: React.FC<TopBannerProps> = ({
   producer,
   image,
   altText,
-  courseDiscription,
+  courseDescription,
   onContinue,
 }) => {
   const computedAlt = altText || `${title} banner`;
@@ -105,7 +105,7 @@ const TopCourseBanner: React.FC<TopBannerProps> = ({
             maxWidth: 600,
           }}
         >
-          {courseDiscription}
+          {courseDescription}
         </Box>
       </Box>
       <Box

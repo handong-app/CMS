@@ -91,8 +91,8 @@ export const courseDummyData = {
     //       description: "리눅스를 통해 해킹을 실습해보고 배우는 강의",
     //       isCompleted: false,
     //       nodes: [
-    //         { id: "n10", type: "video" as const, title: "네트워크 패킷 분석" },
-    //         { id: "n11", type: "doc" as const, title: "네트워크 개요 문서" },
+    //         { id: "n14", type: "video" as const, title: "네트워크 패킷 분석" },
+    //         { id: "n15", type: "doc" as const, title: "네트워크 개요 문서" },
     //       ],
     //     },
     //     {
@@ -101,8 +101,8 @@ export const courseDummyData = {
     //       description: "리눅스를 통해 해킹을 실습해보고 배우는 강의",
     //       isCompleted: false,
     //       nodes: [
-    //         { id: "n12", type: "video" as const, title: "우회 전략 강의" },
-    //         { id: "n13", type: "image" as const, title: "우회 다이어그램" },
+    //         { id: "n16", type: "video" as const, title: "우회 전략 강의" },
+    //         { id: "n17", type: "image" as const, title: "우회 다이어그램" },
     //       ],
     //     },
     //   ],
