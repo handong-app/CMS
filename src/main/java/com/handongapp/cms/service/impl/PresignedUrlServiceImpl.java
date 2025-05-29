@@ -1,8 +1,11 @@
 package com.handongapp.cms.service.impl;
 
+import com.handongapp.cms.exception.file.PresignedUrlCreationException;
 import com.handongapp.cms.service.PresignedUrlService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -16,7 +19,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
+import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class PresignedUrlServiceImpl implements PresignedUrlService {
 
@@ -44,18 +49,31 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
 
     @Override
     public URL generateUploadUrl(String filename, String contentType) {
-        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(filename)
-                .contentType(contentType)
-                .build();
+        validateInput(filename, "파일명");
+        validateInput(contentType, "콘텐츠 타입");
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
-                .putObjectRequest(objectRequest)
-                .build();
+        // 파일명 보안 검증
+        if (!isValidFilename(filename)) {
+            throw new IllegalArgumentException("유효하지 않은 파일명입니다: " + filename);
+        }
 
-        return presigner.presignPutObject(presignRequest).url();
+        try {
+            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(filename)
+                    .contentType(contentType)
+                    .build();
+
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofMinutes(10))
+                    .putObjectRequest(objectRequest)
+                    .build();
+
+            return presigner.presignPutObject(presignRequest).url();
+        } catch (Exception e) {
+            log.error("Presigned URL 생성 실패: filename={}, contentType={}", filename, contentType, e);
+            throw new PresignedUrlCreationException("Presigned URL 생성 중 오류가 발생했습니다", e);
+        }
     }
 
     @Override
@@ -71,5 +89,19 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                 .build();
 
         return presigner.presignGetObject(presignRequest).url();
+    }
+
+    private void validateInput(String input, String fieldName) {
+        if (!StringUtils.hasText(input)) {
+            throw new IllegalArgumentException(fieldName + "은(는) 필수입니다");
+        }
+    }
+    private boolean isValidFilename(String filename) {
+        // 경로 순회 공격 방지 및 특수문자 제한
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9._-]+$");
+        return !filename.contains("..")
+                && !filename.startsWith("/")
+                && pattern.matcher(filename).matches()
+                && filename.length() <= 255;
     }
 }
