@@ -21,12 +21,8 @@ function ProgramPage() {
         display="flex"
         width="100%"
         my={2}
-        // p={2}
         gap={2}
         sx={{
-          // borderRadius: 3,
-          // boxShadow: 6,
-          // background: "linear-gradient(135deg, #23243a 60%, #181818 100%)",
           alignItems: "stretch",
         }}
       >
@@ -38,25 +34,11 @@ function ProgramPage() {
           justifyContent="flex-start"
           width="30%"
         >
-          {/* <Typography
-            variant="h5"
-            fontWeight={700}
-            align="center"
-            sx={{
-              mb: 2,
-              height: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            학습현황
-          </Typography> */}
           <Box
             display="flex"
             flexDirection="row"
             alignItems="center"
-            justifyContent="space-evenly"
+            justifyContent="space-around"
             width="100%"
             sx={{
               background: "rgba(255, 255, 255, 0.05)",
@@ -69,11 +51,11 @@ function ProgramPage() {
               <CourseProgress value={0.45} />
             </Box>
             <Box textAlign="center">
-              <Typography variant="body1" color="text.secondary">
-                진행한 강의
+              <Typography variant="body1" color="text.secondary" mb={1}>
+                남은 강의
               </Typography>
               <Typography variant="h5" fontWeight={700}>
-                3개
+                28개
               </Typography>
             </Box>
           </Box>
@@ -86,20 +68,6 @@ function ProgramPage() {
           justifyContent="flex-start"
           flexGrow={1}
         >
-          {/* <Typography
-            variant="h5"
-            fontWeight={700}
-            align="center"
-            sx={{
-              mb: 2,
-              height: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            마지막 진도
-          </Typography> */}
           <Box
             display="flex"
             flexGrow={1}
