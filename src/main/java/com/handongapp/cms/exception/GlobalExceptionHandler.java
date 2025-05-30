@@ -7,6 +7,8 @@ import com.handongapp.cms.exception.auth.NoAuthorizationException;
 import com.handongapp.cms.exception.data.DuplicateEntityException;
 import com.handongapp.cms.exception.data.DuplicateTagCodeException;
 import com.handongapp.cms.exception.data.NotFoundException;
+import com.handongapp.cms.exception.file.PresignedUrlCreationException;
+import com.handongapp.cms.exception.file.UploadNotificationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,6 +29,8 @@ public class GlobalExceptionHandler {
             DuplicateEntityException.class,
             DuplicateTagCodeException.class,
             NotFoundException.class,
+            UploadNotificationException.class,
+            PresignedUrlCreationException.class
     })
     public ResponseEntity<Map<String, Object>> handleCustomExceptions(Exception ex) {
         HttpStatus status = resolveHttpStatus(ex);
