@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.handongapp.cms.mapper.ClubMapper">
+
+    <resultMap id="CourseInfoMap" type="com.handongapp.cms.dto.v1.ClubDto$ClubCourseInfoResDto">
+        <result column="course_title" property="courseTitle"/>
+        <result column="program_creator" property="programCreator"/>
+        <result column="course_description" property="courseDescription"/>
+        <result column="course_picture_url" property="coursePictureUrl"/>
+
+        <collection property="categoryList" ofType="com.handongapp.cms.dto.v1.CategoryOfCommentDto$CategoryOfCommentBaseDto">
+            <result column="category_slug" property="slug"/>
+            <result column="category_label" property="label"/>
+            <result column="category_emoji" property="emoji"/>
+        </collection>
+
+        <collection property="sectionList" ofType="com.handongapp.cms.dto.v1.SectionDto$SectionBaseDto">
+            <result column="section_title" property="title"/>
+            <result column="section_order" property="order"/>
+        </collection>
+
+        <collection property="nodeGroupList" ofType="com.handongapp.cms.dto.v1.NodeGroupDto$NodeGroupBaseDto">
+            <result column="node_group_title" property="title"/>
+            <result column="node_group_order" property="order"/>
+        </collection>
+
+        <collection property="nodeList" ofType="com.handongapp.cms.dto.v1.NodeDto$NodeBaseDto">
+            <result column="node_type" property="type"/>
+            <result column="node_order" property="order"/>
+        </collection>
+    </resultMap>
+
+    <select id="getCourseInfo" resultMap="CourseInfoMap">
+        SELECT
+            c.title AS course_title,
+            u.name AS program_creator,
+            c.description AS course_description,
+            c.picture_url AS course_picture_url,
+
+            cc.slug AS category_slug,
+            cc.label AS category_label,
+            cc.emoji AS category_emoji,
+
+            s.title AS section_title,
+            s.`order` AS section_order,
+
+            ng.title AS node_group_title,
+            ng.`order` AS node_group_order,
+
+            n.`type` AS node_type,
+            n.`order` AS node_order
+
+        FROM tb_course c
+                 JOIN tb_club club ON c.club_id = club.id
+                 JOIN tb_user u ON c.user_id = u.id
+                 JOIN tb_comment_of_category cc ON cc.course_id = c.id
+                 JOIN tb_section s ON s.course_id = c.id
+                 JOIN tb_node_group ng ON ng.section_id = s.id
+                 JOIN tb_node n ON n.node_group_id = ng.id
+
+        WHERE club.name = #{clubName}
+          AND c.slug = #{courseName}
+
+        ORDER BY s.`order`, ng.`order`, n.`order`
+    </select>
+</mapper>

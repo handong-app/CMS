@@ -1,14 +1,14 @@
 package com.handongapp.cms.auth.service.impl;
 
 import com.handongapp.cms.domain.TbUser;
-import com.handongapp.cms.repository.TbUserRepository;
+import com.handongapp.cms.repository.UserRepository;
 import com.handongapp.cms.auth.service.AuthService;
 import com.handongapp.cms.security.LoginProperties;
 import com.handongapp.cms.auth.dto.GoogleOAuthResponse;
 import com.handongapp.cms.auth.dto.GoogleTokenResponse;
 import com.handongapp.cms.auth.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.auth.service.GoogleOAuthService;
-import com.handongapp.cms.service.TbUserService;
+import com.handongapp.cms.service.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -26,15 +26,15 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
 
     private final WebClient webClient;
     private final LoginProperties loginProperties;
-    private final TbUserService tbUserService;
+    private final UserService tbUserService;
     private final AuthService authService;
-    private final TbUserRepository tbUserRepository;
+    private final UserRepository tbUserRepository;
 
     public GoogleOAuthServiceImpl(WebClient.Builder webClientBuilder,
                                   LoginProperties loginProperties,
-                                  TbUserService tbUserService,
+                                  UserService tbUserService,
                                   AuthService authService,
-                                  TbUserRepository tbUserRepository) {
+                                  UserRepository tbUserRepository) {
         this.webClient = webClientBuilder.build();
         this.loginProperties = loginProperties;
         this.tbUserService = tbUserService;
@@ -60,7 +60,8 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
     }
 
 
-    GoogleTokenResponse getAccessToken(String authorizationCode) {
+    @Override
+    public GoogleTokenResponse getAccessToken(String authorizationCode) {
         return webClient.post()
                 .uri("https://oauth2.googleapis.com/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -76,7 +77,7 @@ public class GoogleOAuthServiceImpl implements GoogleOAuthService {
                 .block();
     }
 
-
+    @Override
     public GoogleUserInfoResponse getUserInfo(String accessToken) {
         return webClient.get()
                 .uri("https://www.googleapis.com/oauth2/v2/userinfo")

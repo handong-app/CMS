@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TbCommentRepository extends JpaRepository<TbComment, String> {
-    
+public interface CommentRepository extends JpaRepository<TbComment, String> {
+
     List<TbComment> findByTargetIdAndDeleted(String targetId, String deleted);
     Optional<TbComment> findByUserIdAndTargetIdAndDeleted(String userId, String targetId, String deleted);
     Optional<TbComment> findByIdAndDeleted(String id, String deleted);

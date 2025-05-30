@@ -2,7 +2,8 @@ package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbNode;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -116,5 +117,14 @@ public class NodeDto {
                 entity.setAttachmentUrl(this.attachmentUrl);
             }
         }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class NodeBaseDto {
+        private TbNode.NodeType type;
+        private Integer order;
     }
 }

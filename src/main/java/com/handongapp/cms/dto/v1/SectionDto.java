@@ -4,6 +4,10 @@ import com.handongapp.cms.domain.TbSection;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 public class SectionDto {
 
@@ -22,7 +26,7 @@ public class SectionDto {
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
 
-        public Response(String id, String courseId, String title, String description, 
+        public Response(String id, String courseId, String title, String description,
                       Integer order, LocalDateTime createdAt, LocalDateTime updatedAt) {
             this.id = id;
             this.courseId = courseId;
@@ -84,6 +88,7 @@ public class SectionDto {
             this.order = order;
         }
 
+
         public void applyTo(TbSection entity) {
             if (this.title != null) {
                 entity.setTitle(this.title);
@@ -96,4 +101,14 @@ public class SectionDto {
             }
         }
     }
+
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Setter
+        @Getter
+        public static class SectionBaseDto {
+                private String title;
+                private Integer order;
+        }
 }

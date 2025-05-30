@@ -2,7 +2,7 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbSection;
 import com.handongapp.cms.dto.v1.SectionDto;
-import com.handongapp.cms.repository.TbSectionRepository;
+import com.handongapp.cms.repository.SectionRepository;
 import com.handongapp.cms.service.SectionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,20 +16,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SectionServiceImpl implements SectionService {
 
-    private final TbSectionRepository tbSectionRepository;
+    private final SectionRepository sectionRepository;
 
     @Override
     @Transactional
     public SectionDto.Response create(String courseId, SectionDto.CreateRequest req) {
         TbSection entity = req.toEntity(courseId);
-        TbSection savedSection = tbSectionRepository.save(entity);
+        TbSection savedSection = sectionRepository.save(entity);
         return SectionDto.Response.from(savedSection);
     }
 
     @Override
     @Transactional(readOnly = true)
     public SectionDto.Response get(String id) {
-        TbSection section = tbSectionRepository.findByIdAndDeleted(id, "N")
+        TbSection section = sectionRepository.findByIdAndDeleted(id, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Section not found with id: " + id));
         return SectionDto.Response.from(section);
     }
@@ -37,7 +37,7 @@ public class SectionServiceImpl implements SectionService {
     @Override
     @Transactional(readOnly = true)
     public List<SectionDto.Response> listByCourse(String courseId) {
-        return tbSectionRepository.findByCourseIdAndDeletedOrderByOrderAsc(courseId, "N")
+        return sectionRepository.findByCourseIdAndDeletedOrderByOrderAsc(courseId, "N")
                 .stream()
                 .map(SectionDto.Response::from)
                 .collect(Collectors.toList());
@@ -46,7 +46,7 @@ public class SectionServiceImpl implements SectionService {
     @Override
     @Transactional
     public SectionDto.Response update(String id, SectionDto.UpdateRequest req) {
-        TbSection entity = tbSectionRepository.findByIdAndDeleted(id, "N")
+        TbSection entity = sectionRepository.findByIdAndDeleted(id, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Section not found with id: " + id));
         req.applyTo(entity);
         return SectionDto.Response.from(entity);
@@ -55,7 +55,7 @@ public class SectionServiceImpl implements SectionService {
     @Override
     @Transactional
     public void deleteSoft(String id) {
-        TbSection entity = tbSectionRepository.findByIdAndDeleted(id, "N")
+        TbSection entity = sectionRepository.findByIdAndDeleted(id, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Section not found with id: " + id));
         entity.setDeleted("Y");
     }

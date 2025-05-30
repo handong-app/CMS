@@ -2,7 +2,7 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbComment;
 import com.handongapp.cms.dto.v1.CommentDto;
-import com.handongapp.cms.repository.TbCommentRepository;
+import com.handongapp.cms.repository.CommentRepository;
 import com.handongapp.cms.service.CommentService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    private final TbCommentRepository commentRepository;
+    private final CommentRepository commentRepository;
     private static final String DELETED_STATUS_NO = "N";
     private static final String DELETED_STATUS_YES = "Y";
 

@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TbNodeGroupRepository extends JpaRepository<TbNodeGroup, String> {
+public interface NodeGroupRepository extends JpaRepository<TbNodeGroup, String> {
     Optional<TbNodeGroup> findByIdAndDeleted(String id, String deleted);
     List<TbNodeGroup> findBySectionIdAndDeletedOrderByOrderAsc(String sectionId, String deleted);
 }
-
-

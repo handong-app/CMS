@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TbSectionRepository extends JpaRepository<TbSection, String> {
+public interface SectionRepository extends JpaRepository<TbSection, String> {
     Optional<TbSection> findByIdAndDeleted(String id, String deleted);
     List<TbSection> findByCourseIdAndDeletedOrderByOrderAsc(String courseId, String deleted);
 }

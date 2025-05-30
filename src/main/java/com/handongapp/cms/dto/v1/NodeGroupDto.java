@@ -4,6 +4,10 @@ import com.handongapp.cms.domain.TbNodeGroup;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 public class NodeGroupDto {
 
@@ -92,5 +96,14 @@ public class NodeGroupDto {
                 entity.setOrder(this.order);
             }
         }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class NodeGroupBaseDto {
+        private String title;
+        private Integer order;
     }
 }
