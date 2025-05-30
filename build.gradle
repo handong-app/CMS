@@ -86,6 +86,10 @@ dependencies {
 // MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 
+//  For Message Queue
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+
 //  hibernate Validator
     implementation 'org.hibernate.validator:hibernate-validator'
 
