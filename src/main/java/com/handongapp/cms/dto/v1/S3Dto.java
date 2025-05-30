@@ -8,12 +8,9 @@ import lombok.*;
 public class S3Dto {
     private S3Dto() {}
 
+    @Data
     @Builder
-    @Schema
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Schema(description = "S3 업로드 URL 요청")
     public static class UploadUrlRequest {
         @NotBlank(message = "파일명은 필수입니다")
         private String filename;
@@ -25,33 +22,24 @@ public class S3Dto {
         private String contentType;
     }
 
+    @Data
     @Builder
-    @Schema
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Schema(description = "S3 업로드 URL 응답")
     public static class UploadUrlResponse {
         private String presignedUrl;
     }
 
+    @Data
     @Builder
-    @Schema
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Schema(description = "업로드 완료 알림")
     public static class UploadCompleteDto {
         private String filename;
         private String filetype;
     }
 
+    @Data
     @Builder
-    @Schema
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Schema(description = "S3 다운로드 URL 응답")
     public static class DownloadUrlResponse {
         private String presignedUrl;
     }
