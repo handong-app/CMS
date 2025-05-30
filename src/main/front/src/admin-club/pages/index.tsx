@@ -10,6 +10,7 @@ import AdminClubMemberListPage from "./AdminClubMemberListPage";
 import AdminCoursePage from "./AdminCoursePage";
 import AdminProgramListPage from "./AdminProgramListPage";
 import AdminProgramPage from "./AdminProgramPage";
+import AdminCommentListPage from "./AdminCommentListPage";
 
 export const CLUB_ADMINMENU = [
   {
@@ -71,6 +72,6 @@ export const CLUB_ADMINMENU = [
     title: "댓글 관리",
     icon: <CommentIcon />,
     id: "comment",
-    comp: AdminTestPage,
+    comp: AdminCommentListPage,
   },
 ];
