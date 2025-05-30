@@ -2,6 +2,7 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.exception.file.PresignedUrlCreationException;
 import com.handongapp.cms.service.PresignedUrlService;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,14 +28,17 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
 
     private final S3Presigner presigner;
     private final String bucket;
+    private final Duration signatureDuration;
 
     public PresignedUrlServiceImpl(
             @Value("${cloud.aws.s3.bucket}") String bucket,
             @Value("${cloud.aws.credentials.access-key}") String accessKey,
             @Value("${cloud.aws.credentials.secret-key}") String secretKey,
-            @Value("${cloud.aws.endpoint}") String endpoint
+            @Value("${cloud.aws.endpoint}") String endpoint,
+            @Value("${cloud.aws.s3.presigned-url-duration}") Duration signatureDuration
     ) {
         this.bucket = bucket;
+        this.signatureDuration = signatureDuration;
 
         this.presigner = S3Presigner.builder()
                 .credentialsProvider(StaticCredentialsProvider.create(
@@ -65,7 +69,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                     .build();
 
             PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(10))
+                    .signatureDuration(signatureDuration)
                     .putObjectRequest(objectRequest)
                     .build();
 
@@ -84,7 +88,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
+                .signatureDuration(signatureDuration)
                 .getObjectRequest(getObjectRequest)
                 .build();
 
@@ -103,5 +107,12 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                 && !filename.startsWith("/")
                 && pattern.matcher(filename).matches()
                 && filename.length() <= 255;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (presigner != null) {
+            presigner.close();
+        }
     }
 }
