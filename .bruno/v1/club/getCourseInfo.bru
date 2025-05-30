@@ -1,0 +1,17 @@
+meta {
+  name: Get Club Course Info
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  clubSlug: example-club-slug
+  courseSlug: example-course-slug
+  host: localhost:8080
+}

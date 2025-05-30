@@ -1,0 +1,16 @@
+meta {
+  name: Get Club Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://{{host}}/api/v1/clubs/{{clubSlug}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  clubSlug: example-club-slug
+  host: localhost:8080
+}

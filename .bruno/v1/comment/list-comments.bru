@@ -1,0 +1,16 @@
+meta {
+  name: List Comments by Target
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/targets/{{targetId}}/comments
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  targetId: b8856eed3e2c49a089576a3fd42be3f9
+  baseUrl: http://localhost:8080
+}

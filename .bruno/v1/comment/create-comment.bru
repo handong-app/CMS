@@ -1,0 +1,27 @@
+meta {
+  name: Create Comment
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/v1/targets/{{targetId}}/comments?userId={{userId}}
+  body: json
+  auth: none
+}
+
+params:query {
+  userId: {{userId}}
+}
+
+body:json {
+  {
+    "content": "첫 번째 테스트 댓글입니다!",
+    "categoryId": "sampleCategory123"
+  }
+}
+
+vars:pre-request {
+  targetId: b8856eed3e2c49a089576a3fd42be3f9
+  userId: asdf
+}

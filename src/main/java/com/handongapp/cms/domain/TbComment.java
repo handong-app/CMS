@@ -1,5 +1,8 @@
 package com.handongapp.cms.domain;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * <p>TbComment Entity – user-generated comment bound to a Node.</p>
@@ -14,6 +17,9 @@ import jakarta.persistence.*;
                 , @Index(columnList = "updatedAt")
         }
 )
+@Getter
+@Setter
+@NoArgsConstructor
 public class TbComment extends AuditingFields {
 
     /** Author – UUID */

@@ -5,13 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
 
 @Getter
+@Setter
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name="tb_club",
         indexes = {
@@ -22,18 +25,12 @@ import org.hibernate.validator.constraints.URL;
 )
 public class TbClub extends AuditingFields {
 
-    @Column(length = 120, nullable = false) @NotBlank @Setter private String name;
+    @Column(length = 120, nullable = false) @NotBlank private String name;
 
-    @Column(length = 100, nullable = false) @NotBlank @Setter private String slug;
+    @Column(length = 100, nullable = false, unique = true) @NotBlank private String slug;
 
-    @Column(columnDefinition = "TEXT") @URL @Setter private String bannerUrl;
+    @Column(columnDefinition = "TEXT") @URL private String bannerUrl;
 
-    @Column(columnDefinition = "TEXT") @Setter  private String description;
+    @Column(columnDefinition = "TEXT") private String description;
 
-    public TbClub(String name, String slug, String bannerUrl, String description) {
-        this.name = name;
-        this.slug = slug;
-        this.bannerUrl = bannerUrl;
-        this.description = description;
-    }
 }

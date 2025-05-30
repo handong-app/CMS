@@ -21,8 +21,8 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public ClubDto.ClubProfileResDto getClubProfile(String clubName) {
-            return clubRepository.findByName(clubName)
+    public ClubDto.ClubProfileResDto getClubProfile(String clubSlug) {
+            return clubRepository.findBySlug(clubSlug)
             .map(club -> new ClubDto.ClubProfileResDto(
             club.getName(),
             club.getSlug(),
@@ -32,15 +32,22 @@ public class ClubServiceImpl implements ClubService {
             .orElse(null);
     }
 
-    @Override
     @Transactional
-    public void updateClubProfile(String clubName, ClubDto.ClubProfileReqDto clubProfileResDto) {
-        clubRepository.save(new TbClub(clubName, clubProfileResDto.getSlug(), clubProfileResDto.getDescription(), clubProfileResDto.getBannerUrl()));
+    public void updateClubProfile(String clubSlug, ClubDto.ClubProfileReqDto dto) {
+        TbClub club = clubRepository.findBySlug(clubSlug)
+            .orElse(new TbClub()); // 새 엔티티로 초기화 (upsert 구현 목적)
+    
+        club.setSlug(dto.getSlug());
+        club.setName(dto.getName());
+        club.setDescription(dto.getDescription());
+        club.setBannerUrl(dto.getBannerUrl());
+    
+        clubRepository.save(club); 
     }
+    
 
     @Override
-    public ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName) {
-        return clubMapper.getCourseInfo(clubName, courseName);
+    public String getCoursesByClubSlugAsJson(String clubSlug) {
+        return clubMapper.getCoursesByClubSlugAsJson(clubSlug);
     }
-
 }
