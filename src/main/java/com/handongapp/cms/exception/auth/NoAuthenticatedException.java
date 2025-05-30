@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * HttpStatus UNAUTHORIZED
  */
 @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+@SuppressWarnings("serial")
 @NoArgsConstructor
 public class NoAuthenticatedException extends RuntimeException {
     public NoAuthenticatedException(String message) {
