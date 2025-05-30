@@ -36,8 +36,10 @@ function AdminRoot(props: PropsWithChildren<AdminRootProps>) {
 
   const { club } = useParams<{ club: string }>();
 
+  console.log(location.pathname.split("/"));
+
   const currentMenuIndex = CLUB_ADMINMENU.findIndex(
-    (menu) => menu.id === location.pathname.split("/").reverse()[0]
+    (menu) => menu.id === location.pathname.split("/")[4]
   );
 
   const handleDrawerClose = () => {

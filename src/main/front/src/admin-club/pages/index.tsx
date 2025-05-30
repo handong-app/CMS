@@ -5,6 +5,8 @@ import EventIcon from "@mui/icons-material/Event";
 import CommentIcon from "@mui/icons-material/Comment";
 import AdminTestPage from "./AdminTestPage";
 import AdminClubSettingPage from "./AdminClubSettingPage";
+import AdminClubMemberPage from "./AdminClubMemberPage";
+import AdminClubMemberListPage from "./AdminClubMemberListPage";
 
 export const CLUB_ADMINMENU = [
   {
@@ -17,7 +19,16 @@ export const CLUB_ADMINMENU = [
     title: "회원 관리",
     icon: <PeopleIcon />,
     id: "member",
-    comp: AdminTestPage,
+    children: [
+      {
+        index: true,
+        element: <AdminClubMemberListPage />,
+      },
+      {
+        path: ":memberId",
+        element: <AdminClubMemberPage />,
+      },
+    ],
   },
   {
     title: "코스 관리",
