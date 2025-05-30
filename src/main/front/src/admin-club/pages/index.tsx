@@ -1,0 +1,40 @@
+import PeopleIcon from "@mui/icons-material/People";
+import GroupIcon from "@mui/icons-material/Group";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import EventIcon from "@mui/icons-material/Event";
+import CommentIcon from "@mui/icons-material/Comment";
+import AdminTestPage from "./AdminTestPage";
+import AdminClubSettingPage from "./AdminClubSettingPage";
+
+export const CLUB_ADMINMENU = [
+  {
+    title: "동아리 설정",
+    icon: <GroupIcon />,
+    id: "setting",
+    comp: AdminClubSettingPage,
+  },
+  {
+    title: "회원 관리",
+    icon: <PeopleIcon />,
+    id: "member",
+    comp: AdminTestPage,
+  },
+  {
+    title: "코스 관리",
+    icon: <MenuBookIcon />,
+    id: "course",
+    comp: AdminTestPage,
+  },
+  {
+    title: "프로그램 관리",
+    icon: <EventIcon />,
+    id: "program",
+    comp: AdminTestPage,
+  },
+  {
+    title: "댓글 관리",
+    icon: <CommentIcon />,
+    id: "comment",
+    comp: AdminTestPage,
+  },
+];
