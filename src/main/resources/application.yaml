@@ -22,13 +22,24 @@ spring:
 
 cloud:
   aws:
-    region:
-      static: ap-northeast-2
-    credentials:
-      accessKey: ${AWS_ACCESSKEY:${AWS_ACCESSKEY_DEFAULT}}
-      secretKey: ${AWS_SECRETKEY:${AWS_SECRETKEY_DEFAULT}}
     s3:
-      bucket: ${AWS_BUCKET_NAME:${AWS_BUCKET_NAME_DEFAULT}}
+      bucket: ${MINIO_BUCKET}
+      presigned-url-duration: PT15M
+    credentials:
+      access-key: ${MINIO_ACCESS_KEY_ID}
+      secret-key: ${MINIO_SECRET_ACCESS_KEY}
+    endpoint: ${MINIO_ENDPOINT}
+    region:
+      static: us-east-1
+    path-style-access-enabled: true
+
+rabbitmq:
+  queue:
+    transcode-request: ${TRANSCODE_REQUEST_QUEUE}
+  host: ${RABBITMQ_HOST}
+  port: ${RABBITMQ_PORT}
+  username: ${RABBITMQ_USERNAME}
+  password: ${RABBITMQ_PASSWORD}
 
 google:
   oauth:
