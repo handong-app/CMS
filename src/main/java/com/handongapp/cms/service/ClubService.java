@@ -4,9 +4,9 @@ import com.handongapp.cms.dto.v1.ClubDto;
 
 public interface ClubService {
 
-    ClubDto.ClubProfileResDto getClubProfile(String clubName);
+    ClubDto.ClubProfileResDto getClubProfile(String clubSlug);
 
-    void updateClubProfile(String clubName, ClubDto.ClubProfileReqDto clubProfileResDto);
+    void updateClubProfile(String clubSlug, ClubDto.ClubProfileReqDto clubProfileReqDto);
 
-    ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName);
+    String getCoursesByClubSlugAsJson(String clubSlug);
 }
