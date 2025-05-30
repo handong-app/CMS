@@ -5,32 +5,5 @@
   "ignore": [
     "node_modules",
     ".git"
-  ],
-  "folders": [
-    {
-      "name": "node",
-      "id": "node-api-tests",
-      "description": "Node API 엔드포인트 테스트"
-    },
-    {
-      "name": "node_group",
-      "id": "node-group-api-tests",
-      "description": "NodeGroup API 엔드포인트 테스트"
-    },
-    {
-      "name": "section",
-      "id": "section-api-tests",
-      "description": "Section API 엔드포인트 테스트"
-    },
-    {
-      "name": "course",
-      "id": "course-api-tests",
-      "description": "Course API 엔드포인트 테스트"
-    },
-    {
-      "name": "comment",
-      "id": "comment-api-tests",
-      "description": "Comment API 엔드포인트 테스트"
-    }
   ]
 }
