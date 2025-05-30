@@ -5,21 +5,15 @@ meta {
 }
 
 get {
-  url: http://localhost:8080/api/v1/courses/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/sections/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/node-groups/cccccccccccccccccccccccccccccccc/nodes/8bfca262948f4df4b93d8e74f11c8ebd
-  body: json
+  url: {{baseUrl}}/api/v1/courses/{{courseId}}/sections/{{sectionId}}/node-groups/{{nodeGroupId}}/nodes/{{nodeId}}
+  body: none
   auth: none
 }
 
-body:json {
-  {
-    "type": "TEXT",
-    "commentPermitted": true,
-    "data": {
-      "content": "이것은 수정된 텍스트 노드의 내용입니다.",
-      "format": "markdown",
-      "word_count": 10
-    },
-    "order": 1,
-    "attachmentUrl": "https://example.com/attachments/1"
-  }
+vars:pre-request {
+  baseUrl: http://localhost:8080
+  courseId: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  sectionId: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  nodeGroupId: cccccccccccccccccccccccccccccccc
+  nodeId: 8bfca262948f4df4b93d8e74f11c8ebd
 }
