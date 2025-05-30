@@ -24,6 +24,7 @@ cloud:
   aws:
     s3:
       bucket: ${MINIO_BUCKET}
+      presigned-url-duration: PT15M
     credentials:
       access-key: ${MINIO_ACCESS_KEY_ID}
       secret-key: ${MINIO_SECRET_ACCESS_KEY}
