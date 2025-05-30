@@ -6,6 +6,7 @@ import CourseProgressList from "../components/coursePage/CourseProgressList";
 import { courseDummyData } from "../components/coursePage/CourseDummyData";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
+import CourseProgress from "../components/course/CourseProgress";
 
 function CoursePage() {
   return (
@@ -32,14 +33,26 @@ function CoursePage() {
               content={
                 <>
                   <Typography variant="body2">
-                    지금까지 학습한 내용과 진도율을 확인하세요.
+                    지금까지 학습한 진도율을 확인하세요.
                   </Typography>
+                  <Box display="flex" alignItems="center" mt={2}>
+                    <Box width={86}>
+                      <CourseProgress value={0.5} />
+                    </Box>
+                    <Box ml={2} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
+                      <Typography variant="body2">진도율</Typography>
+                      <Typography variant="body2">3/6</Typography>
+                    </Box>
+                    <Box ml={1} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
+                      <Typography variant="body2">남은 강의</Typography>
+                      <Typography variant="body2">3개</Typography>
+                    </Box>
+                  </Box>
                 </>
               }
-              width={340}
+              width={270}
               height={200}
             />
-
             <InfoCard
               title="최신 반응"
               content={
@@ -49,7 +62,7 @@ function CoursePage() {
                   </Typography>
                 </>
               }
-              width={400}
+              width={470}
               height={200}
             />
           </Box>
