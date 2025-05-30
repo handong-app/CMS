@@ -1,0 +1,19 @@
+meta {
+  name: nodeRead
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/courses/{{courseId}}/sections/{{sectionId}}/node-groups/{{nodeGroupId}}/nodes/{{nodeId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8080
+  courseId: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  sectionId: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  nodeGroupId: cccccccccccccccccccccccccccccccc
+  nodeId: 8bfca262948f4df4b93d8e74f11c8ebd
+}
