@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { Link as RouterLink } from "react-router";
 import { useNavigate, useParams } from "react-router";
 
 export interface AdminProgramListPageProps {
@@ -19,6 +21,7 @@ export interface AdminProgramListPageProps {
 }
 
 export interface ProgramItemProps {
+  id: string;
   name: string;
   description: string;
   courses: string[]; // course name list (slug/id가 있으면 id로 대체)
@@ -27,12 +30,14 @@ export interface ProgramItemProps {
 
 const defaultPrograms: ProgramItemProps[] = [
   {
+    id: "camp2025",
     name: "2025 해킹캠프",
     description: "시스템 해킹과 보안, 실습 중심의 해킹 캠프 프로그램입니다.",
     courses: ["리눅스 해킹 입문", "시스템 해킹", "네트워크 보안"],
     participants: 42,
   },
   {
+    id: "webboot",
     name: "웹 개발 부트캠프",
     description: "프론트엔드와 백엔드, 실전 웹 개발을 배우는 부트캠프.",
     courses: ["React 마스터", "Node.js 실전", "UI/UX 디자인"],
@@ -79,6 +84,7 @@ function AdminProgramListPage({ programs }: AdminProgramListPageProps) {
           {data.map((program, idx) => {
             // 실제로는 programId가 있어야 함. 여기선 name을 id로 가정
             const programId = program.name.replace(/\s/g, "");
+            // 실제로는 programId, slug 등 고유값을 사용해야 함
             return (
               <Box key={program.name}>
                 <ListItem
@@ -87,6 +93,16 @@ function AdminProgramListPage({ programs }: AdminProgramListPageProps) {
                   sx={{ justifyContent: "space-between" }}
                   secondaryAction={
                     <Box display="flex" gap={1}>
+                      <IconButton
+                        edge="end"
+                        aria-label="view"
+                        component={RouterLink}
+                        to={`/club/${club}/program/${program.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
                       <IconButton
                         edge="end"
                         aria-label="edit"
