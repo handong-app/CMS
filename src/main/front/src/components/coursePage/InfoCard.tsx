@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, Typography } from "@mui/material";
 
 export interface InfoCardProps {
-  title: string;
+  title: React.ReactNode;
   content: React.ReactNode;
   width?: number | string;
   height?: number | string;

@@ -1,6 +1,38 @@
 export const courseDummyData = {
   courseTitle: "시스템 해킹과 보안",
   instructor: "20학번 이승현",
+  latestComments: [
+    {
+      author: "유정섭",
+      studentId: "20학번",
+      content: "겁나 어렵네",
+      time: "1시간 전",
+    },
+    {
+      author: "이승현",
+      studentId: "20학번",
+      content: "이걸 못하누",
+      time: "2시간 전",
+    },
+    {
+      author: "김민지",
+      studentId: "21학번",
+      content: "드디어 이해됨!",
+      time: "3시간 전",
+    },
+    {
+      author: "박지훈",
+      studentId: "20학번",
+      content: "재밌긴 한데 좀 길어요",
+      time: "4시간 전",
+    },
+    {
+      author: "최은영",
+      studentId: "22학번",
+      content: "설명이 친절해서 좋았어요",
+      time: "5시간 전",
+    },
+  ],
   sections: [
     {
       id: "section1",

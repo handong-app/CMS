@@ -54,13 +54,76 @@ function CoursePage() {
               height={200}
             />
             <InfoCard
-              title="최신 반응"
-              content={
-                <>
-                  <Typography variant="body2">
-                    이 강의를 들은다른 수강생들의 반응
+              title={
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <span>최신 반응</span>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "#7da0fa",
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      userSelect: "none",
+                      ml: 2,
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                    onClick={() => alert("댓글 페이지로 이동!")}
+                    data-testid="more-comments"
+                  >
+                    댓글 더보기
                   </Typography>
-                </>
+                </Box>
+              }
+              content={
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  gap={0.2}
+                  sx={{
+                    maxHeight: 140,
+                    overflowY: "auto",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "rgba(255,255,255,0.08) transparent",
+                  }}
+                >
+                  {courseDummyData.latestComments.map((comment, index) => (
+                    <Box
+                      key={index}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{
+                        p: 1,
+                        borderRadius: 2,
+                        transition: "background 0.2s",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgba(255,255,255,0.08)",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2">
+                        {comment.studentId} {comment.author} {comment.content}
+                      </Typography>
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{
+                          color: "gray",
+                          ml: 1,
+                          minWidth: 70,
+                          textAlign: "right",
+                        }}
+                      >
+                        {comment.time}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
               }
               width={470}
               height={200}
