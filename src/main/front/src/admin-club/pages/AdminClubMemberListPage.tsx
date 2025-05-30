@@ -1,16 +1,5 @@
-import {
-  Box,
-  Paper,
-  Typography,
-  Avatar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
-import { Link } from "react-router";
+import { Box, Paper, Typography } from "@mui/material";
+import AdminClubMemberTable from "../components/AdminClubMemberTable";
 
 export interface ClubMember {
   userId: string;
@@ -63,38 +52,7 @@ function AdminClubMemberListPage({ members }: AdminClubMemberListPageProps) {
         <Typography variant="h5" fontWeight={700} mb={3}>
           전체 회원 목록
         </Typography>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>프로필</TableCell>
-                <TableCell>이름</TableCell>
-                <TableCell>학번</TableCell>
-                <TableCell>이메일</TableCell>
-                <TableCell>전화번호</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((member) => (
-                <TableRow
-                  key={member.userId}
-                  hover
-                  sx={{ cursor: "pointer", textDecoration: "none" }}
-                  component={Link}
-                  to={`./${member.userId}`}
-                >
-                  <TableCell>
-                    <Avatar src={member.profileImageUrl} alt={member.name} />
-                  </TableCell>
-                  <TableCell>{member.name}</TableCell>
-                  <TableCell>{member.studentId}</TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.phone}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <AdminClubMemberTable members={data} />
       </Paper>
     </Box>
   );
