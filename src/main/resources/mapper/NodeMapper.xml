@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.handongapp.cms.mapper.NodeMapper">
+
+    <select id="findClubIdByNodeId" resultType="string">
+        SELECT c.club_id
+        FROM tb_node n
+                 JOIN tb_node_group ng ON n.node_group_id = ng.id
+                 JOIN tb_section s ON ng.section_id = s.id
+                 JOIN tb_course c ON s.course_id = c.id
+        WHERE n.id = #{nodeId}
+    </select>
+
+</mapper>
