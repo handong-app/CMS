@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new JwtExceptionHandlers.JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(new JwtExceptionHandlers.JwtAccessDeniedHandler())
-                );
+                )
                 .addFilterBefore(
                         new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties, tokenBlacklistManager),
                         UsernamePasswordAuthenticationFilter.class
