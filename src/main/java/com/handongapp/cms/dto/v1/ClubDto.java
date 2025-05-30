@@ -27,10 +27,11 @@ public class ClubDto {
     @Getter
     public static class ClubProfileReqDto {
         private String slug;
+        private String name;
         private String description;
         private String bannerUrl;
 
-        public ClubProfileReqDto(String slug, String description, String bannerUrl) {
+        public ClubProfileReqDto(String slug, String name, String description, String bannerUrl) {
             this.slug = slug;
             this.description = description;
             this.bannerUrl = bannerUrl;

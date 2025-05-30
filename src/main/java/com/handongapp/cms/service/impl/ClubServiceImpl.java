@@ -38,9 +38,9 @@ public class ClubServiceImpl implements ClubService {
             .orElse(new TbClub()); // 새 엔티티로 초기화 (upsert 구현 목적)
     
         club.setSlug(dto.getSlug());
+        club.setName(dto.getName());
         club.setDescription(dto.getDescription());
         club.setBannerUrl(dto.getBannerUrl());
-        club.setSlug(clubSlug); 
     
         clubRepository.save(club); 
     }
