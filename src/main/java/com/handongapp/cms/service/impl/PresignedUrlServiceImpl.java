@@ -76,23 +76,29 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
             return presigner.presignPutObject(presignRequest).url();
         } catch (Exception e) {
             log.error("Presigned URL 생성 실패: filename={}, contentType={}", filename, contentType, e);
-            throw new PresignedUrlCreationException("Presigned URL 생성 중 오류가 발생했습니다", e);
+            throw new PresignedUrlCreationException("Upload Presigned URL 생성 중 오류가 발생했습니다", e);
         }
     }
 
     @Override
     public URL generateDownloadUrl(String key) {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .build();
+        if (!StringUtils.hasText(key)) {
+            throw new IllegalArgumentException("파일 키는 필수입니다");
+        }
 
-        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(signatureDuration)
-                .getObjectRequest(getObjectRequest)
-                .build();
-
-        return presigner.presignGetObject(presignRequest).url();
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build();
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(signatureDuration)
+                    .getObjectRequest(getObjectRequest)
+                    .build();
+            return presigner.presignGetObject(presignRequest).url();
+        } catch (Exception e) {
+            throw new PresignedUrlCreationException("Download Presigned URL 생성 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
     }
 
     private void validateInput(String input, String fieldName) {
