@@ -6,6 +6,7 @@ import com.handongapp.cms.service.NodeGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class NodeGroupController {
             @PathVariable String sectionId,
             @RequestBody @Valid NodeGroupDto.CreateRequest req) {
         req.setSectionId(sectionId); // URL의 sectionId를 DTO에 설정
-        return ResponseEntity.ok(nodeGroupService.create(req));
+        return ResponseEntity.status(HttpStatus.CREATED).body(nodeGroupService.create(req));
     }
 
     @GetMapping
