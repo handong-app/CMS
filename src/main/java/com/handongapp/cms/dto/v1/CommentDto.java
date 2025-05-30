@@ -3,10 +3,7 @@ package com.handongapp.cms.dto.v1;
 import com.handongapp.cms.domain.TbComment;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +14,7 @@ public class CommentDto {
     }
 
     // Response DTO
-    @Data
+    @Getter
     public static class Response {
         private final String id;
         private final String targetId;
@@ -79,7 +76,7 @@ public class CommentDto {
     }
 
     // UpdateRequest DTO
-    @Data
+    @Getter
     public static class UpdateRequest {
         private final String content;
         private final String categoryId;
