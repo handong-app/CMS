@@ -4,36 +4,34 @@ import { Theme } from "@mui/material/styles";
 
 export interface TopBannerProps {
   title: string;
-  subtitle: string;
+  producer: string;
   image: string;
-  textJustify?: React.CSSProperties["textAlign"];
-  height?: number;
   altText?: string;
+  courseDescription?: string;
+  onContinue: () => void;
 }
 
-const TopBanner: React.FC<TopBannerProps> = ({
+const TopCourseBanner: React.FC<TopBannerProps> = ({
   title,
-  subtitle,
+  producer,
   image,
-  height = 300,
-  textJustify = "center",
   altText,
+  courseDescription,
+  onContinue,
 }) => {
   const computedAlt = altText || `${title} banner`;
   const [imgError, setImgError] = React.useState(false);
   return (
     <Box
-      data-testid="top-banner"
       sx={{
         margin: "0 auto",
         position: "relative",
         maxWidth: "100%",
-        height,
+        height: 300,
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        justifyContent: textJustify,
-        background: "#222",
+        background: "#111",
       }}
     >
       {!imgError ? (
@@ -48,7 +46,7 @@ const TopBanner: React.FC<TopBannerProps> = ({
             height: "100%",
             objectFit: "cover",
             zIndex: 1,
-            opacity: 0.6,
+            opacity: 0.5,
           }}
           onError={() => setImgError(true)}
         />
@@ -75,30 +73,70 @@ const TopBanner: React.FC<TopBannerProps> = ({
       )}
       <Box sx={{ position: "relative", zIndex: 2, padding: "0 2rem" }}>
         <Box
+          component="h2"
+          sx={{
+            color: (theme: Theme) => theme.palette.grey[100],
+            fontSize: 14,
+            fontWeight: 400,
+            m: 0,
+          }}
+        >
+          {producer}
+        </Box>
+        <Box
           component="h1"
           sx={{
             color: (theme: Theme) => theme.palette.common.white,
-            fontSize: { xs: "1.5rem", sm: "2rem" },
-            fontWeight: 700,
+            fontSize: 32,
+            fontWeight: 600,
             m: 0,
           }}
         >
           {title}
         </Box>
+
         <Box
-          component="h2"
+          component="h4"
           sx={{
             color: (theme: Theme) => theme.palette.grey[100],
-            fontSize: { xs: "1rem", sm: "1.2rem" },
-            fontWeight: 400,
-            m: 0,
+            fontSize: 16,
+            fontWeight: 500,
+            marginTop: 1,
+            maxWidth: 600,
           }}
         >
-          {subtitle}
+          {courseDescription}
         </Box>
+      </Box>
+      <Box
+        onClick={onContinue}
+        sx={{
+          ml: 2,
+          px: 2,
+          py: 1,
+          position: "absolute",
+          right: 30,
+          bottom: 30,
+          zIndex: 2,
+          borderRadius: 2,
+          background: "#3876e3",
+          color: "#fff",
+          fontWeight: 600,
+          fontSize: 14,
+          width: 160,
+          textAlign: "center",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+          cursor: "pointer",
+          "&:hover": {
+            background: "#2c5bb3",
+            color: "#ffffffc0",
+          },
+        }}
+      >
+        Continue Learning
       </Box>
     </Box>
   );
 };
 
-export default TopBanner;
+export default TopCourseBanner;

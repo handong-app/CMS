@@ -8,6 +8,7 @@ import ProgramPage from "./pages/ProgramPage.tsx";
 import ClubPage from "./pages/ClubPage.tsx";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./styles/theme";
+import CoursePage from "./pages/CoursePage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
   {
     path: "/club/:club/program/:program_name",
     element: <ProgramPage />,
+  },
+  {
+    path: "/club/:club/course/:course_name",
+    element: <CoursePage />,
   },
 ]);
 
