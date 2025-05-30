@@ -12,6 +12,7 @@ describe("CourseItem", () => {
   it("renders course picture", () => {
     render(
       <CourseItem
+        courseId="course1"
         name={course.name}
         picture={course.picture}
         progress={course.progress}
@@ -25,6 +26,7 @@ describe("CourseItem", () => {
   it("renders course name", () => {
     render(
       <CourseItem
+        courseId="course1"
         name={course.name}
         picture={course.picture}
         progress={course.progress}
@@ -36,6 +38,7 @@ describe("CourseItem", () => {
   it("renders course progress bar with correct value", () => {
     render(
       <CourseItem
+        courseId="course1"
         name={course.name}
         picture={course.picture}
         progress={course.progress}

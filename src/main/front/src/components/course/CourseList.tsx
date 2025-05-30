@@ -34,6 +34,7 @@ function CourseList({ courses }: CourseListProps) {
       {data.map((course, idx) => (
         <CourseItem
           key={`course-${idx}-${course.name}`}
+          courseId="course1" // courseId는 실제로는 동적으로 생성되어야 함
           name={course.name}
           picture={course.picture}
           progress={course.progress}
