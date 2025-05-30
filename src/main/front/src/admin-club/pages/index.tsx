@@ -8,6 +8,8 @@ import AdminClubSettingPage from "./AdminClubSettingPage";
 import AdminClubMemberPage from "./AdminClubMemberPage";
 import AdminClubMemberListPage from "./AdminClubMemberListPage";
 import AdminCoursePage from "./AdminCoursePage";
+import AdminProgramListPage from "./AdminProgramListPage";
+import AdminProgramPage from "./AdminProgramPage";
 
 export const CLUB_ADMINMENU = [
   {
@@ -50,7 +52,20 @@ export const CLUB_ADMINMENU = [
     title: "프로그램 관리",
     icon: <EventIcon />,
     id: "program",
-    comp: AdminTestPage,
+    children: [
+      {
+        index: true,
+        element: <AdminProgramListPage />,
+      },
+      {
+        path: "edit/:programId",
+        element: <AdminProgramPage />,
+      },
+      {
+        path: "add",
+        element: <AdminProgramPage />,
+      },
+    ],
   },
   {
     title: "댓글 관리",
