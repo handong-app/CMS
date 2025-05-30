@@ -60,22 +60,22 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new JwtExceptionHandlers.JwtAuthenticationEntryPoint())
                         .accessDeniedHandler(new JwtExceptionHandlers.JwtAccessDeniedHandler())
                 );
-                // .addFilterBefore(
-                //         new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties, tokenBlacklistManager),
-                //         UsernamePasswordAuthenticationFilter.class
-                // )
+                .addFilterBefore(
+                        new JwtAuthorizationFilter(authServiceImpl, userDetailsService, loginProperties, tokenBlacklistManager),
+                        UsernamePasswordAuthenticationFilter.class
+                )
 
-                // .authorizeHttpRequests(request -> request
-                //         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                //         .requestMatchers(new AntPathRequestMatcher("/**/*.html")).permitAll()
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/**/*.html")).permitAll()
 
-                //         .requestMatchers("/api/auth/google/**", "/api/login").permitAll()
+                        .requestMatchers("/api/auth/google/**", "/api/login").permitAll()
 
-                //         .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
-                //         .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN")
-                //         .requestMatchers("/api/member/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN", "CLUB_MEMBER")
-                //         .requestMatchers("/api/user/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN", "CLUB_MEMBER", "USER")
-                //         .anyRequest().authenticated());
+                        .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
+                        .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN")
+                        .requestMatchers("/api/member/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN", "CLUB_MEMBER")
+                        .requestMatchers("/api/user/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN", "CLUB_MEMBER", "USER")
+                        .anyRequest().authenticated());
 
         return http.build();
     }
