@@ -7,6 +7,7 @@ import AdminTestPage from "./AdminTestPage";
 import AdminClubSettingPage from "./AdminClubSettingPage";
 import AdminClubMemberPage from "./AdminClubMemberPage";
 import AdminClubMemberListPage from "./AdminClubMemberListPage";
+import AdminCoursePage from "./AdminCoursePage";
 
 export const CLUB_ADMINMENU = [
   {
@@ -34,7 +35,16 @@ export const CLUB_ADMINMENU = [
     title: "코스 관리",
     icon: <MenuBookIcon />,
     id: "course",
-    comp: AdminTestPage,
+    children: [
+      {
+        index: true,
+        element: <AdminCoursePage />,
+      },
+      {
+        path: "get/:courseId",
+        element: <div>코스 상세 정보</div>,
+      },
+    ],
   },
   {
     title: "프로그램 관리",
