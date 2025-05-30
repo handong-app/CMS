@@ -87,6 +87,7 @@ const router = createBrowserRouter([
       ...CLUB_ADMINMENU.map((menu) => ({
         path: `${menu.id}`,
         Component: menu.comp,
+        children: menu.children,
         // 컴포넌트가 로그인 보호가 필요한 경우 아래와 같이 설정
         // element: <LoginProtected comp={menu.comp} />,
       })),
