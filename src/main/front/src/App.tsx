@@ -1,7 +1,9 @@
+// src/App.tsx
+
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
-import MyAppBar from "./components/common/MyAppBar"; // 경로는 실제 위치에 맞게 조정
+import MyAppBar from "./components/common/MyAppBar";
 import useAuthStore from "./store/authStore";
 
 const App = () => {
