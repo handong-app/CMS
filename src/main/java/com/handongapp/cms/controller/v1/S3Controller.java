@@ -1,10 +1,13 @@
 package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.S3Dto;
+import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.UploadNotifyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,5 +42,13 @@ public class S3Controller {
                         .presignedUrl(presignedUrlService.generateDownloadUrl(filename).toString())
                         .build()
         );
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/upload-url/node-file")
+    public ResponseEntity<S3Dto.UploadUrlResponse> generateNodeFileUploadUrl(
+            @RequestBody S3Dto.NodeFileUploadUrlRequest request,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ResponseEntity.ok(presignedUrlService.generateNodeFileUploadUrl(request, principalDetails.getTbUser().getId()));
     }
 }
