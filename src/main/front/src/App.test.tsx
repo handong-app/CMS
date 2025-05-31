@@ -1,29 +1,26 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { describe, it } from "vitest";
 import "@testing-library/jest-dom";
 import App from "./App";
-import { MemoryRouter } from "react-router-dom";
 
-describe("App Component", () => {
-  it("renders the logo image", () => {
+describe("App Routing Structure", () => {
+  it("renders layout with AppBar and nested route", () => {
     render(
-      <MemoryRouter>
-        <App />
+      <MemoryRouter initialEntries={["/"]}>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route index element={<div>Home Page</div>} />
+          </Route>
+        </Routes>
       </MemoryRouter>
     );
 
-    const logo = screen.getByAltText("Logo");
-    expect(logo).toBeInTheDocument();
-  });
+    // ✅ AppBar가 있는지 확인
+    const appBar = screen.getByRole("banner");
+    expect(appBar).toBeInTheDocument();
 
-  it("renders the Login button", () => {
-    render(
-      <MemoryRouter>
-        <App />
-      </MemoryRouter>
-    );
-
-    const loginButton = screen.getByRole("button", { name: "Login" });
-    expect(loginButton).toBeInTheDocument();
+    // ✅ Outlet이 정상적으로 작동하는지 확인 (예: 홈 페이지 내용 보임)
+    expect(screen.getByText("Home Page")).toBeInTheDocument();
   });
 });
