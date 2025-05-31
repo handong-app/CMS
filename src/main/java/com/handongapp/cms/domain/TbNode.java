@@ -56,6 +56,7 @@ public class TbNode extends AuditingFields {
         TEXT,
         IMAGE,
         VIDEO,
+        FILE,
         QUIZ
     }
 }
