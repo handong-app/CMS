@@ -7,17 +7,22 @@ import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.service.ClubService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
     private final ClubMapper clubMapper;
+    private final ObjectMapper objectMapper;
 
     public ClubServiceImpl(ClubRepository clubRepository,
-                           ClubMapper clubMapper) {
+                           ClubMapper clubMapper,
+                           ObjectMapper objectMapper) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -48,6 +53,13 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     public String getCoursesByClubSlugAsJson(String clubSlug) {
-        return clubMapper.getCoursesByClubSlugAsJson(clubSlug);
+        String rawJson = clubMapper.getCoursesByClubSlugAsJson(clubSlug);
+
+        try {
+            JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동
+            return objectMapper.writeValueAsString(node);
+        } catch (Exception e) {
+            throw new IllegalStateException("코스 JSON 파싱/직렬화에 실패했습니다.", e);
+        }
     }
 }

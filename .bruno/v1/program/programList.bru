@@ -1,0 +1,16 @@
+meta {
+  name: programList
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/programs
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  clubSlug: test-club-alpha-slug
+  host: localhost:8080
+}
