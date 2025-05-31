@@ -1,11 +1,11 @@
 meta {
   name: Google Callback
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: http://localhost:{{PORT}}/api/auth/google/cb
+  url: {{BASE_URL_LOCAL}}/api/auth/google/cb
   body: none
   auth: inherit
 }

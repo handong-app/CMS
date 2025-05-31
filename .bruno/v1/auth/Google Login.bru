@@ -1,11 +1,11 @@
 meta {
   name: Google Login
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
-  url: http://localhost:{{PORT}}/api/auth/google?code={{authorization_code}}
+  url: {{BASE_URL_LOCAL}}/api/auth/google?code={{authorization_code}}
   body: none
   auth: inherit
 }
