@@ -6,12 +6,8 @@ meta {
 
 get {
   url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
-  body: json
+  body: none
   auth: none
-}
-
-headers {
-  Content-Type: application/json
 }
 
 vars:pre-request {
