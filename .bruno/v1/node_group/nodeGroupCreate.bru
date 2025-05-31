@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/api/v1/clubs/clubId123/courses/course-slug/sections/sectionId123/node-groups
+  url: http://localhost:8080/api/v1/clubs/{{clubId}}/courses/{{course-slug}}/sections/{{sectionId}}/node-groups
   body: json
   auth: none
 }
@@ -16,7 +16,13 @@ headers {
 
 body:json {
   {
-    "title": "새로운 노드 그룹",
+    "title": "Callein Node Group1",
     "order": 1
   }
+}
+
+vars:pre-request {
+  clubId: 222db7ec3df511f08af90242ac140006
+  course-slug: course-callein
+  sectionId: 1bb00bf5ad004671bad18ca93d712031
 }

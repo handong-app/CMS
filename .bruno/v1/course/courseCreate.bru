@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses?userId=asdf
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses?userId=asdf
   body: json
   auth: none
 }
@@ -30,5 +30,4 @@ body:json {
 
 vars:pre-request {
   clubSlug: example-club-slug
-  host: localhost:8080
 }

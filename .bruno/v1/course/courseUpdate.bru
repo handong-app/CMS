@@ -5,7 +5,7 @@ meta {
 }
 
 patch {
-  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
   body: json
   auth: none
 }
@@ -26,5 +26,4 @@ body:json {
 vars:pre-request {
   courseSlug: test-course-aaa
   clubSlug: example-club-slug
-  host: localhost:8080
 }
