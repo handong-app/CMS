@@ -14,23 +14,19 @@ import com.handongapp.cms.repository.UserClubRoleRepository;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.util.FileUtil;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -38,40 +34,21 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PresignedUrlServiceImpl implements PresignedUrlService {
 
     private final S3Presigner presigner;
-    private final String bucket;
-    private final Duration signatureDuration;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${cloud.aws.s3.presigned-url-duration}")
+    private Duration signatureDuration;
+
     private final NodeMapper nodeMapper;
     private final UserClubRoleRepository userClubRoleRepository;
     private final ClubRoleRepository clubRoleRepository;
     private final FileListRepository fileListRepository;
-
-    public PresignedUrlServiceImpl(
-            @Value("${cloud.aws.s3.bucket}") String bucket,
-            @Value("${cloud.aws.credentials.access-key}") String accessKey,
-            @Value("${cloud.aws.credentials.secret-key}") String secretKey,
-            @Value("${cloud.aws.endpoint}") String endpoint,
-            @Value("${cloud.aws.s3.presigned-url-duration}") Duration signatureDuration, NodeMapper nodeMapper, UserClubRoleRepository userClubRoleRepository, ClubRoleRepository clubRoleRepository, FileListRepository fileListRepository
-    ) {
-        this.bucket = bucket;
-        this.signatureDuration = signatureDuration;
-        this.nodeMapper = nodeMapper;
-        this.userClubRoleRepository = userClubRoleRepository;
-        this.clubRoleRepository = clubRoleRepository;
-        this.fileListRepository = fileListRepository;
-
-        this.presigner = S3Presigner.builder()
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
-                .endpointOverride(URI.create(endpoint))
-                .region(Region.US_EAST_1)
-                .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
-                        .build())
-                .build();
-    }
 
     @Override
     public S3Dto.UploadUrlResponse generateNodeFileUploadUrl(S3Dto.NodeFileUploadUrlRequest request, String userId) {
