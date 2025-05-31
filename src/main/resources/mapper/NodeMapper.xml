@@ -4,6 +4,7 @@
 
 <mapper namespace="com.handongapp.cms.mapper.NodeMapper">
 
+    <!--    노드 ID로 클럽ID를 조회-->
     <select id="findClubIdByNodeId" resultType="string">
         SELECT c.club_id
         FROM tb_node n
@@ -13,4 +14,11 @@
         WHERE n.id = #{nodeId}
     </select>
 
+    <!--    노드 ID로 타입을 조회-->
+    <select id="findNodeTypeById" resultType="com.handongapp.cms.domain.TbNode$NodeType">
+        SELECT type
+        FROM tb_node
+        WHERE id = #{nodeId}
+          AND deleted = 'N'
+    </select>
 </mapper>
