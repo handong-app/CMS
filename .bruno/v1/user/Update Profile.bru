@@ -1,0 +1,22 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 2
+}
+
+patch {
+  url: http://localhost:{{PORT}}/api/v1/user/profile
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+  //   "name": "string",
+    "studentId": "string",
+    "email": "string",
+    "phone": "string",
+    "profileImage": "string"
+  }
+  
+}

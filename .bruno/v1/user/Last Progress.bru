@@ -1,0 +1,11 @@
+meta {
+  name: Last Progress
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:{{PORT}}/api/v1/user/profile/last
+  body: none
+  auth: inherit
+}
