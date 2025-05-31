@@ -20,4 +20,6 @@ public interface CourseService {
     
     // 목록 조회 메소드
     List<CourseDto.Response> listByClub(String clubId);
+
+    String getCourseDetailsAsJsonBySlug(String courseSlug);
 }

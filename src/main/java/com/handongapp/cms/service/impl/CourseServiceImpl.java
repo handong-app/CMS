@@ -13,11 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.handongapp.cms.mapper.CourseMapper; // CourseMapper import 추가
+
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
+    private final CourseMapper courseMapper; // CourseMapper 주입
 
     @Override
     @Transactional
@@ -85,5 +88,11 @@ public class CourseServiceImpl implements CourseService {
         TbCourse entity = courseRepository.findBySlugAndDeleted(slug, "N")
                 .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다. Slug: " + slug));
         entity.setDeleted("Y");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getCourseDetailsAsJsonBySlug(String courseSlug) {
+        return courseMapper.getCourseDetailsAsJsonBySlug(courseSlug);
     }
 }

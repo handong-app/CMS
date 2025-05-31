@@ -39,9 +39,15 @@ public class CourseController {
     }
 
     @GetMapping("/{courseSlug}")
-    public ResponseEntity<CourseDto.Response> get(
+    public ResponseEntity<String> get(
             @PathVariable String courseSlug) {
-        return ResponseEntity.ok(courseService.getBySlug(courseSlug));
+        String courseJson = courseService.getCourseDetailsAsJsonBySlug(courseSlug);
+        if (courseJson == null || courseJson.equals("{}") || courseJson.equals("[]")) { // 결과가 없거나 빈 객체/배열일 경우
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Course not found.\"}");
+        }
+        final HttpHeaders httpHeaders= new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(courseJson, httpHeaders, HttpStatus.OK);
     }
 
     @PatchMapping("/{courseSlug}")
