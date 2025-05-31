@@ -63,7 +63,7 @@ external:
     access:
       prefix: Authorization
       secret: ${JWT_ACCESS_SECRET:${JWT_ACCESS_SECRET_DEFAULT}}
-      expiration-ms: 900000      # 15?
+      expiration-ms: 86400000      # 1일?
     refresh:
       prefix: refreshToken
       secret: ${JWT_REFRESH_SECRET:${JWT_REFRESH_SECRET_DEFAULT}}
