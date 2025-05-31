@@ -5,9 +5,9 @@ meta {
 }
 
 patch {
-  url: http://localhost:8080/api/v1/courses/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/sections/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/node-groups/cccccccccccccccccccccccccccccccc/nodes
+  url: {{BASE_URL_LOCAL}}/api/v1/courses/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/sections/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/node-groups/cccccccccccccccccccccccccccccccc/nodes
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {

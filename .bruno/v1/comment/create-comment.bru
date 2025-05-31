@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/api/v1/targets/{{targetId}}/comments?userId={{userId}}
+  url: {{BASE_URL_LOCAL}}/api/v1/targets/{{targetId}}/comments?userId=asdf
   body: json
-  auth: none
+  auth: inherit
 }
 
 params:query {
-  userId: {{userId}}
+  userId: asdf
 }
 
 body:json {
@@ -23,5 +23,4 @@ body:json {
 
 vars:pre-request {
   targetId: b8856eed3e2c49a089576a3fd42be3f9
-  userId: asdf
 }
