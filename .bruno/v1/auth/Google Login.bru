@@ -1,0 +1,25 @@
+meta {
+  name: Google Login
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:{{PORT}}/api/auth/google?code={{authorization_code}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  code: {{authorization_code}}
+}
+
+docs {
+  ### Google Login (OAuth Callback)
+  
+  - **URL**: `GET /api/auth/google?code={{authorization_code}}`
+  - **파라미터**:
+    - `code`: 구글 OAuth 인증 후 반환된 authorization code
+  
+  **설명**: 이 요청은 authorization code를 이용해 access token을 발급받고 JWT로 사용자 인증 정보를 반환합니다.
+}
