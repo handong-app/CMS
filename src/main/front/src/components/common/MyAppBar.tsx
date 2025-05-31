@@ -46,7 +46,7 @@ const MyAppBar = ({ user }: Props) => {
           <img src={Logo} alt="Logo" style={{ height: 40 }} />
         </Box>
 
-        {user && user.name ? (
+        {user?.name ? (
           <Box display="flex" alignItems="center" gap={1}>
             {/* ✅ 테스트에서 사용할 수 있도록 data-testid 추가 */}
             <span data-testid="welcome-msg" style={{ fontWeight: 500 }}>
