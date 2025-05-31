@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom"; // ✅ react-router-dom 사용
+import { createBrowserRouter, RouterProvider } from "react-router";
 import App from "./App.tsx";
 import "./index.css";
 import ProductView from "./pages/ProductView.tsx";
