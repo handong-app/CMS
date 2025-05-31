@@ -1,0 +1,23 @@
+meta {
+  name: Node file upload presigned url
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/s3/upload-url/node-file
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "filename": "country.mp4",
+    "nodeId": "d0b19192705f486b9f340fc6e026f5d9"
+  }
+  
+  // 이미지노드 "aaaef03074a74848b4acba9cb2576308"
+  // 텍스트노트 "c1bc973cb5c54f3b852a77203e18e076"
+  // 파일노드   "9aacfb3b638e4c708ce1e4c85cfe6d57"
+  // 이미지노드  "d0b19192705f486b9f340fc6e026f5d9"
+}
