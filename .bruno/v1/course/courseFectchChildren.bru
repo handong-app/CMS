@@ -6,12 +6,22 @@ meta {
 
 get {
   url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
-  body: none
+  body: json
   auth: none
 }
 
 headers {
   Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "새로 만드는 코스 제목",
+    "slug": "new-test-course"
+    "description": "새로 만든 코스 설명입니다.",
+    "pictureUrl": "https://example.com/thumbnails/new-course.jpg",
+    "isPublished": true
+  }
 }
 
 vars:pre-request {

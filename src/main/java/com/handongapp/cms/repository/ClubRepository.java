@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ClubRepository extends JpaRepository<TbClub, String> {
     Optional<TbClub> findBySlug(String clubSlug);
+    Optional<TbClub> findBySlugAndDeleted(String clubSlug, String deleted);
 }
