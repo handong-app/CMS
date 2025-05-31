@@ -18,7 +18,7 @@ public class ProgramController {
     @GetMapping
     public ResponseEntity<String> getProgramsByClubSlug(@PathVariable String clubSlug) {
         String programsJson = programService.getProgramsWithCoursesByClubSlugAsJson(clubSlug);
-        if (programsJson == null || programsJson.equals("[]")) { // 결과가 없거나 빈 배열일 경우
+        if (isEmptyJsonResult(programsJson)) { // 결과가 없거나 빈 배열일 경우
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"No programs found for this club.\"}");
         }
         final HttpHeaders httpHeaders = new HttpHeaders();
@@ -31,7 +31,7 @@ public class ProgramController {
             @PathVariable String clubSlug,
             @PathVariable String programSlug) {
         String programDetailsJson = programService.getProgramDetailsWithCoursesAsJson(clubSlug, programSlug);
-        if (programDetailsJson == null || programDetailsJson.equals("{}") || programDetailsJson.equals("[]")) {
+        if (isEmptyJsonResult(programDetailsJson)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Program not found or no courses associated.\"}");
         }
         final HttpHeaders httpHeaders = new HttpHeaders();
@@ -44,11 +44,18 @@ public class ProgramController {
             @PathVariable String clubSlug,
             @PathVariable String programSlug) {
         String progressJson = programService.getProgramParticipantProgressAsJson(clubSlug, programSlug);
-        if (progressJson == null || progressJson.equals("{}") || progressJson.equals("[]")) {
+        if (isEmptyJsonResult(progressJson)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Program not found or no participant progress data available.\"}");
         }
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(progressJson, httpHeaders, HttpStatus.OK);
     }
+
+    private boolean isEmptyJsonResult(String json) {
+        if (json == null || json.trim().isEmpty()) return true;
+        String trimmed = json.trim();
+        return "{}".equals(trimmed) || "[]".equals(trimmed);
+    }
+
 }
