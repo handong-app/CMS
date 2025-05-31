@@ -27,6 +27,8 @@ public class S3Dto {
     @Schema(description = "S3 업로드 URL 응답")
     public static class UploadUrlResponse {
         private String presignedUrl;
+        private String fileKey;
+        private String originalFilename;
     }
 
     @Data
@@ -51,17 +53,7 @@ public class S3Dto {
     public static class NodeFileUploadUrlRequest {
         @NotBlank(message = "파일명은 필수입니다")
         private String filename;
-        @NotBlank(message = "콘텐츠 타입은 필수입니다")
-        @Pattern(
-                regexp = "^[a-zA-Z0-9][a-zA-Z0-9\\!\\*'\\(\\)\\;\\:\\@\\&\\=\\+\\$\\,\\/\\?\\%\\#\\[\\]\\-\\_\\.\\~]*$",
-                message = "유효하지 않은 콘텐츠 타입입니다"
-        )
-        private String contentType;
-
         @NotBlank(message = "노드 ID는 필수입니다")
         private String nodeId;
-
-        @NotBlank(message = "클럽 slug는 필수입니다")
-        private String clubSlug;
     }
 }
