@@ -22,18 +22,18 @@ public class NodeDto {
         private final Boolean commentPermitted;
         private final Map<String, Object> data;
         private final Integer order;
-        private final String attachmentUrl;
+        private final String fileKey;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
 
-        public Response(String id, String nodeGroupId, TbNode.NodeType type, Boolean commentPermitted, Map<String, Object> data, Integer order, String attachmentUrl, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        public Response(String id, String nodeGroupId, TbNode.NodeType type, Boolean commentPermitted, Map<String, Object> data, Integer order, String fileKey, LocalDateTime createdAt, LocalDateTime updatedAt) {
             this.id = id;
             this.nodeGroupId = nodeGroupId;
             this.type = type;
             this.commentPermitted = commentPermitted;
             this.data = data;
             this.order = order;
-            this.attachmentUrl = attachmentUrl;
+            this.fileKey = fileKey;
             this.createdAt = createdAt;
             this.updatedAt = updatedAt;
         }
@@ -47,7 +47,7 @@ public class NodeDto {
                     entity.getCommentPermitted(),
                     entity.getData(),
                     entity.getOrder(),
-                    entity.getAttachmentUrl(),
+                    entity.getFileKey(),
                     entity.getCreatedAt(),
                     entity.getUpdatedAt()
             );
@@ -64,15 +64,15 @@ public class NodeDto {
         private final Boolean commentPermitted;
         private final Map<String, Object> data;
         private final Integer order;
-        private final String attachmentUrl;
+        private final String fileKey;
 
-        public CreateRequest(String nodeGroupId, TbNode.NodeType type, Boolean commentPermitted, Map<String, Object> data, Integer order, String attachmentUrl) {
+        public CreateRequest(String nodeGroupId, TbNode.NodeType type, Boolean commentPermitted, Map<String, Object> data, Integer order, String fileKey) {
             this.nodeGroupId = nodeGroupId;
             this.type = type;
             this.commentPermitted = commentPermitted;
             this.data = data;
             this.order = order;
-            this.attachmentUrl = attachmentUrl;
+            this.fileKey = fileKey;
         }
 
         public TbNode toEntity() {
@@ -82,7 +82,7 @@ public class NodeDto {
             node.setCommentPermitted(this.commentPermitted);
             node.setData(this.data);
             node.setOrder(this.order);
-            node.setAttachmentUrl(this.attachmentUrl);
+            node.setFileKey(this.fileKey);
             // id, deleted, createdAt, updatedAt는 AuditingFields 또는 JPA에 의해 자동 관리
             return node;
         }
@@ -94,13 +94,13 @@ public class NodeDto {
         private final Boolean commentPermitted;
         private final Map<String, Object> data;
         private final Integer order;
-        private final String attachmentUrl;
+        private final String fileKey;
 
-        public UpdateRequest(Boolean commentPermitted, Map<String, Object> data, Integer order, String attachmentUrl) {
+        public UpdateRequest(Boolean commentPermitted, Map<String, Object> data, Integer order, String fileKey) {
             this.commentPermitted = commentPermitted;
             this.data = data;
             this.order = order;
-            this.attachmentUrl = attachmentUrl;
+            this.fileKey = fileKey;
         }
 
         public void applyTo(TbNode entity) {
@@ -113,8 +113,8 @@ public class NodeDto {
             if (this.order != null) {
                 entity.setOrder(this.order);
             }
-            if (this.attachmentUrl != null) {
-                entity.setAttachmentUrl(this.attachmentUrl);
+            if (this.fileKey != null) {
+                entity.setFileKey(this.fileKey);
             }
         }
     }
