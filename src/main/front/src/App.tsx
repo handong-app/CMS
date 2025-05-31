@@ -1,7 +1,7 @@
 // src/App.tsx
 
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 import { Box } from "@mui/material";
 import MyAppBar from "./components/common/MyAppBar";
 import useAuthStore from "./store/authStore";

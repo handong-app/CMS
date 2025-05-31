@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router";
 import useAuthStore from "../store/authStore";
 import { jwtDecode } from "jwt-decode";
 
@@ -48,7 +48,9 @@ const GoogleOAuthCallback: React.FC = () => {
     const fetchTokens = async (code: string) => {
       try {
         console.log("🚀 백엔드로 code 전송 중...");
-        const res = await fetch(`${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`);
+        const res = await fetch(
+          `${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`
+        );
 
         if (!res.ok) {
           const errorData = await res.json().catch(() => null);
@@ -66,7 +68,9 @@ const GoogleOAuthCallback: React.FC = () => {
           setUser({
             name: decoded.name,
             email: decoded.email,
-            photoURL: decoded.picture || "https://lh3.googleusercontent.com/a/default-user",
+            photoURL:
+              decoded.picture ||
+              "https://lh3.googleusercontent.com/a/default-user",
           });
 
           console.log("✅ 디코딩된 유저 정보:", decoded);
