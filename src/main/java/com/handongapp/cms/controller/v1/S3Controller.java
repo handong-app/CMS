@@ -18,14 +18,12 @@ public class S3Controller {
     private final PresignedUrlService presignedUrlService;
     private final UploadNotifyService uploadNotifyService;
 
-    @PostMapping("/upload-url")
-    public ResponseEntity<S3Dto.UploadUrlResponse> generateUploadUrl(
-            @RequestBody S3Dto.UploadUrlRequest request) {
-        return ResponseEntity.ok(
-                S3Dto.UploadUrlResponse.builder()
-                        .presignedUrl(presignedUrlService.generateUploadUrl(request.getFilename(), request.getContentType()).toString())
-                        .build()
-        );
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/upload-url/node-file")
+    public ResponseEntity<S3Dto.UploadUrlResponse> generateNodeFileUploadUrl(
+            @RequestBody S3Dto.NodeFileUploadUrlRequest request,
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        return ResponseEntity.ok(presignedUrlService.generateNodeFileUploadUrl(request, principalDetails.getTbUser().getId()));
     }
 
     @PostMapping("/upload-complete")
@@ -42,13 +40,5 @@ public class S3Controller {
                         .presignedUrl(presignedUrlService.generateDownloadUrl(filename).toString())
                         .build()
         );
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/upload-url/node-file")
-    public ResponseEntity<S3Dto.UploadUrlResponse> generateNodeFileUploadUrl(
-            @RequestBody S3Dto.NodeFileUploadUrlRequest request,
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ResponseEntity.ok(presignedUrlService.generateNodeFileUploadUrl(request, principalDetails.getTbUser().getId()));
     }
 }
