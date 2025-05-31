@@ -33,19 +33,25 @@ const MyAppBar = ({ user }: Props) => {
 
   return (
     <AppBar position="static" color="default" elevation={1}>
-      <Toolbar sx={{ 
+      <Toolbar
+        sx={{
           boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
           backdropFilter: "blur(10px)",
           backgroundColor: "rgba(255, 255, 255, 0.8)",
-          justifyContent: "space-between", px: 2 
-        }}>
+          justifyContent: "space-between",
+          px: 2,
+        }}
+      >
         <Box display="flex" alignItems="center">
           <img src={Logo} alt="Logo" style={{ height: 40 }} />
         </Box>
 
         {user && user.name ? (
           <Box display="flex" alignItems="center" gap={1}>
-            <span style={{ fontWeight: 500 }}>{user.name}님 환영합니다!</span>
+            {/* ✅ 테스트에서 사용할 수 있도록 data-testid 추가 */}
+            <span data-testid="welcome-msg" style={{ fontWeight: 500 }}>
+              {user.name}님 환영합니다!
+            </span>
             <Avatar alt={user.name} src={user.photoURL} sx={{ width: 36, height: 36 }} />
           </Box>
         ) : (
