@@ -14,6 +14,7 @@ import CoursePage from "./pages/CoursePage.tsx";
 import LandingPage from "./pages/LandingPage.tsx";
 import GoogleCallback from "./pages/GoogleCallback.tsx";
 import ProfileRegistrationPage from "./pages/ProfileRegistrationPage.tsx";
+import AuthTestPage from "./pages/AuthTestPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
   {
     path: "/club/:club/course/:course_name",
     element: <CoursePage />,
+  },
+  {
+    path: "/auth-test",
+    element: <AuthTestPage />,
   },
 ]);
 

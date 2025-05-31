@@ -11,7 +11,43 @@ import {
   getDateString,
   splitHtmlBr,
   getCurrentWeekdayString,
+  isJwtExpired,
 } from "./tools";
+
+// isJwtExpired 테스트를 위한 JWT 생성 헬퍼
+function createJwt(exp: number): string {
+  // base64url 인코딩 (패딩 없음)
+  const header = Buffer.from(
+    JSON.stringify({ alg: "HS256", typ: "JWT" })
+  ).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ exp })).toString("base64url");
+  // signature는 만료 체크에 영향 없음
+  return `${header}.${payload}.signature`;
+}
+describe("isJwtExpired", () => {
+  it("만료된 토큰이면 true를 반환한다", () => {
+    // exp: 1 (과거)
+    const expiredToken = createJwt(1);
+    expect(isJwtExpired(expiredToken)).toBe(true);
+  });
+
+  it("유효한(exp가 미래) 토큰이면 false를 반환한다", () => {
+    const futureExp = Math.floor(Date.now() / 1000) + 60 * 60; // 1시간 뒤
+    const validToken = createJwt(futureExp);
+    expect(isJwtExpired(validToken)).toBe(false);
+  });
+
+  it("토큰이 비어있으면 true를 반환한다", () => {
+    expect(isJwtExpired("")).toBe(true);
+    expect(isJwtExpired(undefined as unknown as string)).toBe(true);
+    expect(isJwtExpired(null as unknown as string)).toBe(true);
+  });
+
+  it("디코딩 불가한 토큰이면 true를 반환한다", () => {
+    expect(isJwtExpired("not.a.jwt")).toBe(true);
+    expect(isJwtExpired("abc.def.ghi")).toBe(true);
+  });
+});
 
 // 날짜 관련 테스트
 

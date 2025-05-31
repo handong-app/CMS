@@ -3,63 +3,82 @@ import { useNavigate } from "react-router";
 
 import { serverRootUrl } from "../constants";
 import useAuthStore from "../store/authStore"; // Recoil 대신 Zustand 스토어 임포트
+import { isJwtExpired } from "./tools";
 
-export function fetchBe(
+export async function fetchBe(
   jwtValue: string | null,
   path: string,
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" = "GET",
   body?: Record<string, unknown>,
   onUnauthorized?: () => void
 ): Promise<any> {
-  return new Promise((res, rej) => {
-    const initStuff: RequestInit = {
-      headers: new Headers(),
-      method,
-    };
-    if (body && !["GET", "HEAD"].includes(method)) {
-      (initStuff.headers as Headers).set("Content-Type", "application/json");
-      initStuff["body"] = JSON.stringify(body);
-    }
-    if (jwtValue)
-      (initStuff.headers as Headers).set("Authorization", `Bearer ${jwtValue}`);
-
-    fetch(serverRootUrl + path, initStuff)
-      .then((doc) => {
-        if (doc.status === 401) {
-          // user not logged in
-          localStorage.clear();
-          if (onUnauthorized) {
-            onUnauthorized();
-          } else {
-            window.location.href = "/land"; // back to home screen.
-          }
-          return rej({ errorMsg: "로그인을 다시해주세요." });
+  const initStuff: RequestInit = {
+    headers: new Headers(),
+    method,
+  };
+  if (body && !["GET", "HEAD"].includes(method)) {
+    (initStuff.headers as Headers).set("Content-Type", "application/json");
+    initStuff["body"] = JSON.stringify(body);
+  }
+  if (jwtValue) {
+    // 만약에 만료된 jwt 라면
+    if (isJwtExpired(jwtValue)) {
+      // 서버에서 refresh token 을 사용해 access token 갱신
+      const refreshResponse = await fetch(
+        serverRootUrl + "/auth/google/refresh",
+        {
+          method: "POST",
+          headers: {
+            "Refresh-Token": `Bearer ${useAuthStore.getState().refreshToken}`, // Zustand 스토어에서 refresh token 가져오기
+          },
         }
-        doc
-          .json()
-          .then((json) => {
-            // If User not exist (due to db reset, etc)
-            if (path === "/user/get" && !json?.email) {
-              alert("유저가 존재하지 않습니다. 로그인을 다시해주세요.");
-              localStorage.clear();
-              window.location.reload();
-              return rej({
-                errorMsg: "유저가 존재하지 않습니다. 로그인을 다시해주세요.",
-              });
-            }
-            if (doc.status >= 400) return rej(json);
-            return res(json);
-          })
-          .catch(() => {
-            if (doc.status === 204) return res(null); // 204 No Content는 null을 반환하도록 수정
-            console.error("JSON 파싱 오류", doc);
-            return rej({
-              errorMsg: "JSON 파싱 오류. Status: " + doc.status,
-            });
-          });
-      })
-      .catch((err) => rej(err));
-  });
+      );
+      if (refreshResponse.status === 200) {
+        const refreshData = await refreshResponse.json();
+        jwtValue = refreshData.accessToken; // 갱신된 access token 사용
+        useAuthStore.setState({ jwtToken: jwtValue }); // Zustand 스토어 업데이트
+      }
+    }
+
+    (initStuff.headers as Headers).set("Authorization", `Bearer ${jwtValue}`);
+  }
+
+  try {
+    const doc = await fetch(serverRootUrl + path, initStuff);
+
+    if (doc.status === 401) {
+      localStorage.clear();
+      if (onUnauthorized) {
+        onUnauthorized();
+      } else {
+        window.location.href = "/land";
+      }
+      throw { errorMsg: "로그인을 다시해주세요." };
+    }
+
+    try {
+      const json = await doc.json();
+
+      if (path === "/user/get" && !json?.email) {
+        alert("유저가 존재하지 않습니다. 로그인을 다시해주세요.");
+        localStorage.clear();
+        window.location.reload();
+        throw {
+          errorMsg: "유저가 존재하지 않습니다. 로그인을 다시해주세요.",
+        };
+      }
+      if (doc.status >= 400) throw json;
+      return json;
+    } catch {
+      if (doc.status === 204) return null;
+      console.error("JSON 파싱 오류", doc);
+      throw {
+        errorMsg: "JSON 파싱 오류. Status: " + doc.status,
+      };
+    }
+  } catch (err) {
+    throw err;
+  }
 }
 
 export const useFetchBe = () => {
@@ -69,10 +88,23 @@ export const useFetchBe = () => {
     () =>
       (
         path: string,
-        method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" = "GET",
-        body?: Record<string, unknown>
+        {
+          method = "GET",
+          body,
+          onUnauthorized,
+        }: {
+          method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD";
+          body?: Record<string, unknown>;
+          onUnauthorized?: () => void;
+        }
       ) =>
-        fetchBe(jwtToken, path, method, body, () => navigate("/land")),
+        fetchBe(
+          jwtToken,
+          path,
+          method,
+          body,
+          onUnauthorized ?? (() => navigate("/land"))
+        ),
     [jwtToken, navigate]
   );
 };
