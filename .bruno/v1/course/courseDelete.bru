@@ -5,11 +5,10 @@ meta {
 }
 
 delete {
-  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
   body: none
   auth: none
 }
-
 
 headers {
   Content-Type: application/json
@@ -18,5 +17,4 @@ headers {
 vars:pre-request {
   clubSlug: example-club-slug
   courseSlug: for-delete-test
-  host: localhost:8080
 }
