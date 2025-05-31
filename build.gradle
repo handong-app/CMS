@@ -69,6 +69,9 @@ dependencies {
 // Amazon S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.0.1'
 
+// MIME 타입 관련 라이브러리
+    implementation 'org.apache.tika:tika-core:2.9.0'
+
 // AWS SDK BOM을 추가하여 버전 관리
     implementation platform('software.amazon.awssdk:bom:2.20.152')
 
