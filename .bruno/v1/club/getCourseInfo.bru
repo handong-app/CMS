@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses
   body: none
   auth: none
 }
@@ -13,5 +13,4 @@ get {
 vars:pre-request {
   clubSlug: example-club-slug
   courseSlug: example-course-slug
-  host: localhost:8080
 }

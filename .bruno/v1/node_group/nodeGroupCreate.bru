@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/api/v1/clubs/{{clubId}}/courses/{{course-slug}}/sections/{{sectionId}}/node-groups
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubId}}/courses/{{course-slug}}/sections/{{sectionId}}/node-groups
   body: json
   auth: none
 }

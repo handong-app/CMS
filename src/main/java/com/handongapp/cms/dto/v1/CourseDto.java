@@ -14,6 +14,7 @@ public class CourseDto {
 
     // Response DTO
     @Getter
+    @AllArgsConstructor
     public static class Response {
         private final String id;
         private final String clubId;
@@ -25,21 +26,6 @@ public class CourseDto {
         private final String pictureUrl;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
-
-        public Response(String id, String clubId, String userId, String title, String slug, 
-                       String description, boolean isVisible, String pictureUrl, 
-                       LocalDateTime createdAt, LocalDateTime updatedAt) {
-            this.id = id;
-            this.clubId = clubId;
-            this.userId = userId;
-            this.title = title;
-            this.slug = slug;
-            this.description = description;
-            this.isVisible = isVisible;
-            this.pictureUrl = pictureUrl;
-            this.createdAt = createdAt;
-            this.updatedAt = updatedAt;
-        }
 
         public static Response from(TbCourse entity) {
             if (entity == null) return null;
