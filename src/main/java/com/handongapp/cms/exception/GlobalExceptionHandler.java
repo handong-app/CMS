@@ -30,7 +30,8 @@ public class GlobalExceptionHandler {
             DuplicateTagCodeException.class,
             NotFoundException.class,
             UploadNotificationException.class,
-            PresignedUrlCreationException.class
+            PresignedUrlCreationException.class,
+            IllegalArgumentException.class
     })
     public ResponseEntity<Map<String, Object>> handleCustomExceptions(Exception ex) {
         HttpStatus status = resolveHttpStatus(ex);
@@ -44,6 +45,11 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus resolveHttpStatus(Exception ex) {
+
+        if (ex instanceof IllegalArgumentException) {
+            return HttpStatus.BAD_REQUEST;
+        }
+
         ResponseStatus statusAnnotation = ex.getClass().getAnnotation(ResponseStatus.class);
         return (statusAnnotation != null) ? statusAnnotation.value() : HttpStatus.INTERNAL_SERVER_ERROR;
     }
