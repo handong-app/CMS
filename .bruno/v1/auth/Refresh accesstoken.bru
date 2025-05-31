@@ -7,11 +7,11 @@ meta {
 post {
   url: {{BASE_URL_LOCAL}}/api/auth/google/refresh
   body: none
-  auth: inherit
+  auth: none
 }
 
 headers {
-  Refresh-Token: Bearer {{refresh_token}}
+  Refresh-Token: {{REFRESH_TOKEN}}
 }
 
 docs {

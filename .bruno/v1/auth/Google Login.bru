@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{BASE_URL_LOCAL}}/api/auth/google?code={{authorization_code}}
+  url: {{BASE_URL_LOCAL}}/api/auth/google?code=abc
   body: none
   auth: inherit
 }
 
 params:query {
-  code: {{authorization_code}}
+  code: abc
 }
 
 docs {
