@@ -75,14 +75,8 @@ public class UserServiceImpl implements UserService {
         @Override
         @Transactional
         public void updateUserProfile(UserDto.UserProfileReqDto reqDto, String userId) {
-            String customUserId = "";
-            if (reqDto.getUserId().startsWith("user-"))
-                customUserId = reqDto.getUserId().substring(5);
 
-            if (!userId.equals(customUserId))
-                throw new RuntimeException("Invalid user access");
-
-            userRepository.findById(customUserId).ifPresent(tbUser -> {
+            userRepository.findById(userId).ifPresent(tbUser -> {
                 tbUser.setName(reqDto.getName());
                 tbUser.setStudentId(reqDto.getStudentId());
                 tbUser.setEmail(reqDto.getEmail());
