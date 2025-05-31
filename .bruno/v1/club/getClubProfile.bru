@@ -5,12 +5,11 @@ meta {
 }
 
 get {
-  url: http://{{host}}/api/v1/clubs/{{clubSlug}}
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}
   body: none
   auth: none
 }
 
 vars:pre-request {
   clubSlug: example-club-slug
-  host: localhost:8080
 }

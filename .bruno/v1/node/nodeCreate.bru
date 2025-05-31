@@ -5,20 +5,29 @@ meta {
 }
 
 post {
-  url: http://localhost:8080/api/v1/courses/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/sections/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/node-groups/cccccccccccccccccccccccccccccccc/nodes
+  url: {{BASE_URL_LOCAL}}/api/v1/courses/{{courseId}}/sections/{{sectionId}}/node-groups/{{nodeGroupId}}/nodes
   body: json
   auth: none
 }
 
 body:json {
   {
-    "type": "TEXT",
+    "type": "IMAGE",
     "commentPermitted": true,
     "data": {
-      "content": "이것은 노드의 내용입니다.",
-      "title": "새로운 노드 제목"
+      "content": "Callein node image node",
+      "title": "Callein node image",
+      "originalFileName": "tungtungtung",
+      "key": "",
+      "contentType": ""
     },
-    "order": 1,
-    "attachmentUrl": "https://example.com/attachments/1"
+    "order": 2,
+    "attachmentUrl": ""
   }
+}
+
+vars:pre-request {
+  courseId: a8cc7955ecc8481f85ba91443e2bf309
+  sectionId: 1bb00bf5ad004671bad18ca93d712031
+  nodeGroupId: 088c56343a6f4d14b9920e7964c8869f
 }

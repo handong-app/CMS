@@ -5,13 +5,13 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/api/v1/targets/{{targetId}}/comments/{{commentIdToUpdate}}?userId={{userId}}
+  url: {{BASE_URL_LOCAL}}/api/v1/targets/{{targetId}}/comments/{{commentIdToUpdate}}?userId=asdf
   body: json
   auth: none
 }
 
 params:query {
-  userId: {{userId}}
+  userId: asdf
 }
 
 body:json {
@@ -24,6 +24,4 @@ body:json {
 vars:pre-request {
   targetId: b8856eed3e2c49a089576a3fd42be3f9
   commentIdToUpdate: 3451f4b435c642bfa56b13a87f4e529b
-  userId: asdf
-  baseUrl: http://localhost:8080
 }
