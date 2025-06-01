@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.handongapp.cms.mapper.ProgramMapper">
+
+    <select id="getProgramDetailsWithCoursesAsJson" resultType="string">
+        SELECT
+            JSON_OBJECT(
+                'id', prog.id,
+                'clubId', prog.club_id,
+                'creatorUserId', prog.user_id,
+                'name', prog.name,
+                'slug', prog.slug,
+                'description', prog.description,
+                'startDate', prog.start_date,
+                'endDate', prog.end_date,
+                'courses', (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'id',   c.id,
+                            'title',c.title,
+                            'slug', c.slug,
+                            'description', c.description,
+                            'pictureUrl', c.picture_url,
+                            'isVisible', c.is_visible,
+                            'creatorUserId', c.user_id,
+                            'sections', (
+                                SELECT JSON_ARRAYAGG(
+                                    JSON_OBJECT(
+                                        'id',s.id,
+                                        'title',s.title,
+                                        'description', s.description,
+                                        'order', s.order,
+                                        'nodeGroups',(
+                                            SELECT JSON_ARRAYAGG(
+                                                JSON_OBJECT(
+                                                    'id',g.id,
+                                                    'title',g.title,
+                                                    'order', g.order,
+                                                    'nodes',(
+                                                        SELECT JSON_ARRAYAGG(
+                                                            JSON_OBJECT(
+                                                                'id',n.id,
+                                                                'type',n.type,
+                                                                'data',n.data,
+                                                                'order', n.order,
+                                                                'attachmentUrl', n.attachment_url,
+                                                                'isCommentPermitted', n.is_comment_permitted = b'1'
+                                                            )
+                                                        ) FROM tb_node n
+                                                        WHERE n.node_group_id = g.id AND n.deleted = 'N'
+                                                        ORDER BY n.order ASC
+                                                    )
+                                                )
+                                            ) FROM tb_node_group g
+                                            WHERE g.section_id = s.id AND g.deleted = 'N'
+                                            ORDER BY g.order ASC
+                                        )
+                                    )
+                                ) FROM tb_section s
+                                WHERE s.course_id = c.id AND s.deleted = 'N'
+                                ORDER BY s.order ASC
+                            )
+                        )
+                    )
+                    FROM tb_program_course pc
+                    JOIN tb_course c ON pc.course_id = c.id AND c.deleted = 'N'
+                    WHERE pc.program_id = prog.id AND pc.deleted = 'N'
+                )
+            )
+        FROM tb_program prog
+        JOIN tb_club cl ON prog.club_id = cl.id
+        WHERE cl.slug = #{clubSlug} AND prog.slug = #{programSlug} AND prog.deleted = 'N' AND cl.deleted = 'N';
+    </select>
+
+    <select id="getProgramsWithCoursesByClubSlugAsJson" resultType="string">
+        SELECT
+            IFNULL(
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', prog.id,
+                        'clubId', prog.club_id,
+                        'creatorUserId', prog.user_id,
+                        'name', prog.name,
+                        'slug', prog.slug,
+                        'description', prog.description,
+                        'startDate', prog.start_date,
+                        'endDate', prog.end_date,
+                        'courses', (
+                            SELECT JSON_ARRAYAGG(
+                                JSON_OBJECT(
+                                    'id',   c.id,
+                                    'title',c.title,
+                                    'slug', c.slug,
+                                    'description', c.description,
+                                    'pictureUrl', c.picture_url,
+                                    'isVisible', c.is_visible,
+                                    'creatorUserId', c.user_id,
+                                    'sections', (
+                                        SELECT JSON_ARRAYAGG(
+                                            JSON_OBJECT(
+                                                'id',s.id,
+                                                'title',s.title,
+                                                'description', s.description,
+                                                'order', s.order,
+                                                'nodeGroups',(
+                                                    SELECT JSON_ARRAYAGG(
+                                                        JSON_OBJECT(
+                                                            'id',g.id,
+                                                            'title',g.title,
+                                                            'order', g.order,
+                                                            'nodes',(
+                                                                SELECT JSON_ARRAYAGG(
+                                                                    JSON_OBJECT(
+                                                                        'id',n.id,
+                                                                        'type',n.type,
+                                                                        'data',n.data,
+                                                                        'order', n.order,
+                                                                        'attachmentUrl', n.attachment_url,
+                                                                        'isCommentPermitted', n.is_comment_permitted = b'1'
+                                                                    )
+                                                                ) FROM tb_node n
+                                                                WHERE n.node_group_id = g.id AND n.deleted = 'N'
+                                                                ORDER BY n.order ASC
+                                                            )
+                                                        )
+                                                    ) FROM tb_node_group g
+                                                    WHERE g.section_id = s.id AND g.deleted = 'N'
+                                                    ORDER BY g.order ASC
+                                                )
+                                            )
+                                        ) FROM tb_section s
+                                        WHERE s.course_id = c.id AND s.deleted = 'N'
+                                        ORDER BY s.order ASC
+                                    )
+                                )
+                            )
+                            FROM tb_program_course pc
+                            JOIN tb_course c ON pc.course_id = c.id AND c.deleted = 'N'
+                            WHERE pc.program_id = prog.id AND pc.deleted = 'N'
+                        )
+                    )
+                ),
+                JSON_ARRAY()  -- 프로그램이 없을 경우 빈 JSON 배열 반환
+            )
+        FROM tb_program prog
+        JOIN tb_club cl ON prog.club_id = cl.id
+        WHERE cl.slug = #{clubSlug} AND prog.deleted = 'N' AND cl.deleted = 'N';
+    </select>
+
+    <select id="getProgramParticipantProgressAsJson" resultType="string">
+        SELECT
+            JSON_OBJECT(
+                'programId', prog.id,
+                'programName', prog.name,
+                'programSlug', prog.slug,
+                'programDescription', prog.description,
+                'participants', IFNULL(
+                    (SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'userId', u.id,
+                            'participantName', u.name, 
+                            'participantEmail', u.email,
+                            'participantPictureUrl', u.picture_url,
+                            'invitedAt', pp.invited_at,
+                            'acceptedAt', pp.accepted_at,
+                            'courses', IFNULL(
+                                (SELECT JSON_ARRAYAGG(
+                                    JSON_OBJECT(
+                                        'courseId', c.id,
+                                        'courseTitle', c.title,
+                                        'courseSlug', c.slug,
+                                        'nodeGroups', IFNULL(
+                                            (SELECT JSON_ARRAYAGG(
+                                                JSON_OBJECT(
+                                                    'nodeGroupId', ng.id,
+                                                    'nodeGroupTitle', ng.title,
+                                                    'order', ng.order,
+                                                    'progress', (
+                                                        SELECT JSON_OBJECT(
+                                                            'state', pprog.state,
+                                                            'lastSeenAt', pprog.last_seen_at
+                                                        )
+                                                        FROM tb_program_progress pprog
+                                                        WHERE pprog.program_id = prog.id
+                                                          AND pprog.user_id = pp.user_id
+                                                          AND pprog.node_group_id = ng.id
+                                                          AND pprog.deleted = 'N'
+                                                    )
+                                                )
+                                            ORDER BY ng.order ASC)
+                                            FROM tb_section s
+                                            JOIN tb_node_group ng ON ng.section_id = s.id AND ng.deleted = 'N'
+                                            WHERE s.course_id = c.id AND s.deleted = 'N'
+                                            ORDER BY s.order ASC
+                                        ), JSON_ARRAY())
+                                    )
+                                ORDER BY c.title ASC)
+                                FROM tb_program_course pc_inner
+                                JOIN tb_course c ON pc_inner.course_id = c.id AND c.deleted = 'N'
+                                WHERE pc_inner.program_id = prog.id AND pc_inner.deleted = 'N'
+                            ), JSON_ARRAY())
+                        )
+                    )
+                    FROM tb_program_participant pp
+                    JOIN tb_user u ON pp.user_id = u.id AND u.deleted = 'N'
+                    WHERE pp.program_id = prog.id AND pp.deleted = 'N'
+                ), JSON_ARRAY())
+            )
+        FROM tb_program prog
+        JOIN tb_club cl ON prog.club_id = cl.id
+        WHERE cl.slug = #{clubSlug} AND prog.slug = #{programSlug} AND prog.deleted = 'N' AND cl.deleted = 'N';
+    </select>
+
+</mapper>

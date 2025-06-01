@@ -1,5 +1,7 @@
 package com.handongapp.cms.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbCourse;
 import com.handongapp.cms.dto.v1.CourseDto;
 import com.handongapp.cms.repository.ClubRepository;
@@ -19,6 +21,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final ClubRepository clubRepository;
     private final CourseMapper courseMapper;
+    private final ObjectMapper objectMapper;
+
 
     @Override
     @Transactional
@@ -60,6 +64,13 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional(readOnly = true)
     public String getCourseDetailsAsJsonBySlug(String courseSlug) {
-        return courseMapper.getCourseDetailsAsJsonBySlug(courseSlug);
+        String rawJson = courseMapper.getCourseDetailsAsJsonBySlug(courseSlug);
+
+        try {
+            JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동
+            return objectMapper.writeValueAsString(node);
+        } catch (Exception e) {
+            throw new IllegalStateException("코스 JSON 파싱/직렬화에 실패했습니다.", e);
+        }
     }
 }

@@ -1,20 +1,16 @@
 meta {
-  name: courseDelete
+  name: courseFectchChildren
   type: http
-  seq: 4
+  seq: 1
 }
 
-delete {
+get {
   url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
   body: none
   auth: inherit
 }
 
-headers {
-  Content-Type: application/json
-}
-
 vars:pre-request {
   clubSlug: example-club-slug
-  courseSlug: for-delete-test
+  courseSlug: test-course-aaa
 }
