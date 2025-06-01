@@ -99,7 +99,6 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         return response;
     }
 
-    @Override
     public S3Dto.UploadUrlResponse generateUploadUrl(String path, String id, String originalFilename, String extension, String contentType) {
         validateInput(originalFilename, "파일명");
         validateInput(contentType, "콘텐츠 타입");
@@ -133,7 +132,6 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         }
     }
 
-    @Override
     public URL generateDownloadUrl(String key) {
         if (!StringUtils.hasText(key)) {
             throw new IllegalArgumentException("파일 키는 필수입니다");
