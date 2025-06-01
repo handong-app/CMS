@@ -1,0 +1,17 @@
+meta {
+  name: courseFectchChildren
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://{{host}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  clubSlug: example-club-slug
+  courseSlug: test-course-aaa
+  host: localhost:8080
+}
