@@ -7,22 +7,27 @@ import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.service.ClubService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
     private final ClubMapper clubMapper;
+    private final ObjectMapper objectMapper;
 
     public ClubServiceImpl(ClubRepository clubRepository,
-                           ClubMapper clubMapper) {
+                           ClubMapper clubMapper,
+                           ObjectMapper objectMapper) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
+        this.objectMapper = objectMapper;
     }
 
     @Override
-    public ClubDto.ClubProfileResDto getClubProfile(String clubName) {
-            return clubRepository.findByName(clubName)
+    public ClubDto.ClubProfileResDto getClubProfile(String clubSlug) {
+            return clubRepository.findBySlug(clubSlug)
             .map(club -> new ClubDto.ClubProfileResDto(
             club.getName(),
             club.getSlug(),
@@ -32,15 +37,29 @@ public class ClubServiceImpl implements ClubService {
             .orElse(null);
     }
 
-    @Override
     @Transactional
-    public void updateClubProfile(String clubName, ClubDto.ClubProfileReqDto clubProfileResDto) {
-        clubRepository.save(new TbClub(clubName, clubProfileResDto.getSlug(), clubProfileResDto.getDescription(), clubProfileResDto.getBannerUrl()));
+    public void updateClubProfile(String clubSlug, ClubDto.ClubProfileReqDto dto) {
+        TbClub club = clubRepository.findBySlug(clubSlug)
+            .orElse(new TbClub()); // 새 엔티티로 초기화 (upsert 구현 목적)
+    
+        club.setSlug(dto.getSlug());
+        club.setName(dto.getName());
+        club.setDescription(dto.getDescription());
+        club.setBannerUrl(dto.getBannerUrl());
+    
+        clubRepository.save(club); 
     }
+    
 
     @Override
-    public ClubDto.ClubCourseInfoResDto getCourseInfo(String clubName, String courseName) {
-        return clubMapper.getCourseInfo(clubName, courseName);
-    }
+    public String getCoursesByClubSlugAsJson(String clubSlug) {
+        String rawJson = clubMapper.getCoursesByClubSlugAsJson(clubSlug);
 
+        try {
+            JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동
+            return objectMapper.writeValueAsString(node);
+        } catch (Exception e) {
+            throw new IllegalStateException("코스 JSON 파싱/직렬화에 실패했습니다.", e);
+        }
+    }
 }

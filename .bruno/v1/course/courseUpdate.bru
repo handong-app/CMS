@@ -1,0 +1,29 @@
+meta {
+  name: courseUpdate
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "수정된 코스 제목",
+    "description": "수정된 코스 설명입니다.",
+    "pictureUrl": "https://example.com/thumbnails/updated-course.jpg",
+    "isVisible": false
+  }
+}
+
+vars:pre-request {
+  courseSlug: test-course-aaa
+  clubSlug: example-club-slug
+}

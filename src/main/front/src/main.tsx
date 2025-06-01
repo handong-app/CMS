@@ -11,10 +11,32 @@ import theme from "./styles/theme";
 import CoursePage from "./pages/CoursePage.tsx";
 import NodeGroupPage from "./pages/NodeGroupPage.tsx";
 
+// 페이지 컴포넌트
+import LandingPage from "./pages/LandingPage.tsx";
+import GoogleCallback from "./pages/GoogleCallback.tsx";
+import ProfileRegistrationPage from "./pages/ProfileRegistrationPage.tsx";
+import AuthTestPage from "./pages/AuthTestPage.tsx";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    children: [
+      {
+        index: true, // 👉 기본 경로로 접속 시 LandingPage 렌더링
+        element: <LandingPage />,
+      },
+      {
+        path: "google/callback",
+        element: <GoogleCallback />,
+      },
+      {
+        path: "register",
+        element: <ProfileRegistrationPage />,
+      },
+    ],
   },
   {
     path: "/product/:id",
@@ -36,13 +58,21 @@ const router = createBrowserRouter([
     path: "/club/:club/course/:course_name",
     element: <CoursePage />,
   },
+  {
+    path: "/auth-test",
+    element: <AuthTestPage />,
+  },
 ]);
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

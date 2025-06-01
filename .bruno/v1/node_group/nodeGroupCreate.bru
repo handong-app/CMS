@@ -1,0 +1,28 @@
+meta {
+  name: nodeGroupCreate
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubId}}/courses/{{course-slug}}/sections/{{sectionId}}/node-groups
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Callein Node Group1",
+    "order": 1
+  }
+}
+
+vars:pre-request {
+  clubId: 222db7ec3df511f08af90242ac140006
+  course-slug: course-callein
+  sectionId: 1bb00bf5ad004671bad18ca93d712031
+}

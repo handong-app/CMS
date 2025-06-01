@@ -1,0 +1,16 @@
+meta {
+  name: programGet
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/programs/{{programSlug}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  clubSlug: test-club-alpha-slug
+  programSlug: full-stack-dev-program-slug
+}

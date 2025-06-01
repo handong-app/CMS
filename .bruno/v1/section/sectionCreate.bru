@@ -1,0 +1,28 @@
+meta {
+  name: sectionCreate
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubId}}/courses/{{courseSlug}}/sections
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "섹션 Callein2",
+    "description": "desc of section callein2",
+    "order": 2
+  }
+}
+
+vars:pre-request {
+  clubId: 222db7ec3df511f08af90242ac140006
+  courseSlug: new-course
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Get Program User Progress
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/programs/{{programSlug}}/users
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  clubSlug: test-club-alpha-slug
+  programSlug: full-stack-dev-program-slug
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.program.slug: eq "full-stack-dev-program-slug"
+  res.body.participant.id: eq "user0000000000000000000000000001"
+  res.body.courses: isDefined
+  res.body.courses[0].nodeGroups[0].progress.state: eq "DONE" // 예시: 첫 번째 코스의 첫 번째 노드 그룹 진행 상태
+}

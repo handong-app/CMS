@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Google OAuth Callback & Controls</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h2>Google OAuth 인증 처리 중...</h2>
+    <pre id="output">처리 중...</pre>
+
+    <!-- 상태 확인 버튼 -->
+    <button id="checkLoginBtn" style="margin-top: 10px">
+      로그인 상태 확인
+    </button>
+    <pre id="loginCheckResult"></pre>
+
+    <!-- 로그아웃 버튼 -->
+    <button id="logoutBtn" style="margin-top: 10px">로그아웃</button>
+
+    <!-- Access Token 재발급 버튼 -->
+    <button id="refreshBtn" style="margin-top: 10px">
+      Access Token 재발급
+    </button>
+
+    <!-- 🚀 Refresh Token 표시, 복사, 불러오기 -->
+    <div style="margin-top: 10px">
+      <label for="refreshTokenInput"><b>Refresh Token:</b></label>
+      <input
+        id="refreshTokenInput"
+        type="text"
+        readonly
+        style="width: 350px; margin-right: 8px"
+      />
+      <button id="loadRefreshTokenBtn">불러오기</button>
+      <button id="copyRefreshTokenBtn">복사</button>
+    </div>
+
+    <!-- 프로필 조회 버튼 -->
+    <button id="getProfileBtn" style="margin-top: 10px">프로필 조회</button>
+    <pre id="profileResult"></pre>
+
+    <!-- 프로필 수정 버튼 -->
+    <button id="updateProfileBtn" style="margin-top: 10px">
+      프로필 수정 (지정 값으로)
+    </button>
+
+    <script>
+      const baseUrl = "";
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (!code) {
+        document.getElementById("output").textContent =
+          "Authorization code가 없습니다.";
+      } else {
+        $.ajax({
+          url: baseUrl + "/api/auth/google",
+          method: "GET",
+          data: { code: code },
+          success: function (resp) {
+            localStorage.setItem("accessToken", resp.accessToken);
+            localStorage.setItem("refreshToken", resp.refreshToken);
+            document.getElementById("output").textContent =
+              "새 Access Token 발급 완료!";
+          },
+          error: function (xhr) {
+            document.getElementById("output").textContent =
+              "로그인 실패: " + (xhr.responseJSON?.error || xhr.statusText);
+          },
+        });
+      }
+
+      function parseJwt(token) {
+        if (!token) return null;
+        const base64Url = token.split(".")[1];
+        if (!base64Url) return null;
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        try {
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split("")
+              .map(function (c) {
+                return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+              })
+              .join("")
+          );
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      $("#checkLoginBtn").click(function () {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          $("#loginCheckResult").text(
+            "AccessToken이 없습니다. 로그인 후 다시 시도하세요."
+          );
+          return;
+        }
+        $.ajax({
+          url: baseUrl + "/api/auth/google/cb",
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          success: function (response) {
+            $("#loginCheckResult").text(
+              "서버 응답: " + JSON.stringify(response, null, 2)
+            );
+          },
+          error: function (xhr) {
+            $("#loginCheckResult").text(
+              "오류 발생: " + (xhr.responseJSON?.error || xhr.statusText)
+            );
+          },
+        });
+      });
+
+      $("#logoutBtn").click(function () {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          alert("accessToken이 없습니다.");
+          return;
+        }
+        $.ajax({
+          url: baseUrl + "/api/auth/google/logout",
+          method: "POST",
+          headers: { Authorization: "Bearer " + token },
+          success: function (resp) {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            $("#output").text("로그아웃 성공!");
+          },
+          error: function (xhr) {
+            $("#output").text(
+              "로그아웃 실패: " + (xhr.responseJSON?.error || xhr.statusText)
+            );
+          },
+        });
+      });
+
+      $("#refreshBtn").click(function () {
+        const refresh = localStorage.getItem("refreshToken");
+        if (!refresh) {
+          alert("refreshToken이 없습니다.");
+          return;
+        }
+        $.ajax({
+          url: baseUrl + "/api/auth/google/refresh",
+          method: "POST",
+          headers: { "Refresh-Token": "Bearer " + refresh },
+          success: function (resp) {
+            localStorage.setItem("accessToken", resp.accessToken);
+            $("#output").text("새 Access Token 발급 완료!");
+          },
+          error: function (xhr) {
+            $("#output").text(
+              "재발급 실패: " + (xhr.responseJSON?.error || xhr.statusText)
+            );
+          },
+        });
+      });
+
+      // 🚀 프로필 조회 → 최신 수정본
+      $("#getProfileBtn").click(function () {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          $("#profileResult").text(
+            "AccessToken이 없습니다. 로그인 후 시도하세요."
+          );
+          return;
+        }
+        $.ajax({
+          url: baseUrl + "/api/v1/user/profile",
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          success: function (resp) {
+            $("#profileResult").text(JSON.stringify(resp, null, 2)); // 🚀 JSON.stringify 적용 완료
+          },
+          error: function (xhr) {
+            $("#profileResult").text(
+              "프로필 조회 실패: " + (xhr.responseJSON?.error || xhr.statusText)
+            );
+          },
+        });
+      });
+
+      $("#updateProfileBtn").click(function () {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          alert("AccessToken이 없습니다. 로그인 후 시도하세요.");
+          return;
+        }
+        const payload = parseJwt(token);
+        const userId = payload
+          ? payload.sub?.replace(/^user-/, "") || payload.userId || null
+          : null;
+        if (!userId) {
+          alert("토큰에서 사용자 ID를 찾을 수 없습니다.");
+          return;
+        }
+
+        const updateData = {
+          userId: userId,
+          name: "Alice",
+          phone: "01012345678",
+          studentId: "20231234",
+          email: "alice@example.com",
+          profileImage: "https://img.ai/alice.png",
+        };
+        console.log("Sending updateData:", updateData);
+
+        $.ajax({
+          url: baseUrl + "/api/v1/user/profile",
+          method: "PATCH",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify(updateData),
+          success: function () {
+            alert("프로필 수정 성공!");
+          },
+          error: function (xhr) {
+            alert(
+              "프로필 수정 실패: " + (xhr.responseJSON?.error || xhr.statusText)
+            );
+          },
+        });
+      });
+
+      // 🚀 Refresh Token input 자동 로드 및 버튼 기능
+      function setRefreshTokenInput() {
+        const refreshToken = localStorage.getItem("refreshToken") || "";
+        $("#refreshTokenInput").val(refreshToken);
+      }
+
+      // 페이지 로드시 자동으로 input에 표시
+      $(document).ready(function () {
+        setRefreshTokenInput();
+      });
+
+      // 불러오기 버튼 클릭 시
+      $("#loadRefreshTokenBtn").click(function () {
+        setRefreshTokenInput();
+        if (!$("#refreshTokenInput").val()) {
+          alert("저장된 Refresh Token이 없습니다.");
+        }
+      });
+
+      // input 클릭 시 전체 선택
+      $("#refreshTokenInput").on("click", function () {
+        $(this).select();
+      });
+
+      // 복사 버튼 클릭 시
+      $("#copyRefreshTokenBtn").click(function () {
+        const refreshToken = $("#refreshTokenInput").val();
+        if (!refreshToken) {
+          alert("저장된 Refresh Token이 없습니다.");
+          return;
+        }
+        navigator.clipboard
+          .writeText(refreshToken)
+          .then(() => {
+            alert("Refresh Token이 클립보드에 복사되었습니다.");
+          })
+          .catch((err) => {
+            alert("복사 실패: " + err);
+          });
+      });
+
+      // refreshToken이 갱신될 때 input도 갱신
+      function updateRefreshTokenInputIfChanged() {
+        setRefreshTokenInput();
+      }
+
+      // Access Token 재발급 시 refreshToken이 갱신될 수도 있으니 input도 갱신
+      $("#refreshBtn").click(function () {
+        const refresh = localStorage.getItem("refreshToken");
+        if (!refresh) {
+          alert("refreshToken이 없습니다.");
+          return;
+        }
+        $.ajax({
+          url: baseUrl + "/api/auth/google/refresh",
+          method: "POST",
+          headers: { "Refresh-Token": "Bearer " + refresh },
+          success: function (resp) {
+            localStorage.setItem("accessToken", resp.accessToken);
+            $("#output").text("새 Access Token 발급 완료!");
+            updateRefreshTokenInputIfChanged();
+          },
+          error: function (xhr) {
+            $("#output").text(
+              "재발급 실패: " + (xhr.responseJSON?.error || xhr.statusText)
+            );
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

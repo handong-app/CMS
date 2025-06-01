@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.handongapp.cms.mapper.CourseMapper">
+
+    <select id="getCourseDetailsAsJsonBySlug" resultType="string" parameterType="string">
+        SELECT
+            JSON_OBJECT(
+                'id',   c.id,
+                'title',c.title,
+                'slug', c.slug,
+                'description', c.description,
+                'pictureUrl', c.picture_url,
+                'isVisible', c.is_visible,
+                'creatorUserId', c.user_id,
+                'sections', (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'id',s.id,
+                            'title',s.title,
+                            'description', s.description,
+                            'order', s.order,
+                            'nodeGroups',(
+                                SELECT JSON_ARRAYAGG(
+                                    JSON_OBJECT(
+                                        'id',g.id,
+                                        'title',g.title,
+                                        'order', g.order,
+                                        'nodes',(
+                                            SELECT JSON_ARRAYAGG(
+                                                JSON_OBJECT(
+                                                    'id',n.id,
+                                                    'type',n.type,
+                                                    'data',n.data,
+                                                    'order', n.order,
+                                                    'attachmentUrl', n.attachment_url,
+                                                    'isCommentPermitted', n.is_comment_permitted = b'1'
+                                                )
+                                            ) FROM tb_node n
+                                            WHERE n.node_group_id = g.id AND n.deleted = 'N'
+                                            ORDER BY n.order ASC
+                                        )
+                                    )
+                                ) FROM tb_node_group g
+                                WHERE g.section_id = s.id AND g.deleted = 'N'
+                                ORDER BY g.order ASC
+                            )
+                        )
+                    ) FROM tb_section s
+                    WHERE s.course_id = c.id AND s.deleted = 'N'
+                    ORDER BY s.order ASC
+                )
+            )
+        FROM tb_course c
+        WHERE c.slug = #{courseSlug} AND c.deleted = 'N';
+    </select>
+
+</mapper>

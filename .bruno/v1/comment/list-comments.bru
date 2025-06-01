@@ -1,0 +1,15 @@
+meta {
+  name: List Comments by Target
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL_LOCAL}}/api/v1/targets/{{targetId}}/comments
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  targetId: b8856eed3e2c49a089576a3fd42be3f9
+}

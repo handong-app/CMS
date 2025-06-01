@@ -1,0 +1,26 @@
+meta {
+  name: Refresh accesstoken
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/auth/google/refresh
+  body: none
+  auth: none
+}
+
+headers {
+  Refresh-Token: Bearer {{REFRESH_TOKEN}}
+}
+
+docs {
+  ### Refresh Access Token
+  
+  - **URL**: `POST /api/auth/google/refresh`
+  - **헤더**: `Refresh-Token: Bearer {{refresh_token}}`
+  - **설명**: Refresh Token을 통해 새로운 Access Token을 발급받습니다.
+  - 실패 시: `401 Unauthorized`, `500 Internal Server Error` 응답 가능
+  
+  
+}

@@ -1,33 +1,26 @@
 import { render, screen } from "@testing-library/react";
-import { it, expect, describe } from "vitest";
-import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { describe, it } from "vitest";
 import "@testing-library/jest-dom";
 import App from "./App";
 
-describe("App Component", () => {
-  it("renders Vite and React logos", () => {
-    render(<App />);
+describe("App Routing Structure", () => {
+  it("renders layout with AppBar and nested route", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route index element={<div>Home Page</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    );
 
-    const viteLogo = screen.getByAltText("Vite logo");
-    const reactLogo = screen.getByAltText("React logo");
+    // ✅ AppBar가 있는지 확인
+    const appBar = screen.getByRole("banner");
+    expect(appBar).toBeInTheDocument();
 
-    expect(viteLogo).toBeInTheDocument();
-    expect(reactLogo).toBeInTheDocument();
-  });
-
-  it("displays the initial count", () => {
-    render(<App />);
-
-    const countElement = screen.getByText(/count is 0/i);
-    expect(countElement).toBeInTheDocument();
-  });
-
-  it("increments count when button is clicked", async () => {
-    render(<App />);
-    const button = screen.getByRole("button", { name: /count is 0/i });
-    await userEvent.click(button);
-
-    const updatedCountElement = await screen.findByText(/count is 1/i);
-    expect(updatedCountElement).toBeInTheDocument();
+    // ✅ Outlet이 정상적으로 작동하는지 확인 (예: 홈 페이지 내용 보임)
+    expect(screen.getByText("Home Page")).toBeInTheDocument();
   });
 });

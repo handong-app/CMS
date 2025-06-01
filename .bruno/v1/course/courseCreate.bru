@@ -1,0 +1,33 @@
+meta {
+  name: courseCreate
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses?userId=asdf
+  body: json
+  auth: inherit
+}
+
+params:query {
+  userId: asdf
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "새로 만드는 코스 제목",
+    "slug": "for-delete-test",
+    "description": "새로 만든 코스 설명입니다.",
+    "pictureUrl": "https://example.com/thumbnails/new-course.jpg",
+    "isVisible": true
+  }
+}
+
+vars:pre-request {
+  clubSlug: example-club-slug
+}

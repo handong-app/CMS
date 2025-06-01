@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/**/*.html")).permitAll()
 
-                        .requestMatchers("/api/auth/google/**", "/api/login").permitAll()
+                        .requestMatchers("/api/auth/google/**", "/api/login", "/api/health").permitAll()
 
                         .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
                         .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN")

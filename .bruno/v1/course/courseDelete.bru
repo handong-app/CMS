@@ -1,0 +1,20 @@
+meta {
+  name: courseDelete
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  clubSlug: example-club-slug
+  courseSlug: for-delete-test
+}

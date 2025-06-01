@@ -1,0 +1,23 @@
+meta {
+  name: Update Club Profile
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "slug": "example-club-slug",
+    "description": "This is an upsert club description.",
+    "bannerUrl": "https://example.com/new_banner.jpg"
+  }
+}
+
+vars:pre-request {
+  clubSlug: example-club-slug
+}

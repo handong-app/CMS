@@ -1,5 +1,6 @@
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { ko } from "date-fns/locale";
+import { jwtDecode } from "jwt-decode";
 import { JSX } from "react";
 
 export function formatTimestamp(
@@ -150,4 +151,20 @@ export function getCurrentWeekdayString(date: Date = new Date()): string {
   ];
   const weekday = weekdays[date.getDay()];
   return `${week}주차 ${weekday}`;
+}
+
+export function isJwtExpired(
+  token: string,
+  paddingSeconds: number = 60
+): boolean {
+  if (!token) return true;
+
+  try {
+    const decoded = jwtDecode<{ exp: number }>(token);
+    const now = Date.now() / 1000; // 초 단위
+    // padding 만큼 미리 만료로 간주
+    return decoded.exp < now + paddingSeconds;
+  } catch (e) {
+    return true; // 토큰이 잘못되었거나 디코딩 불가 → 만료 간주
+  }
 }
