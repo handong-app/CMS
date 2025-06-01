@@ -86,19 +86,18 @@ public class NodeGroupServiceImpl implements NodeGroupService {
                     String type = node.get("type").asText();
                     if ("IMAGE".equals(type) || "FILE".equals(type)) {
                         JsonNode fileNode = node.get("data").get("file");
-                        if (fileNode != null
-                                && fileNode.has("fileKey")
-                                && fileNode.has("status")
-                                && "UPLOADED".equals(fileNode.get("status").asText())) {
+                        if (fileNode != null){
+                            if (fileNode.has("fileKey")
+                                    && fileNode.has("status")
+                                    && "UPLOADED".equals(fileNode.get("status").asText())) {
 
-                            String fileKey = fileNode.get("fileKey").asText();
+                                String fileKey = fileNode.get("fileKey").asText();
 
-                            // presigned URL 생성
-                            String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey).toString();
+                                String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey).toString();
 
-                            // "fileKey" 제거하고 "presignedUrl" 추가
+                                ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
+                            }
                             ((ObjectNode) fileNode).remove("fileKey");
-                            ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
                         }
                     }
                 }
