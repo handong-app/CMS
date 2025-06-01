@@ -92,8 +92,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      *
      * @param dto 업로드 완료 요청 DTO
      */
-    @Transactional
-    public void markFileAsUploaded(S3Dto.UploadCompleteRequest dto) {
+     private void markFileAsUploaded(S3Dto.UploadCompleteRequest dto) {
         TbFileList fileList = fileListRepository.findById(dto.getFileListId())
                 .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + dto.getFileListId()));
 
@@ -111,8 +110,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      *
      * @param dto 업로드 완료 요청 DTO
      */
-    @Transactional
-    public void triggerTranscode(S3Dto.UploadCompleteRequest dto) {
+    private void triggerTranscode(S3Dto.UploadCompleteRequest dto) {
         try {
             amqpTemplate.convertAndSend(transcodeRequestQueue, dto);
             log.info("🚀 트랜스코딩 요청 전송 완료: {}", transcodeRequestQueue);
@@ -128,8 +126,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      * @param nodeId         노드 ID
      * @param fileListIdToKeep 유지할 파일 리스트 ID
      */
-    @Transactional
-    public void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep) {
+    private void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep) {
         List<TbFileList> otherFiles = fileListRepository.findByNodeId(nodeId);
         for (TbFileList file : otherFiles) {
             if (!file.getId().equals(fileListIdToKeep)) {
