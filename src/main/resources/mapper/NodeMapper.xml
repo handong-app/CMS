@@ -21,4 +21,12 @@
         WHERE id = #{nodeId}
           AND deleted = 'N'
     </select>
+
+    <!--    노드 ID로 data 를 업데이트-->
+    <update id="updateNodeData">
+        UPDATE tb_node
+        SET data = #{data}
+        WHERE id = #{nodeId}
+    </update>
+
 </mapper>
