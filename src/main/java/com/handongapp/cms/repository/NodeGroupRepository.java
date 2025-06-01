@@ -13,9 +13,9 @@ public interface NodeGroupRepository extends JpaRepository<TbNodeGroup, String> 
     Optional<TbNodeGroup> findByIdAndDeleted(String id, String deleted);
     List<TbNodeGroup> findBySectionIdAndDeletedOrderByOrderAsc(String sectionId, String deleted);
 
-    @Query("SELECT ng FROM TbNodeGroup ng WHERE ng.sectionId = :sectionId AND ng.deleted = 'N' AND ng.order > :currentOrder ORDER BY ng.order ASC LIMIT 1")
+    @Query(value = "SELECT ng FROM TbNodeGroup ng WHERE ng.sectionId = :sectionId AND ng.deleted = 'N' AND ng.order > :currentOrder ORDER BY ng.order ASC LIMIT 1",nativeQuery = true)
     Optional<TbNodeGroup> findNextInSameSection(@Param("sectionId") String sectionId, @Param("currentOrder") int currentOrder);
 
-    @Query("SELECT ng FROM TbNodeGroup ng WHERE ng.sectionId = :sectionId AND ng.deleted = 'N' ORDER BY ng.order ASC LIMIT 1")
+    @Query(value = "SELECT ng FROM TbNodeGroup ng WHERE ng.sectionId = :sectionId AND ng.deleted = 'N' ORDER BY ng.order ASC LIMIT 1",nativeQuery = true)
     Optional<TbNodeGroup> findFirstInNextSection(@Param("sectionId") String sectionId);
 }

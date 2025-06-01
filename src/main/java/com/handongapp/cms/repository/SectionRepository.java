@@ -13,6 +13,6 @@ public interface SectionRepository extends JpaRepository<TbSection, String> {
     Optional<TbSection> findByIdAndDeleted(String id, String deleted);
     List<TbSection> findByCourseIdAndDeletedOrderByOrderAsc(String courseId, String deleted);
 
-    @Query("SELECT s FROM TbSection s WHERE s.courseId = :courseId AND s.deleted = 'N' AND s.order > :currentOrder ORDER BY s.order ASC LIMIT 1")
+    @Query(value = "SELECT s FROM TbSection s WHERE s.courseId = :courseId AND s.deleted = 'N' AND s.order > :currentOrder ORDER BY s.order ASC LIMIT 1",nativeQuery = true)
     Optional<TbSection> findNextInCourse(@Param("courseId") String courseId, @Param("currentOrder") int currentOrder);
 }
