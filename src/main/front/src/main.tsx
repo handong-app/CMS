@@ -9,6 +9,7 @@ import ClubPage from "./pages/ClubPage.tsx";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./styles/theme";
 import CoursePage from "./pages/CoursePage.tsx";
+import NodeGroupPage from "./pages/NodeGroupPage.tsx";
 
 // 페이지 컴포넌트
 import LandingPage from "./pages/LandingPage.tsx";
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
   {
     path: "/club/:club/program/:program_name",
     element: <ProgramPage />,
+  },
+  {
+    path: "club/:club/course/:course_name/nodegroup/:node_group_name",
+    element: <NodeGroupPage />,
   },
   {
     path: "/club/:club/course/:course_name",
