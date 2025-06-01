@@ -5,13 +5,12 @@ meta {
 }
 
 get {
-  url: http://{{baseUrl}}/api/v1/clubs/{{clubSlug}}/programs/{{programSlug}}/users
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/programs/{{programSlug}}/users
   body: none
-  auth: none
+  auth: inherit
 }
 
 vars:pre-request {
-  baseUrl: localhost:8080
   clubSlug: test-club-alpha-slug
   programSlug: full-stack-dev-program-slug
 }
