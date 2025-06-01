@@ -54,14 +54,15 @@ public class NodeDto {
 
     // CreateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class CreateRequest {
         private String nodeGroupId;
 
         @NotNull
-        private final TbNode.NodeType type;
-        private final Boolean commentPermitted;
-        private final Map<String, Object> data;
-        private final Integer order;
+        private TbNode.NodeType type;
+        private Boolean commentPermitted;
+        private Map<String, Object> data;
+        private Integer order;
         public CreateRequest(String nodeGroupId, TbNode.NodeType type, Boolean commentPermitted,
                              Map<String, Object> data, Integer order) {
             this.nodeGroupId = nodeGroupId;
