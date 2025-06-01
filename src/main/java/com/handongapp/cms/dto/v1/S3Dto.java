@@ -35,8 +35,8 @@ public class S3Dto {
     @Builder
     @Schema(description = "업로드 완료 알림")
     public static class UploadCompleteDto {
-        private String filename;
-        private String filetype;
+        private String id;
+        private String fileKey;
     }
 
     @Data
