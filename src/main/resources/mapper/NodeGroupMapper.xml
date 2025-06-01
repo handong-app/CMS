@@ -40,7 +40,7 @@
                             ), JSON_ARRAY())
                             FROM tb_comment c_node
                             LEFT JOIN tb_comment_of_category coc_node ON c_node.category_id = coc_node.id
-                            WHERE c_node.is_node_deleted = FALSE AND c_node.deleted = FALSE
+                            WHERE c_node.is_node_deleted = FALSE AND c_node.deleted = FALSE AND c_node.target_id = n.id
                         )
                     )
                 ), JSON_ARRAY())
