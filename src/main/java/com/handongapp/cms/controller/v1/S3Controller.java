@@ -32,13 +32,13 @@ public class S3Controller {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/download-url")
-    public ResponseEntity<S3Dto.DownloadUrlResponse> generateDownloadUrl(
-            @RequestParam("filename") String filename) {
-        return ResponseEntity.ok(
-                S3Dto.DownloadUrlResponse.builder()
-                        .presignedUrl(presignedUrlService.generateDownloadUrl(filename).toString())
-                        .build()
-        );
-    }
+//    @GetMapping("/download-url")
+//    public ResponseEntity<S3Dto.DownloadUrlResponse> generateDownloadUrl(
+//            @RequestParam("filename") String filename) {
+//        return ResponseEntity.ok(
+//                S3Dto.DownloadUrlResponse.builder()
+//                        .presignedUrl(presignedUrlService.generateDownloadUrl(filename).toString())
+//                        .build()
+//        );
+//    }
 }
