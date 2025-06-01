@@ -83,18 +83,19 @@ public class NodeGroupServiceImpl implements NodeGroupService {
             JsonNode nodes = root.get("nodes");
             if (nodes != null && nodes.isArray()) {
                 for (JsonNode node : nodes) {
-                    String type = node.get("type").asText();
+                    JsonNode typeNode = node.get("type");
+                    if (typeNode == null) continue;
+                    String type = typeNode.asText();
                     if ("IMAGE".equals(type) || "FILE".equals(type)) {
-                        JsonNode fileNode = node.get("data").get("file");
+                        JsonNode dataNode = node.get("data");
+                        if (dataNode == null) continue;
+                        JsonNode fileNode = dataNode.get("file");
                         if (fileNode != null){
                             if (fileNode.has("fileKey")
                                     && fileNode.has("status")
                                     && "UPLOADED".equals(fileNode.get("status").asText())) {
-
                                 String fileKey = fileNode.get("fileKey").asText();
-
                                 String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey).toString();
-
                                 ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
                             }
                             ((ObjectNode) fileNode).remove("fileKey");
