@@ -26,9 +26,9 @@ public class S3Controller {
         return ResponseEntity.ok(presignedUrlService.generateNodeFileUploadUrl(request, principalDetails.getTbUser().getId()));
     }
 
-    @PostMapping("/upload-complete")
-    public ResponseEntity<Void> notifyUploadComplete(@RequestBody S3Dto.UploadCompleteDto dto) {
-        uploadNotifyService.notifyUploadComplete(dto);
+    @PostMapping("/upload-complete/node-file")
+    public ResponseEntity<Void> notifyUploadComplete(@RequestBody S3Dto.UploadCompleteRequest dto) {
+        uploadNotifyService.nodeFileUploadComplete(dto);
         return ResponseEntity.ok().build();
     }
 
