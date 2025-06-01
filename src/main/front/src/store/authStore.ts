@@ -24,7 +24,7 @@ const useAuthStore = create<AuthState>()(
       refreshToken: null,
       user: null,
       setJwtToken: (token) => set({ jwtToken: token }),
-      setRefreshToken: (token) => set({ refreshToken: token }), 
+      setRefreshToken: (token) => set({ refreshToken: token }),
       setUser: (user) => set({ user }),
       clearAuth: () => set({ jwtToken: null, refreshToken: null, user: null }),
     }),
@@ -32,6 +32,7 @@ const useAuthStore = create<AuthState>()(
       name: "auth", // localStorage key
       partialize: (state) => ({
         jwtToken: state.jwtToken,
+        refreshToken: state.refreshToken,
         user: state.user ? { name: state.user.name } : null, // ❗ 최소 정보만
       }),
     }
