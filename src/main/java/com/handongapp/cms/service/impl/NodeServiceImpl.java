@@ -82,9 +82,38 @@ public class NodeServiceImpl implements NodeService {
         entity.setDeleted("Y");
     }
 
+    /**
+     * 주어진 fileListId를 기반으로, 노드의 data의 파일 메타데이터를 업로드 중 상태로 업데이트합니다.
+     * <p>
+     * 이 메서드는 다음과 같은 과정을 수행합니다:
+     * <ul>
+     *   <li>주어진 nodeId로 {@link TbNode}를 조회합니다.</li>
+     *   <li>주어진 fileListId로 {@link TbFileList}를 조회합니다.</li>
+     *   <li>노드 타입에 따라 (VIDEO 또는 IMAGE/FILE), 해당 파일 메타데이터를 업데이트합니다.</li>
+     *   <li>{@link ObjectMapper}를 사용해 data를 JSON으로 변환 및 역직렬화합니다.</li>
+     *   <li>파일 상태를 {@link FileStatus#UPLOADING}로 설정합니다.</li>
+     *   <li>업데이트된 노드를 저장소에 저장합니다.</li>
+     * </ul>
+     * <p>
+     * 변환 또는 업데이트 중 오류가 발생하면 {@link DataUpdateException}을 발생시킵니다.
+     *
+     * @param nodeId     업데이트할 노드의 ID
+     * @param fileListId 노드와 연관된 파일의 ID
+     */
+    @Transactional
+    public void updateNodeFileDataToUploading(String nodeId, String fileListId) {
+        TbNode node = nodeRepository.findById(nodeId)
+                .orElseThrow(() -> new NotFoundException("노드를 찾을 수 없습니다: " + nodeId));
+
+        TbFileList fileList = fileListRepository.findById(fileListId)
+                .orElseThrow(() -> new NotFoundException("파일 정보를 찾을 수 없습니다: " + fileListId));
+
+        updateNodeFileDataInternal(node, fileList, FileStatus.UPLOADING, VideoStatus.UPLOADING);
+        log.info("📦 TbNode data.file.status를 UPLOADING으로 업데이트 완료: {}", fileList.getFileKey());
+    }
 
     /**
-     * 주어진 fileListId를 기반으로, 노드의 data의 파일 메타데이터를 업데이트합니다.
+     * 주어진 fileListId를 기반으로, 노드의 data의 파일 메타데이터를 업로드 완료 상태로 업데이트합니다.
      * <p>
      * 이 메서드는 다음과 같은 과정을 수행합니다:
      * <ul>
@@ -109,6 +138,19 @@ public class NodeServiceImpl implements NodeService {
         TbFileList fileList = fileListRepository.findById(fileListId)
                 .orElseThrow(() -> new NotFoundException("파일 정보를 찾을 수 없습니다: " + fileListId));
 
+        updateNodeFileDataInternal(node, fileList, FileStatus.UPLOADED, VideoStatus.UPLOADED);
+        log.info("📦 TbNode data.file 업데이트 완료: {}", fileList.getFileKey());
+    }
+
+    /**
+     * 주어진 {@link TbNode}와 {@link TbFileList}를 기반으로, 노드의 data의 파일 메타데이터를 업데이트합니다.
+     *
+     * @param node           업데이트할 노드
+     * @param fileList       노드에 연관된 파일 정보
+     * @param fileStatus     파일 상태 (IMAGE/FILE)
+     * @param videoStatus    비디오 상태 (VIDEO)
+     */
+    private void updateNodeFileDataInternal(TbNode node, TbFileList fileList, FileStatus fileStatus, VideoStatus videoStatus) {
         String originalFileName = fileList.getOriginalFileName();
         String contentType = fileList.getContentType();
         String fileKey = fileList.getFileKey();
@@ -117,26 +159,24 @@ public class NodeServiceImpl implements NodeService {
         try {
             if (node.getType() == TbNode.NodeType.VIDEO) {
                 VideoNodeData data = objectMapper.convertValue(node.getData(), VideoNodeData.class);
-                if (data == null) {
-                    data = new VideoNodeData();
-                }
+                if (data == null) data = new VideoNodeData();
+
                 VideoMetaData videoMetaData = new VideoMetaData();
                 videoMetaData.setPath(fileKey);
                 videoMetaData.setOriginalFileName(originalFileName);
-                videoMetaData.setStatus(VideoStatus.UPLOADED);
+                videoMetaData.setStatus(videoStatus);
                 videoMetaData.setContentType(contentType);
 
                 data.setFile(videoMetaData);
                 node.setData(objectMapper.convertValue(data, new TypeReference<Map<String, Object>>() {}));
             } else {
                 FileNodeData data = objectMapper.convertValue(node.getData(), FileNodeData.class);
-                if (data == null) {
-                    data = new FileNodeData();
-                }
+                if (data == null) data = new FileNodeData();
+
                 FileMetaData fileMetaData = new FileMetaData();
                 fileMetaData.setFileKey(fileKey);
                 fileMetaData.setOriginalFileName(originalFileName);
-                fileMetaData.setStatus(FileStatus.UPLOADED);
+                fileMetaData.setStatus(fileStatus);
                 fileMetaData.setContentType(contentType);
 
                 data.setFile(fileMetaData);
@@ -144,7 +184,6 @@ public class NodeServiceImpl implements NodeService {
             }
 
             nodeRepository.save(node);
-            log.info("📦 TbNode data.file 업데이트 완료: {}", fileKey);
         } catch (Exception e) {
             log.error("❌ TbNode data.file 업데이트 실패: {}", e.getMessage(), e);
             throw new DataUpdateException("노드 data 업데이트 실패", e);
