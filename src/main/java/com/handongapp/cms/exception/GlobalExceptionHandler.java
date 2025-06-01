@@ -4,6 +4,7 @@ package com.handongapp.cms.exception;
 import com.handongapp.cms.exception.auth.InvalidTokenException;
 import com.handongapp.cms.exception.auth.NoAuthenticatedException;
 import com.handongapp.cms.exception.auth.NoAuthorizationException;
+import com.handongapp.cms.exception.data.DataUpdateException;
 import com.handongapp.cms.exception.data.DuplicateEntityException;
 import com.handongapp.cms.exception.data.DuplicateTagCodeException;
 import com.handongapp.cms.exception.data.NotFoundException;
@@ -29,6 +30,7 @@ public class GlobalExceptionHandler {
             DuplicateEntityException.class,
             DuplicateTagCodeException.class,
             NotFoundException.class,
+            DataUpdateException.class,
             UploadNotificationException.class,
             PresignedUrlCreationException.class,
             IllegalArgumentException.class
