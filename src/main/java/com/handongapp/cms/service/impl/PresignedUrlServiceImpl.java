@@ -88,6 +88,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                         .nodeId(request.getNodeId())
                         .fileKey(response.getFileKey())
                         .originalFileName(originalFilename)
+                        .contentType(mimeType)
                         .isUploadComplete(false)
                         .requestedAt(LocalDateTime.now())
                         .build()
