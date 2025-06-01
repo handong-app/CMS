@@ -1,0 +1,30 @@
+meta {
+  name: Node upload complete
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/s3/upload-complete/node-file
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": "ab0ce4332af34989806d45f18a42d300",
+    "fileListId": "3b22a84a1b4e4e3eaa8ee63efeadb596",
+    "fileKey": "node_file/file/ab0ce4332af34989806d45f18a42d300.txt"
+  }
+  
+  // 이미지노드 "5ee66300df3f4f48bb2725b4cca1c9eb"
+  // "node_file/image/5ee66300df3f4f48bb2725b4cca1c9eb.jpeg"
+  // 파일 리스트id:  a032e98739e341e69f7170c554296cbb
+  
+  // 파일노드   "ab0ce4332af34989806d45f18a42d300"
+  // "node_file/file/ab0ce4332af34989806d45f18a42d300.pdf",
+  
+  // 비디오노드  "7bc1fa0259bb4c0f95168216fdc62360"
+  // 텍스트노드 "acc8387b0be8443a8d69ba3bfd02b7e6"
+  // 퀴즈노드 "3e72724ce99343b7a403fdc27fadfb3d"
+}

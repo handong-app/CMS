@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.handongapp.cms.mapper.NodeMapper">
+
+    <!--    노드 ID로 클럽ID를 조회-->
+    <select id="findClubIdByNodeId" resultType="string">
+        SELECT c.club_id
+        FROM tb_node n
+                 JOIN tb_node_group ng ON n.node_group_id = ng.id
+                 JOIN tb_section s ON ng.section_id = s.id
+                 JOIN tb_course c ON s.course_id = c.id
+        WHERE n.id = #{nodeId}
+    </select>
+
+    <!--    노드 ID로 타입을 조회-->
+    <select id="findNodeTypeById" resultType="com.handongapp.cms.domain.TbNode$NodeType">
+        SELECT type
+        FROM tb_node
+        WHERE id = #{nodeId}
+          AND deleted = 'N'
+    </select>
+
+    <!--    노드 ID로 data 를 업데이트-->
+    <update id="updateNodeData">
+        UPDATE tb_node
+        SET data = #{data}
+        WHERE id = #{nodeId}
+    </update>
+
+</mapper>
