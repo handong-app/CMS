@@ -71,10 +71,11 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/google/**", "/api/login", "/api/health").permitAll()
 
-                        .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
-                        .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN")
-                        .requestMatchers("/api/member/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN", "CLUB_MEMBER")
-                        .requestMatchers("/api/user/**").hasAnyRole("SERVICE_ADMIN", "CLUB_ADMIN", "CLUB_MEMBER", "USER")
+                        // TODO: 추후 route 별 권한 체킹 도입시 수정요망. (2025.06.01, 현재는 route 별 권한체킹 사용안함)
+//                        .requestMatchers("/api/admin/**").hasRole("SERVICE_ADMIN")
+//                        .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN")
+//                        .requestMatchers("/api/member/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN", "CLUB_MEMBER")
+//                        .requestMatchers("/api/user/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN", "CLUB_MEMBER", "USER")
                         .anyRequest().authenticated());
 
         return http.build();
