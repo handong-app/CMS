@@ -127,7 +127,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      * @param fileListIdToKeep 유지할 파일 리스트 ID
      */
     private void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep) {
-        List<TbFileList> otherFiles = fileListRepository.findByNodeId(nodeId);
+        List<TbFileList> otherFiles = fileListRepository.findByNodeIdForUpdate(nodeId);
         for (TbFileList file : otherFiles) {
             if (!file.getId().equals(fileListIdToKeep)) {
                 deleteFileFromS3(file.getFileKey());
