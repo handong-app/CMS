@@ -81,7 +81,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
 
         S3Dto.UploadUrlResponse response = generateUploadUrl(path, request.getNodeId(), originalFilename, extension, mimeType);
 
-        fileListRepository.save(
+        TbFileList savedFileList = fileListRepository.save(
                 TbFileList.builder()
                         .userId(userId)
                         .clubId(clubId)
@@ -93,6 +93,8 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                         .requestedAt(LocalDateTime.now())
                         .build()
         );
+
+        response.setFileListId(savedFileList.getId());
 
         return response;
     }
