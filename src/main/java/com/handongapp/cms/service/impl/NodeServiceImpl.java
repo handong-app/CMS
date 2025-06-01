@@ -33,6 +33,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NodeServiceImpl implements NodeService {
 
+    // ObjectMapper는 스레드 안전하므로 싱글턴으로 재사용하는 것이 성능 & 메모리 사용량 개선에 도움이 됨.
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private final NodeRepository nodeRepository;
     private final FileListRepository fileListRepository;
 
@@ -155,10 +158,9 @@ public class NodeServiceImpl implements NodeService {
         String contentType = fileList.getContentType();
         String fileKey = fileList.getFileKey();
 
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             if (node.getType() == TbNode.NodeType.VIDEO) {
-                VideoNodeData data = objectMapper.convertValue(node.getData(), VideoNodeData.class);
+                VideoNodeData data = OBJECT_MAPPER.convertValue(node.getData(), VideoNodeData.class);
                 if (data == null) data = new VideoNodeData();
 
                 VideoMetaData videoMetaData = new VideoMetaData();
@@ -168,9 +170,9 @@ public class NodeServiceImpl implements NodeService {
                 videoMetaData.setContentType(contentType);
 
                 data.setFile(videoMetaData);
-                node.setData(objectMapper.convertValue(data, new TypeReference<Map<String, Object>>() {}));
+                node.setData(OBJECT_MAPPER.convertValue(data, new TypeReference<Map<String, Object>>() {}));
             } else {
-                FileNodeData data = objectMapper.convertValue(node.getData(), FileNodeData.class);
+                FileNodeData data = OBJECT_MAPPER.convertValue(node.getData(), FileNodeData.class);
                 if (data == null) data = new FileNodeData();
 
                 FileMetaData fileMetaData = new FileMetaData();
@@ -180,7 +182,7 @@ public class NodeServiceImpl implements NodeService {
                 fileMetaData.setContentType(contentType);
 
                 data.setFile(fileMetaData);
-                node.setData(objectMapper.convertValue(data, new TypeReference<Map<String, Object>>() {}));
+                node.setData(OBJECT_MAPPER.convertValue(data, new TypeReference<Map<String, Object>>() {}));
             }
 
             nodeRepository.save(node);
