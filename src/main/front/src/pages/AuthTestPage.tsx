@@ -12,7 +12,6 @@ function AuthTestPage() {
 
   const fetchBe = useFetchBe();
 
-  console.log("AuthTestPage jwtToken:", jwtToken);
   return (
     <div>
       <h1>Test Page</h1>

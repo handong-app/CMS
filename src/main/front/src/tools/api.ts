@@ -37,6 +37,14 @@ export async function fetchBe(
         const refreshData = await refreshResponse.json();
         jwtValue = refreshData.accessToken; // 갱신된 access token 사용
         useAuthStore.setState({ jwtToken: jwtValue }); // Zustand 스토어 업데이트
+      } else {
+        console.error("Access token 갱신 실패", refreshResponse);
+        if (onUnauthorized) {
+          onUnauthorized();
+        } else {
+          window.location.href = "/land";
+        }
+        throw { errorMsg: "Access token 갱신 실패" };
       }
     }
 
@@ -88,22 +96,18 @@ export const useFetchBe = () => {
     () =>
       (
         path: string,
-        {
-          method = "GET",
-          body,
-          onUnauthorized,
-        }: {
+        options?: {
           method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD";
-          body?: Record<string, unknown>;
+          body?: { [key: string]: any };
           onUnauthorized?: () => void;
         }
       ) =>
         fetchBe(
           jwtToken,
           path,
-          method,
-          body,
-          onUnauthorized ?? (() => navigate("/land"))
+          options?.method ?? "GET",
+          options?.body,
+          options?.onUnauthorized ?? (() => navigate("/land"))
         ),
     [jwtToken, navigate]
   );
