@@ -43,10 +43,12 @@ public class S3Dto {
     @Schema(description = "업로드 완료 알림")
     public static class UploadCompleteRequest {
         @NotBlank(message = "id는 필수입니다")
+        @Pattern(regexp = "^[a-fA-F0-9]{32}$", message = "id는 32자리 16진수 문자열이어야 합니다.")
         private String id;
         @NotBlank(message = "fileKey 는 필수입니다")
         private String fileKey;
         @NotBlank(message = "fileListId 는 필수입니다")
+        @Pattern(regexp = "^[a-fA-F0-9]{32}$", message = "fileListId는 32자리 16진수 문자열이어야 합니다.")
         private String fileListId;
     }
 
@@ -69,6 +71,7 @@ public class S3Dto {
         @NotBlank(message = "파일명은 필수입니다")
         private String filename;
         @NotBlank(message = "노드 ID는 필수입니다")
+        @Pattern(regexp = "^[a-fA-F0-9]{32}$", message = "nodeId는 32자리 16진수 문자열이어야 합니다.")
         private String nodeId;
     }
 }
