@@ -1,6 +1,9 @@
 package com.handongapp.cms.controller.v1;
 
+import com.handongapp.cms.dto.v1.NodeGroupDto;
 import com.handongapp.cms.service.NodeGroupService;
+import java.util.Collections; 
+import java.util.Optional;    
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,4 +57,11 @@ public class NodeGroupController {
     //     nodeGroupService.deleteSoft(nodeGroupId);
     //     return ResponseEntity.noContent().build();
     // }
+
+    @GetMapping("/next")
+    public ResponseEntity<?> getNextNodeGroupInfo(@RequestParam String nodeGroupId) {
+        Optional<NodeGroupDto.NextNodeGroupResponseDto> nextNodeGroupData = nodeGroupService.getNextNodeGroupInSectionOrCourse(nodeGroupId);
+        return nextNodeGroupData.<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok(Collections.emptyMap()));
+    }
 }
