@@ -49,6 +49,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     private final UserClubRoleRepository userClubRoleRepository;
     private final ClubRoleRepository clubRoleRepository;
     private final FileListRepository fileListRepository;
+    private final NodeServiceImpl nodeService;
 
     @Override
     public S3Dto.UploadUrlResponse generateNodeFileUploadUrl(S3Dto.NodeFileUploadUrlRequest request, String userId) {
@@ -93,6 +94,8 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                         .requestedAt(LocalDateTime.now())
                         .build()
         );
+
+        nodeService.updateNodeFileDataToUploading(request.getNodeId(), savedFileList.getId());
 
         response.setFileListId(savedFileList.getId());
 
