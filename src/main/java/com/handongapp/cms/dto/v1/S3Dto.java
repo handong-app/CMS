@@ -32,6 +32,7 @@ public class S3Dto {
     public static class UploadUrlResponse {
         private String presignedUrl;
         private String fileKey;
+        private String fileListId;
         private String originalFilename;
     }
 
@@ -41,8 +42,12 @@ public class S3Dto {
     @AllArgsConstructor
     @Schema(description = "업로드 완료 알림")
     public static class UploadCompleteDto {
+        @NotBlank(message = "id는 필수입니다")
         private String id;
+        @NotBlank(message = "fileKey 는 필수입니다")
         private String fileKey;
+        @NotBlank(message = "fileListId 는 필수입니다")
+        private String fileListId;
     }
 
     @Data
