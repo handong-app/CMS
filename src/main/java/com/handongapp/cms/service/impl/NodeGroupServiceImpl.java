@@ -1,6 +1,7 @@
 package com.handongapp.cms.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.handongapp.cms.domain.TbNodeGroup;
 import com.handongapp.cms.dto.v1.NodeGroupDto;
 import com.handongapp.cms.repository.NodeGroupRepository;
@@ -20,10 +21,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class NodeGroupServiceImpl implements NodeGroupService {
 
     private final NodeGroupMapper nodeGroupMapper;
-
     private final ObjectMapper objectMapper;
-
     private final NodeGroupRepository nodeGroupRepository;
+    private final PresignedUrlServiceImpl presignedUrlService;
 
     @Override
     @Transactional
@@ -75,10 +75,35 @@ public class NodeGroupServiceImpl implements NodeGroupService {
         }
         nodeGroupRepository.findByIdAndDeleted(nodeGroupId, "N")
                 .orElseThrow(() -> new EntityNotFoundException("NodeGroup not found with id: " + nodeGroupId + " or it has been deleted."));
+
         String rawJson = nodeGroupMapper.fetchAllInfoByNodeGroupId(nodeGroupId);
+
         try {
-            JsonNode node = objectMapper.readTree(rawJson);
-            return objectMapper.writeValueAsString(node);
+            JsonNode root = objectMapper.readTree(rawJson);
+            JsonNode nodes = root.get("nodes");
+            if (nodes != null && nodes.isArray()) {
+                for (JsonNode node : nodes) {
+                    JsonNode typeNode = node.get("type");
+                    if (typeNode == null) continue;
+                    String type = typeNode.asText();
+                    if ("IMAGE".equals(type) || "FILE".equals(type)) {
+                        JsonNode dataNode = node.get("data");
+                        if (dataNode == null) continue;
+                        JsonNode fileNode = dataNode.get("file");
+                        if (fileNode != null){
+                            if (fileNode.has("fileKey")
+                                    && fileNode.has("status")
+                                    && "UPLOADED".equals(fileNode.get("status").asText())) {
+                                String fileKey = fileNode.get("fileKey").asText();
+                                String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey).toString();
+                                ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
+                            }
+                            ((ObjectNode) fileNode).remove("fileKey");
+                        }
+                    }
+                }
+            }
+            return objectMapper.writeValueAsString(root);
         } catch (Exception e) {
             throw new IllegalStateException("NodeGroup JSON 파싱/직렬화에 실패했습니다.", e);
         }
