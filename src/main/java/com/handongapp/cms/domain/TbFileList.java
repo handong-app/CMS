@@ -32,6 +32,12 @@ public class TbFileList extends AuditingFields {
     @Column(name = "file_key", length = 255, nullable = false)
     private String fileKey;
 
+    @Column(name = "original_file_name", length = 255)
+    private String originalFileName;
+
+    @Column(name = "content_type", length = 255, nullable = false)
+    private String contentType;
+
     @Column(name = "is_upload_complete", columnDefinition = "BIT", nullable = false)
     private Boolean isUploadComplete = false;
 
