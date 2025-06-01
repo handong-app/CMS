@@ -15,7 +15,7 @@ function AuthTestPage() {
   const queryClient = useQueryClient();
   const { data: myData } = useQuery({
     queryKey: ["myData"],
-    queryFn: () => fetchBe("/v1/user/profile"),
+    queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
   });
 
   return (
