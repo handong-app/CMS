@@ -4,8 +4,25 @@ import { Box } from "@mui/system";
 import ClubBadge from "../components/ClubPage/ClubBadge";
 import ContinueNodeGroup from "../components/course/ContinueNodeGroup";
 import CourseList from "../components/course/CourseList";
+import { useFetchBe } from "../tools/api";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
 
 function ClubPage() {
+  const { club } = useParams<{ club: string }>();
+  const fetchBe = useFetchBe();
+
+  const { data: clubInfo, isLoading: clubLoading } = useQuery({
+    queryKey: ["clubInfo", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}`),
+  });
+
+  console.log("Club Info:", clubInfo);
+
+  if (clubLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
   return (
     <Box
       display="flex"
@@ -15,9 +32,9 @@ function ClubPage() {
     >
       <Box width="100%" maxWidth={980}>
         <TopBanner
-          title="Club Name"
-          subtitle="Welcome to the club"
-          image="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1920"
+          title={clubInfo?.clubName || ""}
+          subtitle={clubInfo?.description || ""}
+          image={clubInfo?.bannerUrl || ""}
         />
       </Box>
       <Box maxWidth={980} margin="auto" mx={2}>
