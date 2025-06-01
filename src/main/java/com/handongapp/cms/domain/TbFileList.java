@@ -38,6 +38,7 @@ public class TbFileList extends AuditingFields {
     @Column(name = "content_type", length = 255, nullable = false)
     private String contentType;
 
+    @Builder.Default
     @Column(name = "is_upload_complete", columnDefinition = "BIT", nullable = false)
     private Boolean isUploadComplete = false;
 
