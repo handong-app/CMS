@@ -41,7 +41,7 @@ public class S3Dto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "업로드 완료 알림")
-    public static class UploadCompleteDto {
+    public static class UploadCompleteRequest {
         @NotBlank(message = "id는 필수입니다")
         private String id;
         @NotBlank(message = "fileKey 는 필수입니다")
