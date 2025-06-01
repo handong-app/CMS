@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: {{BASE_URL_LOCAL}}/api/v1/clubs/clubId123/courses/course-slug/sections/sectionId123/node-groups
+  url: {{BASE_URL_LOCAL}}/api/v1/node-group/{{nodeGroupId}}
   body: none
   auth: inherit
 }
 
-headers {
-  Content-Type: application/json
+vars:pre-request {
+  nodeGroupId: nodg0000000000000000000000000002
 }

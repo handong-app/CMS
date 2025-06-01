@@ -9,4 +9,5 @@ public interface NodeGroupService {
     List<NodeGroupDto.Response> listBySection(String sectionId);
     NodeGroupDto.Response update(String id, NodeGroupDto.UpdateRequest req);
     void deleteSoft(String id);
+    String fetchAllInfo(String nodeGroupId);
 }

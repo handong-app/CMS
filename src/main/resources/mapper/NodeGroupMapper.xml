@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.handongapp.cms.mapper.NodeGroupMapper">
+
+    <select id="fetchAllInfoByNodeGroupId" resultType="java.lang.String">
+    SELECT
+        JSON_OBJECT(
+            'id', ng.id,
+            'sectionId', ng.section_id,
+            'title', ng.title,
+            'order', ng.order,
+            'createdAt', ng.created_at,
+            'updatedAt', ng.updated_at,
+            'nodes', (
+                SELECT IFNULL(JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', n.id,
+                        'nodeGroupId', n.node_group_id,
+                        'type', n.type,
+                        'commentPermitted', n.is_comment_permitted = b'1',
+                        'data', n.data,
+                        'order', n.order,
+                        'attachmentUrl', n.attachment_url,
+                        'createdAt', n.created_at,
+                        'updatedAt', n.updated_at,
+                        'comments', ( -- Comments for this specific node 'n'
+                            SELECT IFNULL(JSON_ARRAYAGG(
+                                JSON_OBJECT(
+                                    'id', c_node.id,
+                                    'content', c_node.content,
+                                    'authorId', c_node.user_id, -- TbComment.userId 사용
+                                    'createdAt', c_node.created_at,
+                                    'updatedAt', c_node.updated_at,
+                                    -- Joined category fields for node comments
+                                    'categoryId', coc_node.id,
+                                    'categorySlug', coc_node.slug,
+                                    'categoryLabel', coc_node.label,
+                                    'categoryEmoji', coc_node.emoji
+                                )
+                            ), JSON_ARRAY())
+                            FROM tb_comment c_node
+                            LEFT JOIN tb_comment_of_category coc_node ON c_node.category_id = coc_node.id
+                            WHERE c_node.is_node_deleted = FALSE AND c_node.deleted = FALSE
+                        )
+                    )
+                ), JSON_ARRAY())
+                FROM tb_node n
+                WHERE n.node_group_id = ng.id AND n.deleted = FALSE
+                ORDER BY n.order ASC
+            ),
+            'comments', ( -- Comments for the main node group 'ng'
+                SELECT IFNULL(JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', c_ng.id,
+                        'content', c_ng.content,
+                        'authorId', c_ng.user_id, -- TbComment.userId 사용
+                        'createdAt', c_ng.created_at,
+                        'updatedAt', c_ng.updated_at,
+                        -- Joined category fields for node group comments
+                        'categoryId', coc_ng.id,
+                        'categorySlug', coc_ng.slug,
+                        'categoryLabel', coc_ng.label,
+                        'categoryEmoji', coc_ng.emoji
+                    )
+                ), JSON_ARRAY())
+                FROM tb_comment c_ng
+                LEFT JOIN tb_comment_of_category coc_ng ON c_ng.category_id = coc_ng.id
+                WHERE c_ng.target_id = ng.id AND c_ng.is_node_deleted = TRUE AND c_ng.deleted = FALSE
+            )
+        )
+    FROM tb_node_group ng
+    WHERE ng.id = #{nodeGroupId} AND ng.deleted = FALSE;
+</select>
+</mapper>
