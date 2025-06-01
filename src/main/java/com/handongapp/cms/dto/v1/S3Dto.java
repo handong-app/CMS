@@ -10,6 +10,8 @@ public class S3Dto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "S3 업로드 URL 요청")
     public static class UploadUrlRequest {
         @NotBlank(message = "파일명은 필수입니다")
@@ -24,6 +26,8 @@ public class S3Dto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "S3 업로드 URL 응답")
     public static class UploadUrlResponse {
         private String presignedUrl;
@@ -33,6 +37,8 @@ public class S3Dto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "업로드 완료 알림")
     public static class UploadCompleteDto {
         private String id;
@@ -41,6 +47,8 @@ public class S3Dto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "S3 다운로드 URL 응답")
     public static class DownloadUrlResponse {
         private String presignedUrl;
@@ -49,6 +57,8 @@ public class S3Dto {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "노드 파일 S3 업로드 URL 요청")
     public static class NodeFileUploadUrlRequest {
         @NotBlank(message = "파일명은 필수입니다")
