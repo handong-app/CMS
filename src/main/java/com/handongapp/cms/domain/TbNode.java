@@ -42,9 +42,6 @@ public class TbNode extends AuditingFields {
 //    @Column(name = "attachment_url")
 //    private String attachmentUrl;
 
-    /** Associated S3 file key (if applicable) */
-    @Column(name = "file_key", length = 255)
-    private String fileKey;
 
     /** Whether comments are allowed for this node */
     @Column(name = "is_comment_permitted")
