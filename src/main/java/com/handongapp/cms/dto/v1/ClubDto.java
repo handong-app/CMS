@@ -10,50 +10,25 @@ import java.util.List;
 public class ClubDto {
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ClubProfileResDto {
         private String clubName;
         private String slug;
         private String description;
         private String bannerUrl;
 
-        public ClubProfileResDto(String clubName, String slug, String description, String bannerUrl) {
-            this.clubName = clubName;
-            this.slug = slug;
-            this.description = description;
-            this.bannerUrl = bannerUrl;
-        }
     }
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ClubProfileReqDto {
         private String slug;
         private String name;
         private String description;
         private String bannerUrl;
 
-        public ClubProfileReqDto(String slug, String name, String description, String bannerUrl) {
-            this.slug = slug;
-            this.description = description;
-            this.bannerUrl = bannerUrl;
-        }
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ClubProgramResDto {
-        private String programName;
-        private String description;
-//        private
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ClubProgramListResDto {
-        private String programName;
     }
 
     @Getter
