@@ -144,7 +144,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
     /**
      * S3에서 주어진 파일 키에 해당하는 파일을 삭제합니다.
      * <p>
-     * 삭제 중 오류가 발생하면 로그로 기록만 하고 예외는 던지지 않습니다.
+     * 삭제 중 오류가 발생하면 로그로 기록 후 예외를 던집니다.
      *
      * @param fileKey S3에서 삭제할 파일 키
      */
@@ -157,6 +157,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
             log.info("🗑️ S3에서 파일 삭제: {}", fileKey);
         } catch (Exception e) {
             log.error("❌ S3 파일 삭제 실패: {}", fileKey, e);
+            throw new UploadNotificationException("S3 파일 삭제 실패: " + fileKey, e);
         }
     }
 }
