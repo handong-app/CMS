@@ -5,11 +5,15 @@ meta {
 }
 
 get {
-  url: {{BASE_URL_LOCAL}}/api/v1/node-group/{{nodeGroupId}}
+  url: {{BASE_URL_LOCAL}}/api/v1/node-group/next?nodeGroupId={{nodeGroupId}}
   body: none
   auth: inherit
 }
 
+params:query {
+  nodeGroupId: {{nodeGroupId}}
+}
+
 vars:pre-request {
-  nodeGroupId: nodg0000000000000000000000000002
+  nodeGroupId: nodg0000000000000000000000000001
 }
