@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useAuthStore from "../store/authStore";
 import { useFetchBe } from "../tools/api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function AuthTestPage() {
   const { jwtToken, refreshToken, setJwtToken, setRefreshToken } =
@@ -8,9 +9,14 @@ function AuthTestPage() {
 
   const [newJwtToken, setNewJwtToken] = useState(jwtToken || "");
   const [newRefreshToken, setNewRefreshToken] = useState(refreshToken || "");
-  const [myInfo, setMyInfo] = useState(null);
 
   const fetchBe = useFetchBe();
+
+  const queryClient = useQueryClient();
+  const { data: myData } = useQuery({
+    queryKey: ["myData"],
+    queryFn: () => fetchBe("/v1/user/profile"),
+  });
 
   return (
     <div>
@@ -45,21 +51,18 @@ function AuthTestPage() {
         <button
           onClick={async () => {
             try {
-              const info = await fetchBe("/v1/user/profile", {
-                onUnauthorized: () => {},
-              });
-              setMyInfo(info);
+              await queryClient.invalidateQueries({ queryKey: ["myData"] });
             } catch (error) {
-              console.error("Error fetching my info:", error);
+              console.error("Error fetching my data:", error);
             }
           }}
         >
           Get My Info
         </button>
-        {myInfo && (
+        {myData && (
           <div>
             <h2>My Info</h2>
-            <pre>{JSON.stringify(myInfo, null, 2)}</pre>
+            <pre>{JSON.stringify(myData, null, 2)}</pre>
           </div>
         )}
       </div>
