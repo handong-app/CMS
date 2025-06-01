@@ -2,6 +2,9 @@ package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.NodeGroupDto;
 import com.handongapp.cms.service.NodeGroupService;
+
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Collections; 
 import java.util.Optional;    
 import lombok.RequiredArgsConstructor;
@@ -59,7 +62,7 @@ public class NodeGroupController {
     // }
 
     @GetMapping("/next")
-    public ResponseEntity<?> getNextNodeGroupInfo(@RequestParam String nodeGroupId) {
+    public ResponseEntity<?> getNextNodeGroupInfo(@RequestParam @NotBlank String nodeGroupId) {
         Optional<NodeGroupDto.NextNodeGroupResponseDto> nextNodeGroupData = nodeGroupService.getNextNodeGroupInSectionOrCourse(nodeGroupId);
         return nextNodeGroupData.<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.ok(Collections.emptyMap()));
