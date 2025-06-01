@@ -1,8 +1,8 @@
 package com.handongapp.cms.service;
 
 
-import com.handongapp.cms.dto.v1.S3Dto.UploadCompleteDto;
+import com.handongapp.cms.dto.v1.S3Dto;
 
 public interface UploadNotifyService {
-    void notifyUploadComplete(UploadCompleteDto dto);
+    void nodeFileUploadComplete(S3Dto.UploadCompleteRequest dto);
 }

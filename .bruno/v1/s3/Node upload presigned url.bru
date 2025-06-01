@@ -1,0 +1,24 @@
+meta {
+  name: Node upload presigned url
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/s3/upload-url/node-file
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "filename": "helpemeeee.txt",
+    "nodeId": "ab0ce4332af34989806d45f18a42d300"
+  }
+  
+  // 이미지노드 "5ee66300df3f4f48bb2725b4cca1c9eb"
+  // 파일노드   "ab0ce4332af34989806d45f18a42d300"
+  // 비디오노드  "7bc1fa0259bb4c0f95168216fdc62360"
+  // 텍스트노드 "acc8387b0be8443a8d69ba3bfd02b7e6"
+  // 퀴즈노드 "3e72724ce99343b7a403fdc27fadfb3d"
+}

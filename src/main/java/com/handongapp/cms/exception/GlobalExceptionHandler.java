@@ -4,6 +4,7 @@ package com.handongapp.cms.exception;
 import com.handongapp.cms.exception.auth.InvalidTokenException;
 import com.handongapp.cms.exception.auth.NoAuthenticatedException;
 import com.handongapp.cms.exception.auth.NoAuthorizationException;
+import com.handongapp.cms.exception.data.DataUpdateException;
 import com.handongapp.cms.exception.data.DuplicateEntityException;
 import com.handongapp.cms.exception.data.DuplicateTagCodeException;
 import com.handongapp.cms.exception.data.NotFoundException;
@@ -29,8 +30,10 @@ public class GlobalExceptionHandler {
             DuplicateEntityException.class,
             DuplicateTagCodeException.class,
             NotFoundException.class,
+            DataUpdateException.class,
             UploadNotificationException.class,
-            PresignedUrlCreationException.class
+            PresignedUrlCreationException.class,
+            IllegalArgumentException.class
     })
     public ResponseEntity<Map<String, Object>> handleCustomExceptions(Exception ex) {
         HttpStatus status = resolveHttpStatus(ex);
@@ -44,6 +47,11 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus resolveHttpStatus(Exception ex) {
+
+        if (ex instanceof IllegalArgumentException) {
+            return HttpStatus.BAD_REQUEST;
+        }
+
         ResponseStatus statusAnnotation = ex.getClass().getAnnotation(ResponseStatus.class);
         return (statusAnnotation != null) ? statusAnnotation.value() : HttpStatus.INTERNAL_SERVER_ERROR;
     }
