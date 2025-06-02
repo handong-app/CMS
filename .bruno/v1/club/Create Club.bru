@@ -1,0 +1,20 @@
+meta {
+  name: Create Club
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "slug": "create-club-test",
+    "name": "새로운 클럽",
+    "description": "new club!",
+    "bannerUrl": "https://new.com"
+  }
+}

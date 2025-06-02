@@ -1,19 +1,21 @@
 package com.handongapp.cms.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbClub;
 import com.handongapp.cms.dto.v1.ClubDto;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.ClubRepository;
+import com.handongapp.cms.service.ClubService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.handongapp.cms.service.ClubService;
 
 @Service
 @RequiredArgsConstructor
@@ -23,49 +25,55 @@ public class ClubServiceImpl implements ClubService {
     private final ClubMapper clubMapper;
     private final ObjectMapper objectMapper;
 
+    private static final String DELETED_FLAG_YES = "Y";
+    private static final String DELETED_FLAG_NO = "N";
+
     @Override
     public ClubDto.ClubProfileResDto getClubProfile(String clubSlug) {
-        return clubRepository.findBySlug(clubSlug)
+        return clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
                 .map(club -> new ClubDto.ClubProfileResDto(
                         club.getName(),
                         club.getSlug(),
                         club.getDescription(),
                         club.getBannerUrl()
                 ))
-                .orElse(null);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "클럽을 찾을 수 없습니다: " + clubSlug));
     }
 
     @Transactional
+    @Override
     public void updateClubProfile(String clubSlug, ClubDto.ClubProfileReqDto dto) { //upsert
-        Optional<TbClub> existingClubOpt = clubRepository.findBySlug(clubSlug);
+        Optional<TbClub> existingClubOpt = clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO);
         TbClub clubEntity;
 
-        if (!existingClubOpt.isPresent()) { //insert 
+        if (!existingClubOpt.isPresent()) { //insert new club if not found or soft-deleted
             clubEntity = new TbClub();
-
-            clubEntity.setSlug(clubSlug);
+            clubEntity.setSlug(clubSlug); // Use slug from path for new club
 
             if (!StringUtils.hasText(dto.getName())) {
-                throw new IllegalArgumentException("새 클럽 생성 시 이름은 필수입니다.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "새 클럽 생성 시 이름은 필수입니다.");
             }
             clubEntity.setName(dto.getName());
             clubEntity.setDescription(dto.getDescription());
             clubEntity.setBannerUrl(dto.getBannerUrl());
-        } else { //update
+            clubEntity.setDeleted(DELETED_FLAG_NO);
+        } else { //update existing non-deleted club
             clubEntity = existingClubOpt.get();
 
+            // Slug update logic
             if (StringUtils.hasText(dto.getSlug()) && !dto.getSlug().equals(clubEntity.getSlug())) {
                 String newSlug = dto.getSlug();
-                Optional<TbClub> conflictingClubOpt = clubRepository.findBySlug(newSlug);
-                if (conflictingClubOpt.isPresent()) {
-                    throw new IllegalArgumentException("이미 다른 클럽이 사용중인 Slug입니다: " + newSlug);
+                // Check if new slug conflicts with another non-deleted club
+                Optional<TbClub> conflictingClubOpt = clubRepository.findBySlugAndDeleted(newSlug, DELETED_FLAG_NO);
+                if (conflictingClubOpt.isPresent() && !conflictingClubOpt.get().getId().equals(clubEntity.getId())) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 다른 클럽이 사용중인 Slug입니다: " + newSlug);
                 }
                 clubEntity.setSlug(newSlug);
             }
 
             if (dto.getName() != null) {
                 if (!StringUtils.hasText(dto.getName())) {
-                    throw new IllegalArgumentException("클럽 이름은 비워둘 수 없습니다.");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "클럽 이름은 비워둘 수 없습니다.");
                 }
                 clubEntity.setName(dto.getName());
             }
@@ -85,15 +93,60 @@ public class ClubServiceImpl implements ClubService {
         clubRepository.save(clubEntity);
     }
 
+    @Transactional
+    @Override
+    public ClubDto.ClubProfileResDto createClub(ClubDto.ClubProfileReqDto dto) {
+        if (!StringUtils.hasText(dto.getSlug())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "클럽 Slug는 필수입니다.");
+        }
+        if (!StringUtils.hasText(dto.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "클럽 이름은 필수입니다.");
+        }
+
+        clubRepository.findBySlugAndDeleted(dto.getSlug(), DELETED_FLAG_NO).ifPresent(c -> {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용중인 클럽 Slug 입니다: " + dto.getSlug());
+        });
+
+        TbClub newClub = new TbClub();
+        newClub.setName(dto.getName());
+        newClub.setSlug(dto.getSlug());
+        newClub.setDescription(dto.getDescription());
+        newClub.setBannerUrl(dto.getBannerUrl());
+        newClub.setDeleted(DELETED_FLAG_NO);
+
+        TbClub savedClub = clubRepository.save(newClub);
+
+        return new ClubDto.ClubProfileResDto(
+                savedClub.getName(),
+                savedClub.getSlug(),
+                savedClub.getDescription(),
+                savedClub.getBannerUrl()
+        );
+    }
+
+    @Transactional
+    @Override
+    public void deleteClub(String clubSlug) {
+        TbClub clubToDelete = clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "삭제할 클럽을 찾을 수 없습니다: " + clubSlug));
+
+        clubToDelete.setDeleted(DELETED_FLAG_YES);
+        clubRepository.save(clubToDelete);
+    }
+
     @Override
     public String getCoursesByClubSlugAsJson(String clubSlug) {
+        // Ensure club exists and is not deleted before fetching courses
+        clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "코스 정보를 조회할 클럽을 찾을 수 없습니다: " + clubSlug));
+        
         String rawJson = clubMapper.getCoursesByClubSlugAsJson(clubSlug);
 
         try {
-            JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동
+            JsonNode node = objectMapper.readTree(rawJson);
             return objectMapper.writeValueAsString(node);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("코스 JSON 파싱/직렬화에 실패했습니다.", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "코스 JSON 파싱/직렬화에 실패했습니다.", e);
         }
     }
 }
