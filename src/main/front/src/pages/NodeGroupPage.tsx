@@ -11,11 +11,13 @@ import { useLocation } from "react-router"; //
 import AddIcon from "@mui/icons-material/Add"; // 추가
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import VideoPlayer from "../components/NodeGroupPage/VideoPlayer";
+import DownloadFileBox from "../components/NodeGroupPage/DownloadFileBox";
+import ImagePreviewWithDownload from "../components/NodeGroupPage/ImagePreviewWithDownload";
 
 // 노드 타입별로 크기 매칭
 const nodeHeightMap = {
   video: 600,
-  file: 300,
+  file: 200,
   pdf: 300,
   image: 500,
   quiz: 300,
@@ -206,21 +208,39 @@ function NodeGroupPage() {
                   color="black"
                   sx={{
                     flex: 5,
-                    cursor: "pointer",
+                    cursor: node.type === "IMAGE" ? "pointer" : "default",
                     transition: "background-color 0.2s",
-                    // "&:hover": { backgroundColor: "#f0f0f011" },
                   }}
                 >
-                  <Box width="100%">
+                  <Box width="100%" height="100%" alignContent="center">
                     {node.type === "VIDEO" && node.data?.file?.playlist ? (
                       <VideoPlayer
                         src={`https://cms.handong.app${node.data.file.playlist}`}
                       />
+                    ) : node.type === "IMAGE" &&
+                      node.data?.file?.presignedUrl ? (
+                      <ImagePreviewWithDownload
+                        src={node.data.file.presignedUrl}
+                        filename={node.data.file.originalFileName}
+                      />
                     ) : (
-                      <Box color="white" display="flex" justifyContent="center">
+                      <Box
+                        color="white"
+                        display="flex"
+                        justifyContent="start"
+                        flexDirection="row"
+                        alignItems="start"
+                      >
                         {iconMap[node.type.toLowerCase()] || (
                           <DescriptionIcon fontSize="large" />
                         )}
+                        {node.type === "FILE" &&
+                          node.data?.file?.presignedUrl && (
+                            <DownloadFileBox
+                              fileUrl={node.data.file.presignedUrl}
+                              fileName={node.data.file.originalFileName}
+                            />
+                          )}
                       </Box>
                     )}
                   </Box>
