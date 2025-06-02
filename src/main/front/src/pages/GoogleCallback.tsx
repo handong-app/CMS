@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef , useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import useAuthStore from "../store/authStore";
 import { jwtDecode } from "jwt-decode";
@@ -18,10 +18,13 @@ interface DecodedToken {
   [key: string]: any;
 }
 
+
+
 const GoogleOAuthCallback: React.FC = () => {
   const [output, setOutput] = useState("처리 중...");
   const [loginCheckResult, setLoginCheckResult] = useState("");
-
+  const hasFetched = useRef(false); 
+  
   const {
     jwtToken,
     refreshToken,
@@ -36,59 +39,66 @@ const GoogleOAuthCallback: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-    console.log("📦 받은 code:", code);
+  const code = searchParams.get("code");
+  console.log("📦 받은 code:", code);
 
-    if (!code) {
-      console.error("❌ Authorization code가 없습니다.");
-      setOutput("Authorization code가 없습니다.");
-      return;
-    }
 
-    const fetchTokens = async (code: string) => {
-      try {
-        console.log("🚀 백엔드로 code 전송 중...");
-        const res = await fetch(
-          `${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`
-        );
+  if (!code) {
+    console.error("❌ Authorization code가 없습니다.");
+    setOutput("Authorization code가 없습니다.");
+    return;
+  }
 
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => null);
-          throw new Error(errorData?.error || res.statusText);
-        }
+  if (hasFetched.current) {
+    console.log("⚠️ 이미 요청을 보낸 code입니다. 중복 방지");
+    return;
+  }
 
-        const data: GoogleOAuthResponse = await res.json();
+  hasFetched.current = true; // ✅ 한 번만 실행되도록 설정
 
-        // ✅ JWT 디코딩 및 상태 저장
-        try {
-          const decoded: DecodedToken = jwtDecode(data.accessToken);
+  const fetchTokens = async (code: string) => {
+    try {
+      console.log("🚀 백엔드로 code 전송 중...");
+      const res = await fetch(
+        `${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`
+      );
 
-          setJwtToken(data.accessToken);
-          setRefreshToken(data.refreshToken);
-          setUser({
-            name: decoded.name,
-            email: decoded.email,
-            photoURL:
-              decoded.picture ||
-              "https://lh3.googleusercontent.com/a/default-user",
-          });
-
-          console.log("✅ 디코딩된 유저 정보:", decoded);
-          setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
-          navigate("/register");
-        } catch (decodeError) {
-          console.error("JWT 디코딩 실패:", decodeError);
-          throw new Error("유효하지 않은 토큰입니다.");
-        }
-      } catch (err: any) {
-        console.error("🚨 로그인 처리 중 오류:", err.message || err);
-        setOutput("로그인 실패: " + (err.message || "알 수 없는 오류"));
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || res.statusText);
       }
-    };
 
+      const data: GoogleOAuthResponse = await res.json();
+
+      try {
+        const decoded: DecodedToken = jwtDecode(data.accessToken);
+
+        setJwtToken(data.accessToken);
+        setRefreshToken(data.refreshToken);
+        setUser({
+          name: decoded.name,
+          email: decoded.email,
+          photoURL:
+            decoded.picture ||
+            "https://lh3.googleusercontent.com/a/default-user",
+        });
+
+        console.log("✅ 디코딩된 유저 정보:", decoded);
+        setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
+        navigate("/register");
+      } catch (decodeError) {
+        console.error("JWT 디코딩 실패:", decodeError);
+        throw new Error("유효하지 않은 토큰입니다.");
+      }
+    } catch (err: any) {
+      console.error("🚨 로그인 처리 중 오류:", err.message || err);
+      setOutput("로그인 실패: " + (err.message || "알 수 없는 오류"));
+    }
+  };
     fetchTokens(code);
   }, [searchParams, navigate, setJwtToken, setRefreshToken, setUser]);
 
+  
   const checkLoginStatus = () => {
     if (!jwtToken) {
       setLoginCheckResult("jwtToken이 없습니다.");
