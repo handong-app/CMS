@@ -1,3 +1,4 @@
+import type { CourseData } from "../../types/courseData.types";
 import React from "react";
 import {
   Card,
@@ -11,22 +12,12 @@ import {
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
-interface NodeGroup {
-  id: string;
-  title: string;
-  isCompleted: boolean;
-}
-
-interface Section {
-  id: string;
-  title: string;
-  nodeGroups: NodeGroup[];
-}
-
-interface CourseProgressListProps {
+// CourseData 타입을 기반으로 props 타입 정의
+export interface CourseProgressListProps {
   courseTitle: string;
-  sections: Section[];
+  sections: CourseData["sections"];
   width?: number | string;
+  // isCompleted 계산 로직이 필요하면 prop으로 함수 전달도 가능
 }
 
 const CourseProgressList: React.FC<CourseProgressListProps> = ({
@@ -67,24 +58,35 @@ const CourseProgressList: React.FC<CourseProgressListProps> = ({
                   }
                 />
               </ListItem>
-              {section.nodeGroups.map((group) => (
-                <ListItem key={group.id} disablePadding sx={{ pl: 1, mb: 0.6 }}>
-                  <ListItemIcon sx={{ minWidth: 28 }}>
-                    {group.isCompleted ? (
-                      <CheckCircleIcon
-                        data-testid="CheckCircleIcon"
-                        sx={{ color: "#4caf50" }}
-                      />
-                    ) : (
-                      <RadioButtonUncheckedIcon
-                        data-testid="RadioButtonUncheckedIcon"
-                        sx={{ color: "#888" }}
-                      />
-                    )}
-                  </ListItemIcon>
-                  <ListItemText primary={group.title} />
-                </ListItem>
-              ))}
+              {(section.nodeGroups ?? []).map((nodeGroup) => {
+                const completed =
+                  "isCompleted" in nodeGroup &&
+                  typeof nodeGroup.isCompleted === "boolean"
+                    ? nodeGroup.isCompleted
+                    : false;
+                return (
+                  <ListItem
+                    key={nodeGroup.id}
+                    disablePadding
+                    sx={{ pl: 1, mb: 0.6 }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 28 }}>
+                      {completed ? (
+                        <CheckCircleIcon
+                          data-testid="CheckCircleIcon"
+                          sx={{ color: "#4caf50" }}
+                        />
+                      ) : (
+                        <RadioButtonUncheckedIcon
+                          data-testid="RadioButtonUncheckedIcon"
+                          sx={{ color: "#888" }}
+                        />
+                      )}
+                    </ListItemIcon>
+                    <ListItemText primary={nodeGroup.title} />
+                  </ListItem>
+                );
+              })}
             </React.Fragment>
           ))}
         </List>
