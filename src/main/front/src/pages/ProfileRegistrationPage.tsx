@@ -10,12 +10,14 @@ import {
   Paper,
 } from "@mui/material";
 import useAuthStore from "../store/authStore";
+import { useFetchBe } from "../tools/api"; 
 
 const ProfileRegistrationPage: React.FC = () => {
   const user = useAuthStore((state) => state.user);
+  const fetchBe = useFetchBe();
 
   const [name, setName] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
+  // const [inviteCode, setInviteCode] = useState(""); // TODO: 초대코드 전달 구현
   const [studentYear, setStudentYear] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [termsAgreed, setTermsAgreed] = useState(false);
@@ -25,19 +27,66 @@ const ProfileRegistrationPage: React.FC = () => {
     if (user?.name) setName(user.name);
   }, [user]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!termsAgreed || !privacyAgreed) {
       alert("필수 약관에 동의해주세요.");
       return;
     }
 
-    console.log({
-      name,
-      inviteCode,
-      studentYear,
-      phoneNumber,
-    });
+    const jwtToken = useAuthStore.getState().jwtToken;
+
+    if (jwtToken) {
+      try {
+        const payload = JSON.parse(atob(jwtToken.split(".")[1]));
+        console.log("✅ JWT Payload:", payload);
+      } catch (e) {
+        console.error("❌ JWT 디코딩 실패:", e);
+      }
+    } else {
+      console.warn("❗ jwtToken 없음");
+    }
+
+    let uid: string | null = null;
+    let email: string | null = null;
+
+    if (jwtToken) {
+      try {
+        const payload = JSON.parse(atob(jwtToken.split(".")[1]));
+        uid = payload.sub;
+        email = payload.email;
+      } catch (e) {
+        console.error("JWT 디코딩 실패", e);
+      }
+    }
+
+    if (!uid || !email) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const payload = {
+      userId: uid,                        // ✅ sub에서 가져온 userId
+      name: name,
+      studentId: studentYear,
+      email: email,                      // ✅ jwt에서 추출한 이메일
+      phone: phoneNumber,
+      profileImage: null,               // ✅ 아직 미사용
+    };
+    console.log("🚀 최종 제출 payload:", payload); // ← 여기에 추가
+    try {
+      await fetchBe("/v1/user/profile", {
+        method: "PATCH",
+        body: payload,
+      });
+      
+
+      alert("프로필이 성공적으로 등록되었습니다.");
+    } catch (err: any) {
+      alert("프로필 등록에 실패했습니다.");
+      console.error(err);
+    }
   };
+
 
   return (
     <Box
@@ -87,7 +136,8 @@ const ProfileRegistrationPage: React.FC = () => {
             variant="outlined"
           />
         </Box>
-        <Box mb={2}>
+
+        {/* <Box mb={2}>
           <TextField
             fullWidth
             label="초대코드"
@@ -97,7 +147,8 @@ const ProfileRegistrationPage: React.FC = () => {
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
           />
-        </Box>
+        </Box> */}
+
         <Box mb={2}>
           <TextField
             fullWidth
