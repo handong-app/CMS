@@ -1,6 +1,8 @@
 package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbNodeGroup;
+import com.handongapp.cms.domain.TbSection;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -8,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Builder;
 
 public class NodeGroupDto {
 
@@ -105,5 +108,42 @@ public class NodeGroupDto {
     public static class NodeGroupBaseDto {
         private String title;
         private Integer order;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class NextNodeGroupResponseDto {
+        // Section Info
+        private String sectionId;
+        private String sectionTitle;
+        private Integer sectionOrder;
+        private String sectionCourseId;
+        private LocalDateTime sectionCreatedAt;
+        private LocalDateTime sectionUpdatedAt;
+
+        // NodeGroup Info
+        private String nodeGroupId;
+        private String nodeGroupTitle;
+        private Integer nodeGroupOrder;
+        private LocalDateTime nodeGroupCreatedAt;
+        private LocalDateTime nodeGroupUpdatedAt;
+
+        public static NextNodeGroupResponseDto buildResponseDto(TbSection section, TbNodeGroup nodeGroup) {
+            return NextNodeGroupResponseDto.builder()
+                .sectionId(section.getId())
+                .sectionTitle(section.getTitle())
+                .sectionOrder(section.getOrder().intValue())
+                .sectionCourseId(section.getCourseId())
+                .sectionCreatedAt(section.getCreatedAt())
+                .sectionUpdatedAt(section.getUpdatedAt())
+                .nodeGroupId(nodeGroup.getId())
+                .nodeGroupTitle(nodeGroup.getTitle())
+                .nodeGroupOrder(nodeGroup.getOrder().intValue())
+                .nodeGroupCreatedAt(nodeGroup.getCreatedAt())
+                .nodeGroupUpdatedAt(nodeGroup.getUpdatedAt())
+                .build();
+        }
     }
 }
