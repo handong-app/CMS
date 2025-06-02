@@ -1,19 +1,22 @@
 package com.handongapp.cms.service.impl;
 
+import com.handongapp.cms.auth.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.domain.TbClubRole;
 import com.handongapp.cms.domain.TbUser;
 import com.handongapp.cms.domain.TbUserClubRole;
+import com.handongapp.cms.dto.v1.ProgramDto;
 import com.handongapp.cms.dto.v1.UserDto;
+import com.handongapp.cms.mapper.ProgramMapper;
 import com.handongapp.cms.mapper.UserMapper;
 import com.handongapp.cms.repository.ClubRoleRepository;
 import com.handongapp.cms.repository.UserClubRoleRepository;
 import com.handongapp.cms.repository.UserRepository;
-import com.handongapp.cms.auth.dto.GoogleUserInfoResponse;
 import com.handongapp.cms.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -23,16 +26,18 @@ public class UserServiceImpl implements UserService {
     private final ClubRoleRepository clubRoleRepository;
     private final UserClubRoleRepository userClubRoleRepository;
     private final UserMapper userMapper;
+    private final ProgramMapper programMapper;
 
     public UserServiceImpl(UserRepository userRepository,
                            ClubRoleRepository clubRoleRepository,
                            UserClubRoleRepository userClubRoleRepository,
-                           UserMapper userMapper) {
+                           UserMapper userMapper, ProgramMapper programMapper) {
             this.userRepository = userRepository;
             this.clubRoleRepository = clubRoleRepository;
             this.userClubRoleRepository = userClubRoleRepository;
             this.userMapper = userMapper;
-        }
+        this.programMapper = programMapper;
+    }
 
         public TbUser saveOrUpdateUser(String userId, String email, String name) {
             return userRepository.findById(userId)
@@ -104,6 +109,11 @@ public class UserServiceImpl implements UserService {
             ArrayList<UserDto.LastProgramResDto> userProfileLastResDto
                     = (ArrayList<UserDto.LastProgramResDto>) userMapper.findLastNodeGroupByCourseForUser(userId);
             return userProfileLastResDto.isEmpty() ? null : UserDto.UserProfileLastResDto.of(userProfileLastResDto);
+        }
+
+        @Override
+        public List<ProgramDto.ResponseDto> getUserPrograms(String userId) {
+            return programMapper.findProgramsByUserId(userId);
         }
 
 
