@@ -100,7 +100,7 @@ public class NodeGroupServiceImpl implements NodeGroupService {
                                     && fileNode.has("status")
                                     && "UPLOADED".equals(fileNode.get("status").asText())) {
                                 String fileKey = fileNode.get("fileKey").asText();
-                                String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey, Duration.ofHours(24)).toString();
+                                String presignedUrl = presignedUrlService.generateDownloadUrlWithOriginalFileName(fileKey, fileNode.get("originalFileName").asText(), Duration.ofHours(24)).toString();
                                 ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
                             }
                             ((ObjectNode) fileNode).remove("fileKey");
