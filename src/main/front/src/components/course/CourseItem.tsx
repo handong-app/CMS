@@ -3,16 +3,25 @@ import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import LinearProgress from "@mui/material/LinearProgress";
+import { Link } from "react-router";
 
 export interface CourseItemProps {
   name: string;
   picture: string;
   progress: number;
+  url: string;
 }
 
-const CourseItem: React.FC<CourseItemProps> = ({ name, picture, progress }) => {
+const CourseItem: React.FC<CourseItemProps> = ({
+  name,
+  picture,
+  progress,
+  url,
+}) => {
   return (
     <Card
+      component={Link}
+      to={url}
       sx={{
         maxWidth: 345,
         position: "relative",
@@ -21,6 +30,7 @@ const CourseItem: React.FC<CourseItemProps> = ({ name, picture, progress }) => {
           "transform 0.18s cubic-bezier(.4,1.3,.5,1), box-shadow 0.18s cubic-bezier(.4,1.3,.5,1)",
         boxShadow: 3,
         cursor: "pointer",
+        textDecoration: "none",
         "&:hover": {
           transform: "translateY(-4px) scale(1.025)",
           boxShadow: 8,

@@ -5,8 +5,25 @@ import ContinueNodeGroup from "../components/course/ContinueNodeGroup";
 import CourseList from "../components/course/CourseList";
 import CourseProgress from "../components/course/CourseProgress";
 import CourseLeaderboard from "../components/course/CourseLeaderboard";
+import { useFetchBe } from "../tools/api";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
 
 function ProgramPage() {
+  const { club, program_name } = useParams<{
+    club: string;
+    program_name: string;
+  }>();
+
+  const fetchBe = useFetchBe();
+  const { data: programInfo, isLoading: programLoading } = useQuery({
+    queryKey: ["programInfo", program_name],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/programs/${program_name}`),
+  });
+  console.log(programInfo);
+  if (programLoading) {
+    return <Typography>로딩 중...</Typography>;
+  }
   return (
     <Box
       display="flex"
@@ -16,8 +33,8 @@ function ProgramPage() {
     >
       <Box width="100%" maxWidth={980}>
         <TopBanner
-          title="GBC 2025년도 프로그램"
-          subtitle="함께 성장하는 GBC 2025년도 프로그램에 오신 것을 환영합니다!"
+          title={programInfo?.name}
+          subtitle={programInfo?.description}
           height={150}
           textJustify="start"
           image="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1920"
@@ -114,7 +131,7 @@ function ProgramPage() {
           <Typography variant="h5" fontWeight={700} mb={2}>
             포함된 강의
           </Typography>
-          <CourseList />
+          <CourseList courses={programInfo?.courses || []} />
         </Box>
       </Box>
     </Box>
