@@ -64,6 +64,8 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     @Value("${cloud.aws.s3.presigned-url-duration}")
     private Duration signatureDuration;
 
+    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[\\p{L}\\p{N}._\\- ]+$");
+
     private final NodeMapper nodeMapper;
     private final UserClubRoleRepository userClubRoleRepository;
     private final ClubRoleRepository clubRoleRepository;
@@ -277,16 +279,20 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
 
     /**
      * 파일명 보안 검증.
-     * <p>경로 순회 공격 방지 및 허용 가능한 문자 패턴 체크</p>
+     * <p>
+     * - 허용된 문자: 한글, 영문, 숫자, 밑줄(_), 하이픈(-), 점(.), 공백
+     * - 경로 순회 방지: '..', '/'로 시작하는지 확인
+     * - 최대 길이: 255자 이하
+     * </p>
      *
-     * @param filename 파일명
-     * @return 유효 여부
+     * @param filename 검증할 파일명
+     * @return 유효하면 true, 아니면 false
      */
     private boolean isValidFilename(String filename) {
-        Pattern pattern = Pattern.compile("^[a-zA-Z0-9._-]+$");
-        return !filename.contains("..")
+        return StringUtils.hasText(filename)
+                && !filename.contains("..")
                 && !filename.startsWith("/")
-                && pattern.matcher(filename).matches()
+                && SAFE_FILENAME_PATTERN.matcher(filename).matches()
                 && filename.length() <= 255;
     }
 
