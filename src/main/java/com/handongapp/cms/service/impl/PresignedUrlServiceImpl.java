@@ -183,11 +183,11 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
      * @throws PresignedUrlCreationException 생성 실패 시 예외
      */
     public URL generateDownloadUrl(String key, Duration duration) {
-        if (!StringUtils.hasText(key)) {
-            throw new IllegalArgumentException("파일 키는 필수입니다");
-        }
-
         try {
+            if (!StringUtils.hasText(key)) {
+                throw new IllegalArgumentException("파일 키는 필수입니다");
+            }
+
             Duration effectiveDuration = (duration != null) ? duration : signatureDuration;
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -221,17 +221,18 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
      */
     @Override
     public URL generateDownloadUrlWithOriginalFileName(String key, String originalFileName, Duration duration) {
-        if (!StringUtils.hasText(key)) {
-            throw new IllegalArgumentException("파일 키는 필수입니다");
-        }
-        if (!StringUtils.hasText(originalFileName)) {
-            throw new IllegalArgumentException("원본 파일명은 필수입니다");
-        }
-        if (!isValidFilename(originalFileName)) {
-            throw new IllegalArgumentException("유효하지 않은 원본 파일명입니다: " + originalFileName);
-        }
-
         try {
+
+            if (!StringUtils.hasText(key)) {
+                throw new IllegalArgumentException("파일 키는 필수입니다");
+            }
+            if (!StringUtils.hasText(originalFileName)) {
+                throw new IllegalArgumentException("원본 파일명은 필수입니다");
+            }
+            if (!isValidFilename(originalFileName)) {
+                throw new IllegalArgumentException("유효하지 않은 원본 파일명입니다: " + originalFileName);
+            }
+
             Duration effectiveDuration = (duration != null) ? duration : signatureDuration;
 
             // 위험 문자 제거 (줄바꿈, 따옴표 등)
