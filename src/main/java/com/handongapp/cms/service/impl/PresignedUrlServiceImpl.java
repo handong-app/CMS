@@ -32,6 +32,23 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
+
+/**
+ * S3 Presigned URL 서비스 구현체.
+ * <p>
+ * 파일 업로드 및 다운로드를 위한 Presigned URL을 생성하며, 노드와 사용자 권한 검증, 파일 검증 로직을 포함합니다.
+ * </p>
+ *
+ * 주요 기능:
+ * <ul>
+ *     <li>노드 파일 업로드 Presigned URL 생성</li>
+ *     <li>파일 다운로드 Presigned URL 생성 (기본/커스텀 만료시간)</li>
+ *     <li>파일명 및 MIME 타입 유효성 검사</li>
+ *     <li>사용자 업로드 권한 확인</li>
+ * </ul>
+ *
+ * <p>노드 서비스 및 S3 Presigner를 통해 S3와 연동합니다.</p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -51,6 +68,14 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     private final FileListRepository fileListRepository;
     private final NodeServiceImpl nodeService;
 
+
+    /**
+     * S3 업로드 Presigned URL을 생성하고, 관련 TbFileList를 저장한 뒤 응답 DTO를 반환합니다.
+     *
+     * @param request 업로드 요청 정보 (노드 ID, 파일명 등)
+     * @param userId  업로드를 수행하는 사용자 ID
+     * @return Presigned URL, 파일 키, 파일 리스트 ID 등이 담긴 응답 DTO
+     */
     @Override
     public S3Dto.UploadUrlResponse generateNodeFileUploadUrl(S3Dto.NodeFileUploadUrlRequest request, String userId) {
         String clubId = nodeMapper.findClubIdByNodeId(request.getNodeId());
@@ -102,6 +127,16 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         return response;
     }
 
+    /**
+     * 파일 업로드용 Presigned URL을 생성합니다.
+     *
+     * @param path             S3 경로 (예: node_file/image/)
+     * @param id               파일과 연결된 노드 ID
+     * @param originalFilename 원본 파일명
+     * @param extension        파일 확장자
+     * @param contentType      MIME 타입
+     * @return Presigned URL 응답 DTO
+     */
     public S3Dto.UploadUrlResponse generateUploadUrl(String path, String id, String originalFilename, String extension, String contentType) {
         validateInput(originalFilename, "파일명");
         validateInput(contentType, "콘텐츠 타입");
@@ -135,18 +170,28 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         }
     }
 
-    public URL generateDownloadUrl(String key) {
+    /**
+     * 파일 다운로드 Presigned URL을 생성합니다. 사용자 정의 만료시간을 지정할 수 있습니다.
+     *
+     * @param key      S3 파일 키
+     * @param duration Presigned URL 유효시간 (null인 경우 기본값 사용)
+     * @return Presigned URL
+     * @throws PresignedUrlCreationException 생성 실패 시 예외
+     */
+    public URL generateDownloadUrl(String key, Duration duration) {
         if (!StringUtils.hasText(key)) {
             throw new IllegalArgumentException("파일 키는 필수입니다");
         }
 
         try {
+            Duration effectiveDuration = (duration != null) ? duration : signatureDuration;
+
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
                     .build();
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(signatureDuration)
+                    .signatureDuration(effectiveDuration)
                     .getObjectRequest(getObjectRequest)
                     .build();
             return presigner.presignGetObject(presignRequest).url();
@@ -155,13 +200,27 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         }
     }
 
+    /**
+     * 입력값의 유효성을 검증합니다.
+     *
+     * @param input     입력 문자열
+     * @param fieldName 필드명 (에러 메시지에 사용됨)
+     * @throws IllegalArgumentException 입력값이 비어있거나 null일 때
+     */
     private void validateInput(String input, String fieldName) {
         if (!StringUtils.hasText(input)) {
             throw new IllegalArgumentException(fieldName + "은(는) 필수입니다");
         }
     }
+
+    /**
+     * 파일명 보안 검증.
+     * <p>경로 순회 공격 방지 및 허용 가능한 문자 패턴 체크</p>
+     *
+     * @param filename 파일명
+     * @return 유효 여부
+     */
     private boolean isValidFilename(String filename) {
-        // 경로 순회 공격 방지 및 특수문자 제한
         Pattern pattern = Pattern.compile("^[a-zA-Z0-9._-]+$");
         return !filename.contains("..")
                 && !filename.startsWith("/")
@@ -169,6 +228,10 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
                 && filename.length() <= 255;
     }
 
+    /**
+     * Presigner 종료 메서드.
+     * <p>애플리케이션 종료 시 S3Presigner를 안전하게 닫습니다.</p>
+     */
     @PreDestroy
     public void destroy() {
         if (presigner != null) {
@@ -176,6 +239,13 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         }
     }
 
+    /**
+     * 사용자가 클럽의 파일 업로드 권한을 가지는지 확인합니다.
+     *
+     * @param userId 사용자 ID
+     * @param clubId 클럽 ID
+     * @return 권한 여부
+     */
     public boolean hasUploadPermission(String userId, String clubId) {
         TbUserClubRole userClubRole = userClubRoleRepository.findByUserIdAndClubIdAndDeleted(userId, clubId, "N")
                 .orElseThrow(() -> new AccessDeniedException("권한 정보가 없습니다."));
@@ -190,7 +260,13 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         return ClubUserRole.CLUB_SUPER_ADMIN.equals(clubRole.getType());
     }
 
-
+    /**
+     * 특정 노드 타입에 대해 파일의 MIME 타입이 허용되는지 확인합니다.
+     *
+     * @param nodeId   노드 ID
+     * @param mimeType MIME 타입
+     * @return 허용 여부
+     */
     public boolean isContentTypeValid(String nodeId, String mimeType) {
         TbNode.NodeType nodeType = nodeMapper.findNodeTypeById(nodeId);
 

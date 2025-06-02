@@ -1,0 +1,16 @@
+meta {
+  name: Output Playlist
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL_LOCAL}}/api/v1/stream/{{nodeId}}/{{resolution}}/output.m3u8
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  nodeId: 1d69af51a2c84e1d86f015b33fbca106
+  resolution: 480p
+}

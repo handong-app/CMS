@@ -1,0 +1,15 @@
+meta {
+  name: Master Playlist
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL_LOCAL}}/api/v1/stream/{{nodeId}}/master.m3u8
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  nodeId: 1d69af51a2c84e1d86f015b33fbca106
+}

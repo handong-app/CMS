@@ -56,6 +56,18 @@ public class S3Dto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "트렌스코트 시작 요청")
+    public static class TransCodeRequest {
+        @NotBlank(message = "fileKey 는 필수입니다")
+        private String fileKey;
+        @NotBlank(message = "filetype 는 필수입니다")
+        private String filetype;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "S3 다운로드 URL 응답")
     public static class DownloadUrlResponse {
         private String presignedUrl;
@@ -73,5 +85,16 @@ public class S3Dto {
         @NotBlank(message = "노드 ID는 필수입니다")
         @Pattern(regexp = "^[a-fA-F0-9]{32}$", message = "nodeId는 32자리 16진수 문자열이어야 합니다.")
         private String nodeId;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "비디오 HLS 플레이리스트 응답")
+    public static class VideoHlsPlaylistsResponse {
+        private String masterM3u8;
+        private String output480pM3u8;
+        private String output1080pM3u8;
     }
 }
