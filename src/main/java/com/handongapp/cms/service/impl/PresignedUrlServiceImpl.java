@@ -135,18 +135,20 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         }
     }
 
-    public URL generateDownloadUrl(String key) {
+    public URL generateDownloadUrl(String key, Duration duration) {
         if (!StringUtils.hasText(key)) {
             throw new IllegalArgumentException("파일 키는 필수입니다");
         }
 
         try {
+            Duration effectiveDuration = (duration != null) ? duration : signatureDuration;
+
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
                     .build();
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(signatureDuration)
+                    .signatureDuration(effectiveDuration)
                     .getObjectRequest(getObjectRequest)
                     .build();
             return presigner.presignGetObject(presignRequest).url();
