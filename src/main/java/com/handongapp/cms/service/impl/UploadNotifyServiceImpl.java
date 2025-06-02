@@ -82,7 +82,9 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
 
         if (nodeType == TbNode.NodeType.VIDEO) {
 //            triggerTranscode(dto);
-            log.info("😀😀😀😀");
+//            TODO: 트랜스코딩 기능 임시 비활성화 - 개발 완료 후 활성화 필요
+//            triggerTranscode(dto);
+//            log.info("트랜스코딩 기능이 임시 비활성화되었습니다.");
         }
     }
 
