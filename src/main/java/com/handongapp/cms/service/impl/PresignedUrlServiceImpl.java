@@ -201,13 +201,12 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
             throw new PresignedUrlCreationException("Download Presigned URL 생성 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
-
     /**
      * S3 Presigned URL을 생성하여 파일을 다운로드할 수 있는 링크를 반환합니다.
      * <p>
      * 이 메소드는 주어진 S3 key와 원본 파일명을 기반으로, presigned URL을 생성합니다.
      * 다운로드 시 브라우저에서 파일 이름을 {@code originalFileName}으로 표시할 수 있도록
-     * {@code Content-Disposition: attachment} 헤더를 설정합니다.
+     * {@code Content-Disposition: attachment} 헤더를 RFC 6266/5987 방식으로 설정합니다.
      * <p>
      * 만약 {@code duration}이 null로 주어지면, 기본 서명 만료 시간 {@code signatureDuration}을 사용합니다.
      *
@@ -215,7 +214,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
      * @param originalFileName 사용자에게 표시될 원본 파일 이름 (필수)
      * @param duration         Presigned URL 유효 기간 (null이면 기본값 사용)
      * @return presigned URL
-     * @throws IllegalArgumentException        {@code key}가 비어있거나 null인 경우 발생합니다.
+     * @throws IllegalArgumentException        {@code key}나 {@code originalFileName}이 비어있거나 유효하지 않을 경우 발생합니다.
      * @throws PresignedUrlCreationException S3 Presigned URL 생성 중 오류가 발생할 경우 발생합니다.
      */
     @Override
@@ -223,11 +222,9 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         if (!StringUtils.hasText(key)) {
             throw new IllegalArgumentException("파일 키는 필수입니다");
         }
-
         if (!StringUtils.hasText(originalFileName)) {
             throw new IllegalArgumentException("원본 파일명은 필수입니다");
         }
-
         if (!isValidFilename(originalFileName)) {
             throw new IllegalArgumentException("유효하지 않은 원본 파일명입니다: " + originalFileName);
         }
@@ -235,12 +232,23 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         try {
             Duration effectiveDuration = (duration != null) ? duration : signatureDuration;
 
-            String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8);
+            // 위험 문자 제거 (줄바꿈, 따옴표 등)
+            String sanitizedFileName = originalFileName.replaceAll("[\r\n\"]", "_");
+
+            String contentDisposition;
+            // ASCII로 표현 가능한지 여부 확인
+            if (!StandardCharsets.US_ASCII.newEncoder().canEncode(originalFileName)) {
+                // UTF-8로 URL 인코딩된 파일명 (RFC 5987)
+                String utf8FileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8);
+                contentDisposition = "attachment; filename=\"" + sanitizedFileName + "\"; filename*=UTF-8''" + utf8FileName;
+            } else {
+                contentDisposition = "attachment; filename=\"" + sanitizedFileName + "\"";
+            }
 
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
-                    .responseContentDisposition("attachment; filename=\"" + encodedFileName + "\"")
+                    .responseContentDisposition(contentDisposition)
                     .build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
