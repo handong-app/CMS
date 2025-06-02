@@ -64,13 +64,19 @@ const CommentSection: React.FC<Props> = ({ comments, onSubmit }) => {
   return (
     <Box
       mt={2}
-      bgcolor="#fff"
+      bgcolor="#f0f0f0ed"
       border="1px solid #ddd"
       borderRadius={2}
       p={2}
       height="100%"
       boxShadow={1}
       overflow="auto"
+      sx={
+        {
+          // transition: "background-color 0.5s",
+          // "&:hover": { backgroundColor: "#fff" },
+        }
+      }
     >
       {/* 1. 이모지 카운트 표시 */}
       <Box display="flex" gap={2} mb={2} justifyContent="end">

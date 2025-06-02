@@ -10,10 +10,11 @@ import CommentSection from "../components/NodeGroupPage/CommentSection";
 import { useLocation } from "react-router"; //
 import AddIcon from "@mui/icons-material/Add"; // 추가
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import VideoPlayer from "../components/NodeGroupPage/VideoPlayer";
 
 // 노드 타입별로 크기 매칭
 const nodeHeightMap = {
-  video: 700,
+  video: 600,
   file: 300,
   pdf: 300,
   image: 500,
@@ -129,7 +130,11 @@ function NodeGroupPage() {
                     sx={{ cursor: "pointer" }}
                     onClick={() => toggleComments(node.id)}
                   >
-                    <Typography variant="body2" fontSize={20}>
+                    <Typography
+                      sx={{ cursor: "pointer" }}
+                      variant="body2"
+                      fontSize={20}
+                    >
                       {emojiSummary}
                     </Typography>
                     {node.comments.length === 0 ? (
@@ -138,6 +143,7 @@ function NodeGroupPage() {
                         variant="body2"
                         color="gray"
                         fontSize={14}
+                        sx={{ cursor: "pointer" }}
                       >
                         댓글을 추가해보세요!
                         <ChatBubbleOutlineIcon
@@ -165,7 +171,6 @@ function NodeGroupPage() {
                       overflow="auto"
                       boxShadow={3}
                       borderRadius={2}
-                      // bgcolor="#fff"
                     >
                       <CommentSection
                         comments={node.comments}
@@ -180,7 +185,7 @@ function NodeGroupPage() {
 
               {/* 노드 안쪽내용 (댓글 아래) */}
               <Box
-                key={node.nodeId}
+                key={node.id}
                 borderRadius={4}
                 bgcolor={"#f0f0f010"}
                 height={nodeHeightMap[node.type.toLowerCase()] || 400}
@@ -191,49 +196,33 @@ function NodeGroupPage() {
                 flexDirection="row"
                 gap={1}
               >
-                {/* 아이콘 영역 */}
-                {/* <Box
-                  flex={1}
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  borderRadius={2}
-                  p={2}
-                >
-   
-                  <Typography variant="h4" color="#fff" mb={1}>
-                    {index + 1}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="white"
-                    mb={1}
-                    fontSize={14}
-                  >
-                    {node.id}
-                  </Typography>
-                </Box> */}
-
                 {/* 콘텐츠 영역 */}
-
                 <Box
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                   height="100%"
-                  // bgcolor="#fafafa34"
                   borderRadius={2}
                   color="black"
                   sx={{
                     flex: 5,
                     cursor: "pointer",
                     transition: "background-color 0.2s",
-                    "&:hover": { backgroundColor: "#f0f0f011" },
+                    // "&:hover": { backgroundColor: "#f0f0f011" },
                   }}
                 >
-                  <Box color="white">
-                    {iconMap[node.type] || <DescriptionIcon fontSize="large" />}
+                  <Box width="100%">
+                    {node.type === "VIDEO" && node.data?.file?.playlist ? (
+                      <VideoPlayer
+                        src={`https://cms.handong.app${node.data.file.playlist}`}
+                      />
+                    ) : (
+                      <Box color="white" display="flex" justifyContent="center">
+                        {iconMap[node.type.toLowerCase()] || (
+                          <DescriptionIcon fontSize="large" />
+                        )}
+                      </Box>
+                    )}
                   </Box>
                 </Box>
               </Box>
