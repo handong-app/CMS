@@ -7,22 +7,47 @@ import { courseDummyData } from "../components/coursePage/CourseDummyData";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
 import CourseProgress from "../components/course/CourseProgress";
+import { useFetchBe } from "../tools/api";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import type { CourseData } from "../types/courseData.types";
 
 function CoursePage() {
+  const fetchBe = useFetchBe();
+  const [courseData, setCouseData] = useState<CourseData | null>(null);
+  const { clubSlug, courseSlug } = useParams();
+
+  useEffect(() => {
+    if (!clubSlug || !courseSlug) {
+      console.log("Club slug or course slug is missing in the URL parameters.");
+      return;
+    }
+
+    fetchBe(`/v1/clubs/${clubSlug}/courses/${courseSlug}`).then((data) => {
+      setCouseData(data);
+    });
+  }, [clubSlug, courseSlug, fetchBe]);
+
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
       <TopCourseBanner
-        title={courseDummyData.courseTitle}
+        title={courseData?.title ?? ""}
         producer={courseDummyData.instructor}
-        courseDescription="이 강의는 시스템 해킹과 보안에 대한 기초부터 심화까지 다룹니다. 다양한 해킹 기법과 방어 전략을 배우며, 실제 사례를 통해 실력을 향상시킬 수 있습니다."
-        image="https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_1280.jpg"
+        courseDescription={courseData?.description ?? ""}
+        image={courseData?.pictureUrl ?? ""}
         onContinue={() => alert("Continue to last lesson!")}
       />
 
       <Box display="flex" mt={2}>
         <CourseProgressList
-          courseTitle={courseDummyData.courseTitle}
-          sections={courseDummyData.sections}
+          courseTitle={courseData?.title ?? ""}
+          sections={(courseData?.sections ?? []).map((section) => ({
+            ...section,
+            nodeGroups: section.nodeGroups.map((group) => ({
+              ...group,
+              isCompleted: true, // 추가 필드
+            })),
+          }))}
           width={260}
         />
 
