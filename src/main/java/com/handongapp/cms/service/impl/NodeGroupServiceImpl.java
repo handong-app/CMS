@@ -24,6 +24,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class NodeGroupServiceImpl implements NodeGroupService {
 
+    private static final String FIELD_FILE_KEY = "fileKey";
+    private static final String FIELD_STATUS = "status";
+    private static final String FIELD_ORIGINAL_FILE_NAME = "originalFileName";
+    private static final String FIELD_PATH = "path";
+    private static final String STATUS_UPLOADED = "UPLOADED";
+    private static final String STATUS_TRANSCODE_COMPLETED = "TRANSCODE_COMPLETED";
+    private static final String FIELD_TYPE = "type";
+    private static final String FIELD_DATA = "data";
+    private static final String FIELD_FILE = "file";
+    private static final String TYPE_IMAGE = "IMAGE";
+    private static final String TYPE_FILE = "FILE";
+    private static final String TYPE_VIDEO = "VIDEO";
+
     private final NodeGroupMapper nodeGroupMapper;
     private final ObjectMapper objectMapper;
     private final NodeGroupRepository nodeGroupRepository;
@@ -88,59 +101,22 @@ public class NodeGroupServiceImpl implements NodeGroupService {
             JsonNode nodes = root.get("nodes");
             if (nodes != null && nodes.isArray()) {
                 for (JsonNode node : nodes) {
-                    JsonNode typeNode = node.get("type");
+                    JsonNode typeNode = node.get(FIELD_TYPE);
                     if (typeNode == null) continue;
                     String type = typeNode.asText();
-                    if ("IMAGE".equals(type) || "FILE".equals(type)) {
-                        JsonNode dataNode = node.get("data");
+                    if (TYPE_IMAGE.equals(type) || TYPE_FILE.equals(type)) {
+                        JsonNode dataNode = node.get(FIELD_DATA);
                         if (dataNode == null) continue;
-                        JsonNode fileNode = dataNode.get("file");
-                        if (fileNode != null){
-                            if (fileNode.has("fileKey")
-                                    && fileNode.has("status")
-                                    && "UPLOADED".equals(fileNode.get("status").asText())) {
-
-                                String fileKey = fileNode.get("fileKey").asText();
-
-                                // originalFileName이 있는지와 null/빈문자열 여부를 안전하게 확인
-                                if (fileNode.has("originalFileName")) {
-                                    String originalFileName = fileNode.get("originalFileName").asText();
-                                    String presignedUrl;
-                                    if (originalFileName != null && !originalFileName.trim().isEmpty()) {
-                                        // originalFileName이 있으면 다운로드 URL 생성
-                                        presignedUrl = presignedUrlService
-                                                .generateDownloadUrlWithOriginalFileName(fileKey, originalFileName, Duration.ofHours(24))
-                                                .toString();
-                                    } else {
-                                        // originalFileName이 비어있으면 기본 presigned URL 생성
-                                        presignedUrl = presignedUrlService
-                                                .generateDownloadUrl(fileKey, Duration.ofHours(24))
-                                                .toString();
-                                    }
-                                    ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
-                                } else {
-                                    // originalFileName이 아예 없으면 기본 presigned URL 생성
-                                    String presignedUrl = presignedUrlService
-                                            .generateDownloadUrl(fileKey, Duration.ofHours(24))
-                                            .toString();
-                                    ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
-                                }
-                            }
-                            ((ObjectNode) fileNode).remove("fileKey");
+                        JsonNode fileNode = dataNode.get(FIELD_FILE);
+                        if (fileNode != null) {
+                            handleFileNodePresignedUrl(fileNode);
                         }
-                    }
-                    else if ("VIDEO".equals(type)) {
-                        JsonNode dataNode = node.get("data");
+                    } else if (TYPE_VIDEO.equals(type)) {
+                        JsonNode dataNode = node.get(FIELD_DATA);
                         if (dataNode == null) continue;
-                        JsonNode fileNode = dataNode.get("file");
-                        if (fileNode != null){
-                            if (fileNode.has("path")
-                                    && fileNode.has("status")
-                                    && "TRANSCODE_COMPLETED".equals(fileNode.get("status").asText())) {
-                                String masterM3u8Endpoint = "/api/v1/stream/" + node.get("id").asText() + "/master.m3u8";
-                                ((ObjectNode) fileNode).put("playlist", masterM3u8Endpoint);
-                            }
-                            ((ObjectNode) fileNode).remove("path");
+                        JsonNode fileNode = dataNode.get(FIELD_FILE);
+                        if (fileNode != null) {
+                            handleVideoFileNodePlaylist(node, fileNode);
                         }
                     }
                 }
@@ -149,6 +125,47 @@ public class NodeGroupServiceImpl implements NodeGroupService {
         } catch (Exception e) {
             throw new IllegalStateException("NodeGroup JSON 파싱/직렬화에 실패했습니다.", e);
         }
+    }
+
+    private void handleFileNodePresignedUrl(JsonNode fileNode) {
+        if (fileNode.has(FIELD_FILE_KEY)
+                && fileNode.has(FIELD_STATUS)
+                && STATUS_UPLOADED.equals(fileNode.get(FIELD_STATUS).asText())) {
+
+            String fileKey = fileNode.get(FIELD_FILE_KEY).asText();
+            String presignedUrl;
+
+            if (fileNode.has(FIELD_ORIGINAL_FILE_NAME)) {
+                String originalFileName = fileNode.get(FIELD_ORIGINAL_FILE_NAME).asText();
+                if (originalFileName != null && !originalFileName.trim().isEmpty()) {
+                    presignedUrl = presignedUrlService
+                            .generateDownloadUrlWithOriginalFileName(fileKey, originalFileName, Duration.ofHours(24))
+                            .toString();
+                } else {
+                    presignedUrl = presignedUrlService
+                            .generateDownloadUrl(fileKey, Duration.ofHours(24))
+                            .toString();
+                }
+            } else {
+                presignedUrl = presignedUrlService
+                        .generateDownloadUrl(fileKey, Duration.ofHours(24))
+                        .toString();
+            }
+
+            ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
+        }
+        ((ObjectNode) fileNode).remove(FIELD_FILE_KEY);
+    }
+
+    private void handleVideoFileNodePlaylist(JsonNode node, JsonNode fileNode) {
+        if (fileNode.has(FIELD_PATH)
+                && fileNode.has(FIELD_STATUS)
+                && STATUS_TRANSCODE_COMPLETED.equals(fileNode.get(FIELD_STATUS).asText())) {
+
+            String masterM3u8Endpoint = "/api/v1/stream/" + node.get("id").asText() + "/master.m3u8";
+            ((ObjectNode) fileNode).put("playlist", masterM3u8Endpoint);
+        }
+        ((ObjectNode) fileNode).remove(FIELD_PATH);
     }
 
     @Override
