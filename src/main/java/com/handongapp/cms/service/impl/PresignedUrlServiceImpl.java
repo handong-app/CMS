@@ -224,6 +224,14 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
             throw new IllegalArgumentException("파일 키는 필수입니다");
         }
 
+        if (!StringUtils.hasText(originalFileName)) {
+            throw new IllegalArgumentException("원본 파일명은 필수입니다");
+        }
+
+        if (!isValidFilename(originalFileName)) {
+            throw new IllegalArgumentException("유효하지 않은 원본 파일명입니다: " + originalFileName);
+        }
+
         try {
             Duration effectiveDuration = (duration != null) ? duration : signatureDuration;
 
