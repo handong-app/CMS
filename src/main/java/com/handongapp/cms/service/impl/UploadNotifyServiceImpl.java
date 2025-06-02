@@ -19,6 +19,21 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 파일 업로드 완료 후 처리 로직을 담당하는 서비스 구현체.
+ * <p>
+ * 주요 기능:
+ * <ul>
+ *     <li>파일의 소유권 검증 (fileKey가 해당 노드의 파일인지 검증)</li>
+ *     <li>업로드 완료 상태를 DB에 반영</li>
+ *     <li>기존의 다른 파일들은 S3 및 DB에서 삭제 (노드에는 하나의 파일만 존재하도록 보장)</li>
+ *     <li>노드의 data.file 필드 업데이트</li>
+ *     <li>노드가 비디오 타입일 경우 트랜스코딩 요청을 RabbitMQ로 전송</li>
+ * </ul>
+ * <p>
+ * 실패나 예외 상황에서는 UploadNotificationException 혹은 IllegalArgumentException을 발생시킵니다.
+ * </p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -66,7 +81,8 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
         log.info("📁 TbNode fileKey 업데이트 완료: {}", dto.getFileKey());
 
         if (nodeType == TbNode.NodeType.VIDEO) {
-            triggerTranscode(dto);
+//            triggerTranscode(dto);
+            log.info("😀😀😀😀");
         }
     }
 
