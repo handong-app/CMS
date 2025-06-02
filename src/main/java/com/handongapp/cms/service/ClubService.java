@@ -9,4 +9,8 @@ public interface ClubService {
     void updateClubProfile(String clubSlug, ClubDto.ClubProfileReqDto clubProfileReqDto);
 
     String getCoursesByClubSlugAsJson(String clubSlug);
+
+    ClubDto.ClubProfileResDto createClub(ClubDto.ClubProfileReqDto dto);
+
+    void deleteClub(String clubSlug);
 }
