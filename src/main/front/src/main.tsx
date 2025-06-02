@@ -55,7 +55,7 @@ const router = createBrowserRouter([
     element: <NodeGroupPage />,
   },
   {
-    path: "/club/:club/course/:course_name",
+    path: "/club/:clubSlug/course/:courseSlug",
     element: <CoursePage />,
   },
   {
