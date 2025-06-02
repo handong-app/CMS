@@ -56,6 +56,18 @@ public class S3Dto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @Schema(description = "트렌스코트 시작 요청")
+    public static class TransCodeRequest {
+        @NotBlank(message = "fileKey 는 필수입니다")
+        private String fileKey;
+        @NotBlank(message = "filetype 는 필수입니다")
+        private String filetype;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Schema(description = "S3 다운로드 URL 응답")
     public static class DownloadUrlResponse {
         private String presignedUrl;
