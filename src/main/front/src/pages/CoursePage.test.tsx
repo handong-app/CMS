@@ -1,10 +1,16 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import CoursePage from "./CoursePage";
+import { MemoryRouter } from "react-router";
+
+const renderComponent = () =>
+  render(
+    <MemoryRouter>
+      <CoursePage />
+    </MemoryRouter>
+  );
 
 describe("CoursePage", () => {
-  const renderComponent = () => render(<CoursePage />);
-
   it("renders the top course banner title", () => {
     renderComponent();
     // TopCourseBanner의 h1은 heading 역할을 가짐
