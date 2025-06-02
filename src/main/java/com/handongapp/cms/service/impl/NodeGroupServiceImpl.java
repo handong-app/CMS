@@ -114,7 +114,7 @@ public class NodeGroupServiceImpl implements NodeGroupService {
                             if (fileNode.has("path")
                                     && fileNode.has("status")
                                     && "TRANSCODE_COMPLETED".equals(fileNode.get("status").asText())) {
-                                String masterM3u8Endpoint = " /api/v1/stream/" + node.get("id").asText() + "/master.m3u8";
+                                String masterM3u8Endpoint = "/api/v1/stream/" + node.get("id").asText() + "/master.m3u8";
                                 ((ObjectNode) fileNode).put("playlist", masterM3u8Endpoint);
                             }
                             ((ObjectNode) fileNode).remove("path");
