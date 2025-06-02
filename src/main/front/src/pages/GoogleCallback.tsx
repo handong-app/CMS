@@ -24,7 +24,7 @@ const GoogleOAuthCallback: React.FC = () => {
   const [output, setOutput] = useState("처리 중...");
   const [loginCheckResult, setLoginCheckResult] = useState("");
   const hasFetched = useRef(false); 
-  
+
   const {
     jwtToken,
     refreshToken,
@@ -93,6 +93,7 @@ const GoogleOAuthCallback: React.FC = () => {
     } catch (err: any) {
       console.error("🚨 로그인 처리 중 오류:", err.message || err);
       setOutput("로그인 실패: " + (err.message || "알 수 없는 오류"));
+      hasFetched.current = false; // 에러 시 재시도 가능하도록 플래그 재설정
     }
   };
     fetchTokens(code);
