@@ -37,12 +37,6 @@ public class TbNode extends AuditingFields {
     @Enumerated(EnumType.STRING)
     private NodeType type;
 
-//    /** Optional attachment */
-//    @Lob
-//    @Column(name = "attachment_url")
-//    private String attachmentUrl;
-
-
     /** Whether comments are allowed for this node */
     @Column(name = "is_comment_permitted")
     private Boolean commentPermitted = Boolean.FALSE;
