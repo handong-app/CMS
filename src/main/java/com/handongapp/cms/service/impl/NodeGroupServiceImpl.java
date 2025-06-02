@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.handongapp.cms.domain.TbNodeGroup;
 import com.handongapp.cms.domain.TbSection;
 import com.handongapp.cms.dto.v1.NodeGroupDto;
+import com.handongapp.cms.exception.file.PresignedUrlCreationException;
 import com.handongapp.cms.repository.NodeGroupRepository;
 import com.handongapp.cms.repository.SectionRepository;
 import com.handongapp.cms.service.NodeGroupService;
@@ -122,7 +123,10 @@ public class NodeGroupServiceImpl implements NodeGroupService {
                 }
             }
             return objectMapper.writeValueAsString(root);
-        } catch (Exception e) {
+        } catch (PresignedUrlCreationException e){
+            throw e;
+        }
+        catch (Exception e) {
             throw new IllegalStateException("NodeGroup JSON 파싱/직렬화에 실패했습니다.", e);
         }
     }
