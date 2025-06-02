@@ -18,6 +18,7 @@ import ProfileRegistrationPage from "./pages/ProfileRegistrationPage.tsx";
 import AuthTestPage from "./pages/AuthTestPage.tsx";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import NodeGroupTest from "./pages/NodeGroupTest.tsx";
 
 const router = createBrowserRouter([
   {
@@ -55,12 +56,16 @@ const router = createBrowserRouter([
     element: <NodeGroupPage />,
   },
   {
-    path: "/club/:club/course/:course_name",
+    path: "/club/:clubSlug/course/:courseSlug",
     element: <CoursePage />,
   },
   {
     path: "/auth-test",
     element: <AuthTestPage />,
+  },
+  {
+    path: "/nodegroup-test",
+    element: <NodeGroupTest />,
   },
 ]);
 

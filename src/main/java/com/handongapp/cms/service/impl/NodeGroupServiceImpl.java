@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -99,10 +100,24 @@ public class NodeGroupServiceImpl implements NodeGroupService {
                                     && fileNode.has("status")
                                     && "UPLOADED".equals(fileNode.get("status").asText())) {
                                 String fileKey = fileNode.get("fileKey").asText();
-                                String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey).toString();
+                                String presignedUrl = presignedUrlService.generateDownloadUrl(fileKey, Duration.ofHours(24)).toString();
                                 ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
                             }
                             ((ObjectNode) fileNode).remove("fileKey");
+                        }
+                    }
+                    else if ("VIDEO".equals(type)) {
+                        JsonNode dataNode = node.get("data");
+                        if (dataNode == null) continue;
+                        JsonNode fileNode = dataNode.get("file");
+                        if (fileNode != null){
+                            if (fileNode.has("path")
+                                    && fileNode.has("status")
+                                    && "TRANSCODE_COMPLETED".equals(fileNode.get("status").asText())) {
+                                String masterM3u8Endpoint = "/api/v1/stream/" + node.get("id").asText() + "/master.m3u8";
+                                ((ObjectNode) fileNode).put("playlist", masterM3u8Endpoint);
+                            }
+                            ((ObjectNode) fileNode).remove("path");
                         }
                     }
                 }
