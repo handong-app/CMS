@@ -32,7 +32,6 @@
                                                     'type',n.type,
                                                     'data',n.data,
                                                     'order', n.order,
-                                                    'attachmentUrl', n.attachment_url,
                                                     'isCommentPermitted', n.is_comment_permitted = b'1'
                                                 )
                                             ) FROM tb_node n

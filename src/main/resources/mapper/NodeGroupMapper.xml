@@ -20,7 +20,6 @@
                         'commentPermitted', n.is_comment_permitted = b'1',
                         'data', n.data,
                         'order', n.order,
-                        'attachmentUrl', n.attachment_url,
                         'createdAt', n.created_at,
                         'updatedAt', n.updated_at,
                         'comments', ( -- Comments for this specific node 'n'
