@@ -99,9 +99,32 @@ public class NodeGroupServiceImpl implements NodeGroupService {
                             if (fileNode.has("fileKey")
                                     && fileNode.has("status")
                                     && "UPLOADED".equals(fileNode.get("status").asText())) {
+
                                 String fileKey = fileNode.get("fileKey").asText();
-                                String presignedUrl = presignedUrlService.generateDownloadUrlWithOriginalFileName(fileKey, fileNode.get("originalFileName").asText(), Duration.ofHours(24)).toString();
-                                ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
+
+                                // originalFileName이 있는지와 null/빈문자열 여부를 안전하게 확인
+                                if (fileNode.has("originalFileName")) {
+                                    String originalFileName = fileNode.get("originalFileName").asText();
+                                    String presignedUrl;
+                                    if (originalFileName != null && !originalFileName.trim().isEmpty()) {
+                                        // originalFileName이 있으면 다운로드 URL 생성
+                                        presignedUrl = presignedUrlService
+                                                .generateDownloadUrlWithOriginalFileName(fileKey, originalFileName, Duration.ofHours(24))
+                                                .toString();
+                                    } else {
+                                        // originalFileName이 비어있으면 기본 presigned URL 생성
+                                        presignedUrl = presignedUrlService
+                                                .generateDownloadUrl(fileKey, Duration.ofHours(24))
+                                                .toString();
+                                    }
+                                    ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
+                                } else {
+                                    // originalFileName이 아예 없으면 기본 presigned URL 생성
+                                    String presignedUrl = presignedUrlService
+                                            .generateDownloadUrl(fileKey, Duration.ofHours(24))
+                                            .toString();
+                                    ((ObjectNode) fileNode).put("presignedUrl", presignedUrl);
+                                }
                             }
                             ((ObjectNode) fileNode).remove("fileKey");
                         }
