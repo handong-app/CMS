@@ -81,10 +81,14 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
         log.info("📁 TbNode fileKey 업데이트 완료: {}", dto.getFileKey());
 
         if (nodeType == TbNode.NodeType.VIDEO) {
-//            triggerTranscode(dto);
 //            TODO: 트랜스코딩 기능 임시 비활성화 - 개발 완료 후 활성화 필요
-//            triggerTranscode(dto);
-//            log.info("트랜스코딩 기능이 임시 비활성화되었습니다.");
+            log.info("트랜스코딩 기능이 임시 비활성화되었습니다.");
+//            triggerTranscode(
+//                    S3Dto.TransCodeRequest.builder()
+//                    .fileKey(dto.getFileKey())
+//                    .filetype("video")
+//                    .build()
+//            );
         }
     }
 
@@ -128,7 +132,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      *
      * @param dto 업로드 완료 요청 DTO
      */
-    private void triggerTranscode(S3Dto.UploadCompleteRequest dto) {
+    private void triggerTranscode(S3Dto.TransCodeRequest dto) {
         try {
             amqpTemplate.convertAndSend(transcodeRequestQueue, dto);
             log.info("🚀 트랜스코딩 요청 전송 완료: {}", transcodeRequestQueue);
