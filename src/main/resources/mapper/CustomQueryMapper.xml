@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.handongapp.cms.mapper.CustomQueryMapper">
+
+    <select id="findCourseIdBySlug" resultType="string">
+        SELECT id 
+        FROM tb_course 
+        WHERE slug = #{slug}
+    </select>
+
+    <select id="findCourseIdByName" resultType="string">
+        SELECT id 
+        FROM tb_course 
+        WHERE name = #{name}
+    </select>
+
+    <select id="findUserIdByUsername" resultType="string">
+        SELECT id 
+        FROM tb_user 
+        WHERE username = #{username}
+    </select>
+
+    <select id="findTargetIdsByCourseId" resultType="string">
+        <!-- 
+            주어진 courseId에 해당하는 모든 NodeGroup ID와 Node ID를 검색합니다.
+            댓글의 targetId는 NodeGroup ID 또는 Node ID일 수 있습니다.
+        -->
+        SELECT ng.id AS target_id
+        FROM tb_course c
+        JOIN tb_section s ON c.id = s.course_id 
+        JOIN tb_node_group ng ON s.id = ng.section_id
+        WHERE c.id = #{courseId}
+
+        UNION
+
+        SELECT n.id AS target_id
+        FROM tb_course c
+        JOIN tb_section s ON c.id = s.course_id
+        JOIN tb_node_group ng ON s.id = ng.section_id
+        JOIN tb_node n ON ng.id = n.node_group_id
+        WHERE c.id = #{courseId}
+    </select>
+
+</mapper>

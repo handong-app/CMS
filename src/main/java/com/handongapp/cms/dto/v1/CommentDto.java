@@ -56,6 +56,9 @@ public class CommentDto {
     @AllArgsConstructor
     public static class CreateRequest {
 
+        @NotBlank(message = "대상 ID는 필수입니다")
+        private String targetId;
+
         @NotBlank(message = "내용은 필수입니다")
         @Size(max = 1000, message = "내용은 1000자를 초과할 수 없습니다")
         private String content;
@@ -63,13 +66,12 @@ public class CommentDto {
         @NotBlank(message = "카테고리 ID는 필수입니다")
         private String categoryId;
 
-        public TbComment toEntity(String targetId, String userId) {
+        public TbComment toEntity(String userId) {
             TbComment comment = new TbComment();
-            comment.setTargetId(targetId);
+            comment.setTargetId(this.targetId);
             comment.setUserId(userId);
             comment.setContent(this.content);
             comment.setCategoryId(this.categoryId); 
-            // comment.setNodeDeleted(false); 
             comment.setDeleted("N"); 
             return comment;
         }
@@ -77,15 +79,11 @@ public class CommentDto {
 
     // UpdateRequest DTO
     @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UpdateRequest {
-        private final String content;
-        private final String categoryId;
-
-        // Constructor for final fields, similar to CourseDto.UpdateRequest
-        public UpdateRequest(String content, String categoryId) {
-            this.content = content;
-            this.categoryId = categoryId;
-        }
+        private String content;
+        private String categoryId;
 
         public void applyTo(TbComment entity) {
             if (this.content != null) {

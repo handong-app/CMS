@@ -5,22 +5,15 @@ meta {
 }
 
 post {
-  url: {{BASE_URL_LOCAL}}/api/v1/targets/{{targetId}}/comments?userId=asdf
+  url: {{BASE_URL_LOCAL}}/api/v1/comments
   body: json
   auth: inherit
-}
-
-params:query {
-  userId: asdf
 }
 
 body:json {
   {
     "content": "첫 번째 테스트 댓글입니다!",
-    "categoryId": "sampleCategory123"
+    "categoryId": "cate0000000000000000000000000001",
+    "targetId": "1d69af51a2c84e1d86f015b33fbca106"
   }
-}
-
-vars:pre-request {
-  targetId: b8856eed3e2c49a089576a3fd42be3f9
 }
