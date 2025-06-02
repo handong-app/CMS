@@ -1,5 +1,6 @@
 package com.handongapp.cms.config;
 
+import lombok.Getter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -23,6 +24,10 @@ public class S3Config {
 
     @Value("${cloud.aws.endpoint}")
     private String endpoint;
+
+    @Getter
+    @Value("${cloud.aws.s3.bucket:cms}")
+    private String bucket;
 
     @Bean
     public S3Presigner s3Presigner() {
