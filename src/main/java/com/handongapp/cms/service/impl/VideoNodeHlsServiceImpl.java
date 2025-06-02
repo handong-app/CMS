@@ -107,20 +107,28 @@ public class VideoNodeHlsServiceImpl implements VideoNodeHlsService {
      */
     private String replaceSegmentsWithPresignedUrls(String m3u8Content, String segmentBasePath) {
         String[] lines = m3u8Content.split("\n");
-        StringBuilder updated = new StringBuilder();
-
+        /*
+         * StringBuilder는 내부적으로 동적으로 메모리를 할당함.
+         * 기본 용량으로 시작 후 용량이 넘치면 자동으로 늘어나지만, 이 과정에서 불필요한 복사(copy) 작업이 발생할 수 있다.
+         * m3u8Content.length()에 약간의 여유 공간을 주면,
+         * 대부분의 경우 StringBuilder가 1~2회 재할당 없이 바로 모든 라인을 담을 수 있어 성능이 향상된다.
+         */
+        StringBuilder updated = new StringBuilder(m3u8Content.length() + 200);
         for (String line : lines) {
             if (line.endsWith(".ts")) {
                 String segmentKey = segmentBasePath + line;
                 String presignedUrl = presignedUrlService
                         .generateDownloadUrl(segmentKey, Duration.ofHours(24))
                         .toString();
-                updated.append(presignedUrl).append("\n");
+                updated.append(presignedUrl);
             } else {
-                updated.append(line).append("\n");
+                updated.append(line);
             }
+            updated.append("\n");
         }
 
-        return updated.toString().trim();
+        return !updated.isEmpty() && updated.charAt(updated.length() - 1) == '\n'
+                ? updated.substring(0, updated.length() - 1)
+                : updated.toString();
     }
 }
