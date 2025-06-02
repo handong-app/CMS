@@ -14,7 +14,7 @@ import type { CourseData } from "../types/courseData.types";
 
 function CoursePage() {
   const fetchBe = useFetchBe();
-  const [courseData, setCouseData] = useState<CourseData | null>(null);
+  const [courseData, setCourseData] = useState<CourseData | null>(null);
   const { clubSlug, courseSlug } = useParams();
 
   useEffect(() => {
@@ -24,7 +24,7 @@ function CoursePage() {
     }
 
     fetchBe(`/v1/clubs/${clubSlug}/courses/${courseSlug}`).then((data) => {
-      setCouseData(data);
+      setCourseData(data);
     });
   }, [clubSlug, courseSlug, fetchBe]);
 
