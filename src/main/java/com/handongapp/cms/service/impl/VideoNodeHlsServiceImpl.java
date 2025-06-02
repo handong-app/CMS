@@ -1,5 +1,6 @@
 package com.handongapp.cms.service.impl;
 
+import com.handongapp.cms.config.S3Config;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.VideoNodeHlsService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class VideoNodeHlsServiceImpl implements VideoNodeHlsService {
     private final S3Client s3Client;
     private final PresignedUrlService presignedUrlService;
+    private final S3Config s3Config;
 
     private static final Set<String> ALLOWED_RESOLUTIONS = Set.of("480p", "1080p");
 
@@ -82,7 +84,7 @@ public class VideoNodeHlsServiceImpl implements VideoNodeHlsService {
     private String readS3FileAsString(String s3Key) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 s3Client.getObject(GetObjectRequest.builder()
-                        .bucket("cms")
+                        .bucket(s3Config.getBucket())
                         .key(s3Key)
                         .build())
         ))) {
