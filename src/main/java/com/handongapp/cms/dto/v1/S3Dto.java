@@ -74,4 +74,15 @@ public class S3Dto {
         @Pattern(regexp = "^[a-fA-F0-9]{32}$", message = "nodeId는 32자리 16진수 문자열이어야 합니다.")
         private String nodeId;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "비디오 HLS 플레이리스트 응답")
+    public static class VideoHlsPlaylistsResponse {
+        private String masterM3u8;
+        private String output480pM3u8;
+        private String output1080pM3u8;
+    }
 }
