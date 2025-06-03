@@ -14,7 +14,7 @@ import ImageIcon from "@mui/icons-material/Image";
 
 export interface Node {
   id: string;
-  type: "video" | "doc" | "quiz" | "image";
+  type: "video" | "doc" | "quiz" | "image" | "file" | "text";
   title: string;
 }
 
@@ -27,6 +27,8 @@ export interface SectionCoursesProps {
 const iconMap = {
   video: <VideoLibraryIcon />,
   doc: <DescriptionIcon />,
+  file: <DescriptionIcon />,
+  text: <DescriptionIcon />,
   quiz: <QuizIcon />,
   image: <ImageIcon />,
 };
@@ -57,22 +59,33 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
       </Typography>
 
       <List dense>
-        {nodes.map((node) => (
-          <ListItem
-            key={node.id}
-            sx={{
-              pl: 0,
-              cursor: "pointer",
-              "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
-              borderRadius: 2,
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              {iconMap[node.type]}
-            </ListItemIcon>
-            <ListItemText primary={node.title} />
+        {!nodes || nodes.length === 0 ? (
+          <ListItem sx={{ pl: 0 }}>
+            <ListItemText
+              primary="콘텐츠가 없습니다."
+              sx={{ color: "gray", pl: 0, ml: 0 }}
+            />
           </ListItem>
-        ))}
+        ) : (
+          nodes.map((node) => (
+            <ListItem
+              key={node.id}
+              sx={{
+                pl: 0,
+                cursor: "pointer",
+                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                borderRadius: 2,
+                pb: 1,
+                pt: 1,
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                {iconMap[node.type] ?? <DescriptionIcon />}
+              </ListItemIcon>
+              <ListItemText primary={node.title} />
+            </ListItem>
+          ))
+        )}
       </List>
     </Paper>
   );
