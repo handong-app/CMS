@@ -9,11 +9,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    let hls: Hls | null = null;
     if (videoRef.current) {
       if (Hls.isSupported()) {
-        const hls = new Hls();
+        // const hls = new Hls();
+        hls = new Hls();
         hls.loadSource(src);
         hls.attachMedia(videoRef.current);
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          console.error("HLS error:", data);
+        });
       } else if (
         videoRef.current.canPlayType("application/vnd.apple.mpegurl")
       ) {
@@ -21,6 +27,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
         videoRef.current.src = src;
       }
     }
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
   }, [src]);
 
   return (
