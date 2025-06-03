@@ -9,12 +9,8 @@ const useUserProgram = (club?: string) => {
   const fetchAllPrograms = async () => {
     try {
       const response = await fetchBe("/v1/user/programs");
-      if (!response.ok) {
-        console.error("Failed to fetch programs:", response.statusText);
-        return;
-      }
-      const data = await response.json();
-      data.forEach((program: any) => addProgram(program));
+      (await response).forEach((program: any) => addProgram(program));
+      console.error("Failed to fetch programs:", response.statusText);
     } catch (error) {
       console.error("Error fetching programs:", error);
     }
