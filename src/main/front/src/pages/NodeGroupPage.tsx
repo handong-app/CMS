@@ -5,23 +5,22 @@ import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ImageIcon from "@mui/icons-material/Image";
-import TextSnippetIcon from "@mui/icons-material/TextSnippet"; // 텍스트용 아이콘
+// import TextSnippetIcon from "@mui/icons-material/TextSnippet"; // 텍스트용 아이콘
 import CommentSection from "../components/NodeGroupPage/CommentSection";
-import { useLocation } from "react-router"; //
-import AddIcon from "@mui/icons-material/Add"; // 추가
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import QuizIcon from "@mui/icons-material/Quiz";
 import VideoPlayer from "../components/NodeGroupPage/VideoPlayer";
 import DownloadFileBox from "../components/NodeGroupPage/DownloadFileBox";
 import ImagePreviewWithDownload from "../components/NodeGroupPage/ImagePreviewWithDownload";
+import QuizBox from "../components/NodeGroupPage/QuizBox";
+import MultiAnswerQuizBox from "../components/NodeGroupPage/MultiAnswerQuizBox";
 
 // 노드 타입별로 크기 매칭
 const nodeHeightMap = {
   video: 600,
-  file: 200,
-  pdf: 300,
+  file: 100,
   image: 500,
-  quiz: 300,
-  text: 400,
+  quiz: "auto",
 };
 // 이모지 매핑
 const categoryEmojiMap: Record<string, string> = {
@@ -52,16 +51,8 @@ const iconMap = {
   VIDEO: <VideoLibraryIcon fontSize="large" />,
   FILE: <PictureAsPdfIcon fontSize="large" />,
   IMAGE: <ImageIcon fontSize="large" />,
-  QUIZ: <TextSnippetIcon fontSize="large" />,
+  QUIZ: <QuizIcon fontSize="large" />,
 };
-
-// const emotionIcons: Record<string, string> = {
-//   피드백: "😁",
-//   축하: "🎉",
-//   열정: "🔥",
-//   감사: "☺️",
-//   칭찬: "🌟",
-// };
 
 function NodeGroupPage() {
   const [openNodeId, setOpenNodeId] = useState<string | null>(null);
@@ -73,7 +64,7 @@ function NodeGroupPage() {
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
       <Box top={0} zIndex={1000} mb={4}>
-        <Typography variant="h5" fontWeight={700} mt={6} mb={6}>
+        <Typography variant="h4" fontWeight={700} mt={6} mb={4}>
           {nodeGroupDummy.title}
         </Typography>
       </Box>
@@ -97,13 +88,18 @@ function NodeGroupPage() {
 
           return (
             // 노드의 완전 겉부분, 댓글+노드내용
-            <Box display="flex" flexDirection="column">
-              {/* 노드 댓글 부분  */}
+            <Box display="flex" flexDirection="column" mt={2}>
+              {/* 노드 번호, 제목, 댓글 부분  */}
+
               <Box display="flex" justifyContent="end" mt={4} mb={0}>
-                <Box>
+                <Box display="flex" justifyContent="center" alignItems="center">
                   {/* 1. 순번 */}
-                  <Typography variant="h4" color="#fff" mb={1}>
-                    {index + 1}
+                  <Typography variant="h4" color="#fff" mr={2}>
+                    {/* {index + 1} */}
+                  </Typography>
+                  {/* 노드 제목, 이름, 설명 등 */}
+                  <Typography variant="h5" color="#fff">
+                    {node.data.title}
                   </Typography>
                 </Box>
                 <Box
@@ -229,11 +225,29 @@ function NodeGroupPage() {
                         display="flex"
                         justifyContent="start"
                         flexDirection="row"
-                        alignItems="start"
+                        alignItems="center"
                       >
-                        {iconMap[node.type.toLowerCase()] || (
+                        {iconMap[node.type] || (
                           <DescriptionIcon fontSize="large" />
                         )}
+                        {node.type === "QUIZ" &&
+                          node.data?.question &&
+                          Array.isArray(node.data.options) &&
+                          typeof node.data.answer === "string" &&
+                          (node.data.answer.includes("&") ? (
+                            <MultiAnswerQuizBox
+                              question={node.data.question}
+                              options={node.data.options}
+                              answer={node.data.answer}
+                            />
+                          ) : (
+                            <QuizBox
+                              question={node.data.question}
+                              options={node.data.options}
+                              answer={node.data.answer}
+                            />
+                          ))}
+
                         {node.type === "FILE" &&
                           node.data?.file?.presignedUrl && (
                             <DownloadFileBox

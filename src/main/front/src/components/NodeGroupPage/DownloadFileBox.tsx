@@ -27,6 +27,7 @@ const DownloadFileBox: React.FC<Props> = ({ fileUrl, fileName }) => {
       height="100%"
       borderRadius={2}
       onClick={handleDownload}
+      sx={{ cursor: "pointer" }}
     >
       <Box textAlign="left">
         <Typography variant="h5" ml={3}>
