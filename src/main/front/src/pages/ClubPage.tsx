@@ -24,9 +24,14 @@ function ClubPage() {
     queryFn: () => fetchBe(`/v1/clubs/${club}/programs`),
   });
 
+  const { data: clubCourses, isLoading: coursesLoading } = useQuery({
+    queryKey: ["clubCourses", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/courses`),
+  });
+
   console.log("Club Info:", clubInfo);
 
-  if (clubLoading || programsLoading) {
+  if (clubLoading || programsLoading || coursesLoading) {
     return <Typography>Loading...</Typography>;
   }
 
@@ -80,7 +85,7 @@ function ClubPage() {
           <Typography variant="h5" fontWeight={700} mb={2}>
             전체 강의
           </Typography>
-          <CourseList />
+          <CourseList courses={clubCourses || []} />
         </Box>
       </Box>
     </Box>
