@@ -12,7 +12,7 @@ describe("NodeGroupPage", () => {
         <NodeGroupPage />
       </MemoryRouter>
     );
-    expect(screen.getByText("머신러닝 개요")).toBeInTheDocument(); //일단 예시 노드그룹 제목
+    expect(screen.getByText("Callein Node Group1")).toBeInTheDocument(); //일단 예시 노드그룹 제목
   });
 
   test("shows prompt when there are no comments", () => {
