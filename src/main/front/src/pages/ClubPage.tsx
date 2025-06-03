@@ -55,6 +55,7 @@ function ClubPage() {
               style={{ textDecoration: "none" }}
             >
               <ClubBadge
+                hoverable
                 text={`${program.name} (진행기간 ${formatTimestamp(
                   program.startDate
                 )} ~ ${formatTimestamp(program.endDate)})`}
