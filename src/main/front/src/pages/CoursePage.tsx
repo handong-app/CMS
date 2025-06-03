@@ -11,7 +11,7 @@ import useUserData from "../hooks/userData";
 import type { ProgramData, UserProgress } from "../types/process.types";
 import calculateProgress from "../utils/calculateProcess";
 import { useFetchBe } from "../tools/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
@@ -91,28 +91,25 @@ function CoursePage() {
       .catch(() => setLatestComments([]));
   }, [courseData?.id, fetchBe, courseData]);
 
-  // 진도율 계산 (ClubPage와 동일하게 calculateProgress 사용)
+  // 진도율 계산 및 내 진도 정보 useMemo로 최적화
+  const myProgress = useMemo(() => {
+    if (!courseData || !programProcess) return null;
+    const calculatedProgress: UserProgress[] =
+      calculateProgress(programProcess);
+    return calculatedProgress.find((u) => u.userId === userId);
+  }, [courseData, programProcess, userId]);
+
+  // 진도율 계산
   let percent = 0,
     completed = 0,
     total = 0;
-  if (courseData && programProcess) {
-    const calculatedProgress: UserProgress[] =
-      calculateProgress(programProcess);
-    const myProgress = calculatedProgress.find((u) => u.userId === userId);
+  if (courseData && myProgress) {
     const courseId = courseData.id;
-    const courseProgress = myProgress?.courseProgress[courseId];
+    const courseProgress = myProgress.courseProgress[courseId];
     completed = courseProgress?.completed ?? 0;
     total = courseProgress?.total ?? 0;
     percent = total > 0 ? completed / total : 0;
-
-    // console.log("[진도율 디버깅]", {
-    //   courseId,
-    //   myProgress,
-    //   courseProgress,
-    //   completed,
-    //   total,
-    //   percent,
-    // });
+    // console.log("[진도율 디버깅]", { courseId, myProgress, courseProgress, completed, total, percent });
   }
 
   return (
@@ -134,15 +131,10 @@ function CoursePage() {
               // nodeGroup 완료 여부 및 진행중 여부 계산
               let isCompleted = false;
               let isInProgress = false;
-              if (courseData && programProcess) {
-                const calculatedProgress: UserProgress[] =
-                  calculateProgress(programProcess);
-                const myProgress = calculatedProgress.find(
-                  (u) => u.userId === userId
-                );
+              if (courseData && myProgress) {
                 const courseId = courseData.id;
-                const courseProgress = myProgress?.courseProgress[courseId];
-                if (courseProgress && courseProgress.map) {
+                const courseProgress = myProgress.courseProgress[courseId];
+                if (courseProgress?.map) {
                   const state = courseProgress.map[group.id];
                   isCompleted = state === "DONE";
                   isInProgress = state === "IN_PROGRESS";
