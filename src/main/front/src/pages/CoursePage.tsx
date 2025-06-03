@@ -32,7 +32,7 @@ function CoursePage() {
     <Box maxWidth={980} margin="auto" mb={10}>
       <TopCourseBanner
         title={courseData?.title ?? ""}
-        producer={courseDummyData.instructor}
+        producer={courseData?.creatorUserId ?? ""}
         courseDescription={courseData?.description ?? ""}
         image={courseData?.pictureUrl ?? ""}
         onContinue={() => alert("Continue to last lesson!")}
@@ -157,15 +157,48 @@ function CoursePage() {
 
           <Box ml={2}>
             <Box>
-              {courseDummyData.sections.map((section) => (
+              {(courseData?.sections ?? []).map((section) => (
                 <Box key={section.id} mt={1}>
                   <Section text={section.title} />
                   {section.nodeGroups.map((group) => (
                     <Box mt={1.6} key={group.id}>
                       <SectionCourses
                         title={group.title}
-                        description={group.description}
-                        nodes={group.nodes}
+                        description={section.description}
+                        nodes={
+                          Array.isArray(group.nodes)
+                            ? group.nodes.map((node) => {
+                                let title = "";
+                                switch (node.type) {
+                                  case "VIDEO":
+                                  case "IMAGE":
+                                  case "FILE":
+                                  case "TEXT":
+                                    title = node.data?.title ?? "";
+                                    break;
+                                  case "QUIZ":
+                                    title = node.data?.question ?? "";
+                                    break;
+                                  default:
+                                    title = "";
+                                }
+                                return {
+                                  id: node.id,
+                                  type:
+                                    node.type === "FILE"
+                                      ? "doc"
+                                      : (node.type.toLowerCase() as
+                                          | "video"
+                                          | "image"
+                                          | "quiz"
+                                          | "doc"
+                                          | "file"
+                                          | "text"),
+                                  title,
+                                };
+                              })
+                            : []
+                        }
                       />
                     </Box>
                   ))}
