@@ -19,16 +19,29 @@ public class CommentDto {
         private final String id;
         private final String targetId;
         private final String userId;
-        private final String categoryId; 
+        private final String categoryId;
         private final String content;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
+
+        private String userName;
 
         // Constructor for final fields
         public Response(String id, String targetId, String userId, String categoryId, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
             this.id = id;
             this.targetId = targetId;
             this.userId = userId;
+            this.categoryId = categoryId;
+            this.content = content;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+        }
+
+        public Response(String id, String targetId, String userId, String userName, String categoryId, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+            this.id = id;
+            this.targetId = targetId;
+            this.userId = userId;
+            this.userName = userName;
             this.categoryId = categoryId;
             this.content = content;
             this.createdAt = createdAt;

@@ -1,6 +1,8 @@
 package com.handongapp.cms.service;
 
 import com.handongapp.cms.dto.v1.CommentDto;
+import com.handongapp.cms.dto.v1.CommentResponseDto;
+
 import java.util.List;
 
 public interface CommentService {
@@ -12,7 +14,7 @@ public interface CommentService {
     void deleteSoft(String commentId, String userId);
 
 
-    List<CommentDto.Response> searchComments(
+    List<CommentResponseDto> searchComments(
             String courseId,
             String courseSlug,
             String courseName,
