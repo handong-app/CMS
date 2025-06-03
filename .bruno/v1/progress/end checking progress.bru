@@ -1,0 +1,17 @@
+meta {
+  name: end checking progress
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/progress/start
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "nodeGroupId":"52e307449f054159a7878de55751d8a8"
+  }
+}
