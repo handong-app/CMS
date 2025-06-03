@@ -7,15 +7,41 @@ import { courseDummyData } from "../components/coursePage/CourseDummyData";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
 import CourseProgress from "../components/course/CourseProgress";
+import { useQuery } from "@tanstack/react-query";
+import useUserData from "../hooks/userData";
+import type { ProgramData, UserProgress } from "../types/process.types";
+import calculateProgress from "../utils/calculateProcess";
 import { useFetchBe } from "../tools/api";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 
 function CoursePage() {
+  const { userId } = useUserData();
   const fetchBe = useFetchBe();
-  const [courseData, setCourseData] = useState<CourseData | null>(null);
   const { clubSlug, courseSlug } = useParams();
+
+  // 내 프로그램 리스트
+  const { data: myPrograms } = useQuery<
+    { programId: string; clubSlug: string; slug: string }[]
+  >({
+    queryKey: ["myPrograms"],
+    queryFn: () => fetchBe("/v1/user/programs"),
+  });
+
+  // 현재 club에 해당하는 programSlug 찾기
+  const myProgram = (myPrograms ?? []).find((p) => p.clubSlug === clubSlug);
+  const programSlug = myProgram?.slug;
+
+  // 프로그램별 유저 진도 데이터
+  const { data: programProcess } = useQuery<ProgramData>({
+    queryKey: ["programProcess", programSlug],
+    queryFn: () =>
+      fetchBe(`/v1/clubs/${clubSlug}/programs/${programSlug}/users`),
+    enabled: !!programSlug,
+  });
+
+  const [courseData, setCourseData] = useState<CourseData | null>(null);
 
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
@@ -26,6 +52,30 @@ function CoursePage() {
       setCourseData(data);
     });
   }, [clubSlug, courseSlug, fetchBe]);
+
+  // 진도율 계산 (ClubPage와 동일하게 calculateProgress 사용)
+  let percent = 0,
+    completed = 0,
+    total = 0;
+  if (courseData && programProcess) {
+    const calculatedProgress: UserProgress[] =
+      calculateProgress(programProcess);
+    const myProgress = calculatedProgress.find((u) => u.userId === userId);
+    const courseId = courseData.id;
+    const courseProgress = myProgress?.courseProgress[courseId];
+    completed = courseProgress?.completed ?? 0;
+    total = courseProgress?.total ?? 0;
+    percent = total > 0 ? completed / total : 0;
+    // 디버깅용 콘솔 출력
+    console.log("[진도율 디버깅]", {
+      courseId,
+      myProgress,
+      courseProgress,
+      completed,
+      total,
+      percent,
+    });
+  }
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
@@ -61,15 +111,19 @@ function CoursePage() {
                   </Typography>
                   <Box display="flex" alignItems="center" mt={2}>
                     <Box width={86}>
-                      <CourseProgress value={0.5} />
+                      <CourseProgress value={percent} />
                     </Box>
                     <Box ml={2} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
                       <Typography variant="body2">진도율</Typography>
-                      <Typography variant="body2">3/6</Typography>
+                      <Typography variant="body2">
+                        {completed}/{total}
+                      </Typography>
                     </Box>
                     <Box ml={1} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
                       <Typography variant="body2">남은 강의</Typography>
-                      <Typography variant="body2">3개</Typography>
+                      <Typography variant="body2">
+                        {total - completed}개
+                      </Typography>
                     </Box>
                   </Box>
                 </>
