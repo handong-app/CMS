@@ -1,6 +1,7 @@
 package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.CommentDto;
+import com.handongapp.cms.exception.auth.NoAuthenticatedException;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.CommentService;
 import jakarta.validation.Valid;
@@ -64,7 +65,7 @@ public class CommentController {
 
     private String extractUserId(Authentication authentication) {
         if (authentication == null || authentication.getPrincipal() == null) {
-            throw new IllegalStateException("인증 정보가 없습니다");
+            throw new NoAuthenticatedException("인증 정보가 없습니다");
         }
         if (!(authentication.getPrincipal() instanceof PrincipalDetails)) {
             throw new IllegalStateException("잘못된 인증 타입입니다");
