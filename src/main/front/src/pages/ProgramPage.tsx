@@ -107,8 +107,8 @@ function ProgramPage() {
                   남은 강의
                 </Typography>
                 <Typography variant="h5" fontWeight={700}>
-                  {myProgress?.programProgress.total ||
-                    0 - (myProgress?.programProgress.completed || 0)}
+                  {(myProgress?.programProgress.total || 0) -
+                    (myProgress?.programProgress.completed || 0)}
                   개
                 </Typography>
               </Box>

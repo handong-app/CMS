@@ -51,7 +51,7 @@ function calculateProgress(data: ProgramData): UserProgress[] {
 
         if (status === "DONE") {
           courseCompleted++;
-          if (status === "DONE") completedNodeGroups++;
+          completedNodeGroups++;
         }
 
         nodeGroupMap[group.nodeGroupId] = status;

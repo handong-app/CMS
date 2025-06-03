@@ -1,7 +1,5 @@
 import { Box } from "@mui/system";
 import CourseItem from "./CourseItem";
-import { id } from "date-fns/locale";
-import { url } from "inspector";
 import { useParams } from "react-router";
 
 export interface CourseListProps {

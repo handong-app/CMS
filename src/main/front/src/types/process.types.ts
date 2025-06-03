@@ -16,9 +16,14 @@ export type UserProgress = {
 // 필요한 경우 programData 타입도 정의
 export type ProgramData = {
   programId: string;
-  programName: string;
-  programSlug: string;
-  programDescription: string;
+  clubId: string;
+  clubSlug: string;
+  userId: string;
+  name: string;
+  slug: string;
+  description: string;
+  startDate: string; // LocalDateTime → string
+  endDate: string;
   participants: Participant[];
 };
 
