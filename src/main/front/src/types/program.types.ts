@@ -7,4 +7,5 @@ export interface ProgramItemProps {
   startDate: string;
   endDate: string;
   courses: string[];
+  slug: string;
 }
