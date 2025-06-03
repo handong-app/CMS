@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -71,77 +72,96 @@ public class CommentServiceImpl implements CommentService {
             String filterUserId,
             String username
     ) {
-
-        // 1. 코스 파라미터 유효성 검사
-        int courseParamsProvided = 0;
-        if (courseId != null && !courseId.trim().isEmpty()) courseParamsProvided++;
-        if (courseSlug != null && !courseSlug.trim().isEmpty()) courseParamsProvided++;
-        if (courseName != null && !courseName.trim().isEmpty()) courseParamsProvided++;
+        validateCourseParams(courseId, courseSlug, courseName);
+        validateUserParams(filterUserId, username);
         
-        if (courseParamsProvided > 1) {
-            String errorMsg = "courseId, courseSlug, courseName 중 하나만 입력해주세요.";
-            log.error(errorMsg);
-            throw new IllegalArgumentException(errorMsg);
-        }
+        String resolvedCourseId = resolveCourseId(courseId, courseSlug, courseName);
+        String resolvedUserId = resolveUserId(filterUserId, username);
         
-        // 2. 사용자 파라미터 유효성 검사
-        int userParamsProvided = 0;
-        if (filterUserId != null && !filterUserId.trim().isEmpty()) userParamsProvided++;
-        if (username != null && !username.trim().isEmpty()) userParamsProvided++;
+        List<String> targetIdsForQuery = resolveTargetIds(resolvedCourseId);
         
-        if (userParamsProvided > 1) {
-            String errorMsg = "filterUserId, username 중 하나만 입력해주세요.";
-            log.error(errorMsg);
-            throw new IllegalArgumentException(errorMsg);
-        }
+        List<TbComment> comments = commentRepository.findCommentsByCriteria(targetIdsForQuery, resolvedUserId, DELETED_STATUS_NO);
         
-        // 3. 코스 ID 해석
-        String resolvedCourseId = null;
-        if (courseId != null && !courseId.trim().isEmpty()) {
-            resolvedCourseId = courseId;
-        } else if (courseSlug != null && !courseSlug.trim().isEmpty()) {
-            resolvedCourseId = customQueryMapper.findCourseIdBySlug(courseSlug);
-            if (resolvedCourseId == null) {
-                String errorMsg = "다음 slug에 해당하는 코스를 찾을 수 없습니다: " + courseSlug;
-                log.error(errorMsg);
-                throw new EntityNotFoundException(errorMsg);
-            }
-        } else if (courseName != null && !courseName.trim().isEmpty()) {
-            resolvedCourseId = customQueryMapper.findCourseIdByName(courseName);
-            if (resolvedCourseId == null) {
-                String errorMsg = "다음 이름에 해당하는 코스를 찾을 수 없습니다: " + courseName;
-                log.error(errorMsg);
-                throw new EntityNotFoundException(errorMsg);
-            }
-        }
-        
-        // 4. 코스 대상 ID(targetIds) 조회
-        List<String> targetIdsForQuery = null;
-        if (resolvedCourseId != null && !resolvedCourseId.isEmpty()) {
-            targetIdsForQuery = customQueryMapper.findTargetIdsByCourseId(resolvedCourseId);
-        }
-
-        // 5. 사용자 ID 해석
-        String resolvedUserId = null;
-        if (filterUserId != null && !filterUserId.trim().isEmpty()) {
-            resolvedUserId = filterUserId;
-        } else if (username != null && !username.trim().isEmpty()) {
-            resolvedUserId = customQueryMapper.findUserIdByUsername(username);
-            if (resolvedUserId == null) {
-                String errorMsg = "다음 사용자 이름에 해당하는 사용자를 찾을 수 없습니다: " + username;
-                log.error(errorMsg);
-                throw new EntityNotFoundException(errorMsg);
-            }
-        } 
-        
-        // deleted 상태는 'N'을 사용 (삭제되지 않은 상태)
-        List<TbComment> comments = commentRepository.findCommentsByCriteria(targetIdsForQuery, resolvedUserId, "N");
-        
-        // 7. DTO 변환 및 반환
-        List<CommentDto.Response> responseDtos = comments.stream()
+        return comments.stream()
                 .map(CommentDto.Response::from)
                 .collect(Collectors.toList());
-        
-        return responseDtos;
     }
+
+    private void validateCourseParams(String courseId, String courseSlug, String courseName) {
+        int courseParamsProvided = countNonEmptyParams(courseId, courseSlug, courseName);
+        if (courseParamsProvided > 1) {
+            throwIllegalArgumentException("courseId, courseSlug, courseName 중 하나만 입력해주세요.");
+        }
+    }
+
+    private void validateUserParams(String filterUserId, String username) {
+        int userParamsProvided = countNonEmptyParams(filterUserId, username);
+        if (userParamsProvided > 1) {
+            throwIllegalArgumentException("filterUserId, username 중 하나만 입력해주세요.");
+        }
+    }
+
+    private int countNonEmptyParams(String... params) {
+        return (int) Stream.of(params)
+                .filter(param -> param != null && !param.trim().isEmpty())
+                .count();
+    }
+
+    private void throwIllegalArgumentException(String message) {
+        log.error(message);
+        throw new IllegalArgumentException(message);
+    }
+
+    private String resolveCourseId(String courseId, String courseSlug, String courseName) {
+        if (isNotEmpty(courseId)) return courseId;
+        if (isNotEmpty(courseSlug)) return findCourseIdBySlug(courseSlug);
+        if (isNotEmpty(courseName)) return findCourseIdByName(courseName);
+        return null;
+    }
+
+    private String resolveUserId(String filterUserId, String username) {
+        if (isNotEmpty(filterUserId)) return filterUserId;
+        if (isNotEmpty(username)) return findUserIdByUsername(username);
+        return null;
+    }
+
+    private boolean isNotEmpty(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+
+    private String findCourseIdBySlug(String slug) {
+        String courseId = customQueryMapper.findCourseIdBySlug(slug);
+        if (courseId == null) {
+            throwEntityNotFoundException("다음 slug에 해당하는 코스를 찾을 수 없습니다: " + slug);
+        }
+        return courseId;
+    }
+
+    private String findCourseIdByName(String name) {
+        String courseId = customQueryMapper.findCourseIdByName(name);
+        if (courseId == null) {
+            throwEntityNotFoundException("다음 이름에 해당하는 코스를 찾을 수 없습니다: " + name);
+        }
+        return courseId;
+    }
+
+    private String findUserIdByUsername(String username) {
+        String userId = customQueryMapper.findUserIdByUsername(username);
+        if (userId == null) {
+            throwEntityNotFoundException("다음 사용자 이름에 해당하는 사용자를 찾을 수 없습니다: " + username);
+        }
+        return userId;
+    }
+
+    private void throwEntityNotFoundException(String message) {
+        log.error(message);
+        throw new EntityNotFoundException(message);
+    }
+
+    private List<String> resolveTargetIds(String courseId) {
+        return isNotEmpty(courseId) ? customQueryMapper.findTargetIdsByCourseId(courseId) : null;
+    }
+
+
+    
 }

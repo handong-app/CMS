@@ -23,8 +23,7 @@ public class CommentController {
     public ResponseEntity<CommentDto.Response> create(
             Authentication authentication,
             @RequestBody @Valid CommentDto.CreateRequest req) {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String userId = principalDetails.getUsername();
+        String userId = extractUserId(authentication);
         CommentDto.Response response = commentService.create(userId, req);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -34,8 +33,7 @@ public class CommentController {
             Authentication authentication,
             @PathVariable String commentId,
             @RequestBody @Valid CommentDto.UpdateRequest req) {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String userId = principalDetails.getUsername();
+        String userId = extractUserId(authentication);
         CommentDto.Response response = commentService.update(commentId, userId, req);
         return ResponseEntity.ok(response);
     }
@@ -44,8 +42,7 @@ public class CommentController {
     public ResponseEntity<Void> delete(
             Authentication authentication,
             @PathVariable String commentId) {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        String userId = principalDetails.getUsername();
+        String userId = extractUserId(authentication);
         commentService.deleteSoft(commentId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -58,11 +55,14 @@ public class CommentController {
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String username
     ) {
-
-
         List<CommentDto.Response> responses = commentService.searchComments(
                 courseId, courseSlug, courseName, userId, username
         );
         return ResponseEntity.ok(responses);
+    }
+
+    private String extractUserId(Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        return principalDetails.getUsername();
     }
 }
