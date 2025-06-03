@@ -5,17 +5,11 @@ meta {
 }
 
 delete {
-  url: {{BASE_URL_LOCAL}}/api/v1/targets/{{targetId}}/comments/{{commentIdToUpdate}}?userId={{userId}}
+  url: {{BASE_URL_LOCAL}}/api/v1/comments/{{commentIdToDelete}}
   body: json
   auth: inherit
 }
 
-params:query {
-  userId: {{userId}}
-}
-
 vars:pre-request {
-  targetId: b8856eed3e2c49a089576a3fd42be3f9
-  commentIdToUpdate: b4e094f8e5434c42bbb6565bdc05fcf0
-  userId: asdf
+  commentIdToDelete: b4e094f8e5434c42bbb6565bdc05fcf0
 }

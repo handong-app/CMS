@@ -5,11 +5,19 @@ meta {
 }
 
 get {
-  url: {{BASE_URL_LOCAL}}/api/v1/targets/{{targetId}}/comments
+  url: {{BASE_URL_LOCAL}}/api/v1/comments/search?userid=080dcd995f4f4cdab8250c02be6b7ca6&username&courseName&courseId&courseSlug
   body: none
   auth: inherit
 }
 
+params:query {
+  userid: 080dcd995f4f4cdab8250c02be6b7ca6
+  username: 
+  courseName: 
+  courseId: 
+  courseSlug: 
+}
+
 vars:pre-request {
-  targetId: b8856eed3e2c49a089576a3fd42be3f9
+  ~targetId: 088c56343a6f4d14b9920e7964c8869f
 }

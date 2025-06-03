@@ -167,6 +167,15 @@
                                         'courseId', c.id,
                                         'courseTitle', c.title,
                                         'courseSlug', c.slug,
+                                        'nodeGroupCount', (
+                                            SELECT COUNT(*)
+                                            FROM tb_node_group ng
+                                            WHERE ng.section_id IN (
+                                                SELECT s.id
+                                                FROM tb_section s
+                                                WHERE s.course_id = c.id AND s.deleted = 'N'
+                                            ) AND ng.deleted = 'N'
+                                        ),
                                         'nodeGroups', IFNULL(
                                             (SELECT JSON_ARRAYAGG(
                                                 JSON_OBJECT(
