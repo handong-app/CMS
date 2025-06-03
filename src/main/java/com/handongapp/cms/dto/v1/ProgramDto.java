@@ -13,8 +13,12 @@ public class ProgramDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ResponseDto {
+        private String programId;
+
         @NonNull
         private String clubId;
+
+        private String clubSlug;
 
         @NonNull
         private String userId;

@@ -8,6 +8,7 @@ import CourseLeaderboard from "../components/course/CourseLeaderboard";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
+import useUserProgram from "../hooks/userProgram";
 
 function ProgramPage() {
   const { club, program_name } = useParams<{
@@ -16,6 +17,12 @@ function ProgramPage() {
   }>();
 
   const fetchBe = useFetchBe();
+
+  const { programs } = useUserProgram();
+
+  // TODO: 프로그램 진행도 불러오기
+  console.log("프로그램:", programs);
+
   const { data: programInfo, isLoading: programLoading } = useQuery({
     queryKey: ["programInfo", program_name],
     queryFn: () => fetchBe(`/v1/clubs/${club}/programs/${program_name}`),
