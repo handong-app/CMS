@@ -9,10 +9,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router";
 import { currentProgram } from "../utils/currentProgram";
 import { formatTimestamp } from "../tools/tools";
+import calculateProgress from "../utils/calculateProcess";
+import useUserData from "../hooks/userData";
+import { courseListParser } from "../utils/courseListParser";
 
 function ClubPage() {
   const { club } = useParams<{ club: string }>();
   const fetchBe = useFetchBe();
+
+  const { userId } = useUserData();
 
   const { data: clubInfo, isLoading: clubLoading } = useQuery({
     queryKey: ["clubInfo", club],
@@ -29,13 +34,33 @@ function ClubPage() {
     queryFn: () => fetchBe(`/v1/clubs/${club}/courses`),
   });
 
-  console.log("Club Info:", clubInfo);
+  const getFirstCurrentProgram = currentProgram(clubPrograms || [])[0];
+  const { data: clubProgramProcess, isLoading: clubProgramProcessLoading } =
+    useQuery({
+      queryKey: ["clubProgramProcess", getFirstCurrentProgram?.slug],
+      queryFn: () =>
+        fetchBe(
+          `/v1/clubs/${club}/programs/${getFirstCurrentProgram?.slug}/users`
+        ),
+      enabled: !!getFirstCurrentProgram?.slug,
+    });
 
-  if (clubLoading || programsLoading || coursesLoading) {
+  if (
+    clubLoading ||
+    programsLoading ||
+    coursesLoading ||
+    clubProgramProcessLoading
+  ) {
     return <Typography>Loading...</Typography>;
   }
 
-  console.log("Club Programs:", clubPrograms);
+  const calculatedProgramProgress = calculateProgress(
+    clubProgramProcess || { participants: [] }
+  );
+
+  const myProgress = calculatedProgramProgress.find(
+    (user) => user.userId === userId
+  );
 
   return (
     <Box
@@ -85,7 +110,7 @@ function ClubPage() {
           <Typography variant="h5" fontWeight={700} mb={2}>
             전체 강의
           </Typography>
-          <CourseList courses={clubCourses || []} />
+          <CourseList courses={courseListParser(clubCourses, myProgress)} />
         </Box>
       </Box>
     </Box>

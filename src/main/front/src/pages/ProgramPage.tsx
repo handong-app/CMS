@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import calculateProgress from "../utils/calculateProcess";
 import useUserData from "../hooks/userData";
+import { courseListParser } from "../utils/courseListParser";
 
 function ProgramPage() {
   const { club, program_name } = useParams<{
@@ -199,7 +200,9 @@ function ProgramPage() {
           <Typography variant="h5" fontWeight={700} mb={2}>
             포함된 강의
           </Typography>
-          <CourseList courses={programInfo?.courses || []} />
+          <CourseList
+            courses={courseListParser(programInfo?.courses, myProgress)}
+          />
         </Box>
       </Box>
     </Box>

@@ -39,7 +39,6 @@ const defaultCourses = [
 function CourseList({ courses }: CourseListProps) {
   const { club } = useParams<{ club: string }>();
 
-  console.log("CourseList courses:", courses);
   const data = courses && courses.length > 0 ? courses : defaultCourses;
   return (
     <Box sx={{ display: "flex", gap: 2 }}>
@@ -48,7 +47,7 @@ function CourseList({ courses }: CourseListProps) {
           key={`course-${course?.id || idx}`}
           name={course.title}
           picture={course.pictureUrl}
-          progress={0}
+          progress={course.progress || 0}
           url={course.slug ? `/club/${club}/course/${course.slug}` : course.url}
         />
       ))}

@@ -22,8 +22,6 @@ function NodeGroupTest() {
       fetchBe(`/v1/node-group/${NODEGROUPID}`, { onUnauthorized: () => {} }),
   });
 
-  console.log("myData", myData);
-
   interface VideoPlayerProps {
     src: string;
     poster?: string;
