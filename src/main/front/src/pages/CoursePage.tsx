@@ -3,7 +3,6 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import InfoCard from "../components/coursePage/InfoCard";
 import CourseProgressList from "../components/coursePage/CourseProgressList";
-import { courseDummyData } from "../components/coursePage/CourseDummyData";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
 import CourseProgress from "../components/course/CourseProgress";
@@ -15,6 +14,7 @@ import { useFetchBe } from "../tools/api";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type { CourseData } from "../types/courseData.types";
+import { LatestComment } from "../types/latestComment.types";
 
 function CoursePage() {
   const { userId } = useUserData();
@@ -43,6 +43,8 @@ function CoursePage() {
 
   const [courseData, setCourseData] = useState<CourseData | null>(null);
 
+  const [latestComments, setLatestComments] = useState<LatestComment[]>([]);
+
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
       return;
@@ -52,6 +54,42 @@ function CoursePage() {
       setCourseData(data);
     });
   }, [clubSlug, courseSlug, fetchBe]);
+
+  // 최신 댓글 불러오기 (코스 전체에 해당하는 댓글만 추출)
+  useEffect(() => {
+    if (!courseData?.id) return;
+    fetchBe(`/v1/comments/search?courseId=${courseData.id}`)
+      .then((comments: LatestComment[]) => {
+        const nodeGroupIds = (courseData.sections ?? []).flatMap((s) =>
+          (s.nodeGroups ?? []).map((g) => g.id)
+        );
+        const nodeIds = (courseData.sections ?? []).flatMap((s) =>
+          (s.nodeGroups ?? []).flatMap((g) => (g.nodes ?? []).map((n) => n.id))
+        );
+        const validTargetIds = [courseData.id, ...nodeGroupIds, ...nodeIds];
+        const filtered = Array.isArray(comments)
+          ? comments.filter(
+              (c) => validTargetIds.includes(c.targetId) && c.content
+            )
+          : [];
+        filtered.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        const top10 = filtered.slice(0, 10);
+        setLatestComments(top10);
+
+        // console.log("[최신 반응 디버깅]", {
+        //   courseId: courseData.id,
+        //   nodeGroupIds,
+        //   nodeIds,
+        //   totalComments: comments.length,
+        //   filteredCount: filtered.length,
+        //   latestComments: top10,
+        // });
+      })
+      .catch(() => setLatestComments([]));
+  }, [courseData?.id, fetchBe, courseData]);
 
   // 진도율 계산 (ClubPage와 동일하게 calculateProgress 사용)
   let percent = 0,
@@ -66,15 +104,15 @@ function CoursePage() {
     completed = courseProgress?.completed ?? 0;
     total = courseProgress?.total ?? 0;
     percent = total > 0 ? completed / total : 0;
-    // 디버깅용 콘솔 출력
-    console.log("[진도율 디버깅]", {
-      courseId,
-      myProgress,
-      courseProgress,
-      completed,
-      total,
-      percent,
-    });
+
+    // console.log("[진도율 디버깅]", {
+    //   courseId,
+    //   myProgress,
+    //   courseProgress,
+    //   completed,
+    //   total,
+    //   percent,
+    // });
   }
 
   return (
@@ -188,9 +226,9 @@ function CoursePage() {
                     scrollbarColor: "rgba(255,255,255,0.08) transparent",
                   }}
                 >
-                  {courseDummyData.latestComments.map((comment, index) => (
+                  {latestComments.map((comment, index) => (
                     <Box
-                      key={index}
+                      key={comment.id || index}
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
@@ -205,7 +243,7 @@ function CoursePage() {
                       }}
                     >
                       <Typography variant="body2">
-                        {comment.studentId} {comment.author} {comment.content}
+                        {comment.userId?.slice(0, 5) || "-"} {comment.content}
                       </Typography>
                       <Typography
                         component="span"
@@ -217,7 +255,7 @@ function CoursePage() {
                           textAlign: "right",
                         }}
                       >
-                        {comment.time}
+                        {comment.createdAt?.slice(0, 10) || ""}
                       </Typography>
                     </Box>
                   ))}
