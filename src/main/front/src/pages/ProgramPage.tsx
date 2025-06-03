@@ -8,7 +8,8 @@ import CourseLeaderboard from "../components/course/CourseLeaderboard";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
-import useUserProgram from "../hooks/userProgram";
+import calculateProgress from "../utils/calculateProcess";
+import useUserData from "../hooks/userData";
 
 function ProgramPage() {
   const { club, program_name } = useParams<{
@@ -18,19 +19,30 @@ function ProgramPage() {
 
   const fetchBe = useFetchBe();
 
-  const { programs } = useUserProgram();
-
-  // TODO: 프로그램 진행도 불러오기
-  console.log("프로그램:", programs);
+  const { userId } = useUserData();
 
   const { data: programInfo, isLoading: programLoading } = useQuery({
     queryKey: ["programInfo", program_name],
     queryFn: () => fetchBe(`/v1/clubs/${club}/programs/${program_name}`),
   });
-  console.log(programInfo);
+
+  const { data: programProcess, isLoading: programProcessLoading } = useQuery({
+    queryKey: ["programProcess", program_name],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/programs/${program_name}/users`),
+  });
+
   if (programLoading) {
     return <Typography>로딩 중...</Typography>;
   }
+
+  const calculatedProgramProgress = calculateProgress(
+    programProcess || { participants: [] }
+  );
+
+  const myProgress = calculatedProgramProgress.find(
+    (user) => user.userId === userId
+  );
+
   return (
     <Box
       display="flex"
@@ -79,14 +91,24 @@ function ProgramPage() {
               }}
             >
               <Box width={96}>
-                <CourseProgress value={0.45} />
+                <CourseProgress
+                  value={
+                    Math.round(
+                      ((myProgress?.programProgress.completed || 0) /
+                        (myProgress?.programProgress.total || 1)) *
+                        100
+                    ) / 100
+                  }
+                />
               </Box>
               <Box textAlign="center">
                 <Typography variant="body1" color="text.secondary" mb={1}>
                   남은 강의
                 </Typography>
                 <Typography variant="h5" fontWeight={700}>
-                  28개
+                  {myProgress?.programProgress.total ||
+                    0 - (myProgress?.programProgress.completed || 0)}
+                  개
                 </Typography>
               </Box>
             </Box>
@@ -130,7 +152,47 @@ function ProgramPage() {
             boxShadow: 6,
           }}
         >
-          <CourseLeaderboard myName="서노력" />
+          <CourseLeaderboard
+            myUserId={userId || ""}
+            items={calculatedProgramProgress.map((user) => ({
+              userId: user.userId,
+              name:
+                programProcess.participants.find(
+                  (p: any) => p.userId === user.userId
+                )?.participantName || user.userId,
+              progress:
+                user.programProgress.total > 0
+                  ? Math.round(
+                      (user.programProgress.completed /
+                        user.programProgress.total) *
+                        100
+                    )
+                  : 0,
+              lastStudiedAt: user.programProgress.lastSeenAt || "0",
+            }))}
+          />
+
+          {/* 가장 마지막 학습 시간 표시 */}
+          {programProcess &&
+            (() => {
+              const progressArr = calculateProgress(programProcess);
+              const allLastSeen = progressArr
+                .map((u) => u.programProgress.lastSeenAt)
+                .filter(Boolean);
+              const lastSeen =
+                allLastSeen.length > 0
+                  ? allLastSeen.sort(
+                      (a, b) => new Date(b!).getTime() - new Date(a!).getTime()
+                    )[0]
+                  : null;
+              return lastSeen ? (
+                <Box mt={2} textAlign="right">
+                  <Typography variant="body2" color="text.secondary">
+                    전체 마지막 학습: {lastSeen}
+                  </Typography>
+                </Box>
+              ) : null;
+            })()}
         </Box>
 
         <Box my={4}>
