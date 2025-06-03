@@ -1,11 +1,14 @@
 package com.handongapp.cms.controller.v1;
 
+import com.handongapp.cms.dto.v1.ProgramDto;
 import com.handongapp.cms.dto.v1.UserDto;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -36,7 +39,7 @@ public class UserController {
 
     @PostMapping("/image")
     public ResponseEntity<Void> updateUserProfileImage(@RequestBody UserDto.UserProfileImageReqDto reqDto,
-                                              Authentication authentication) {
+                                                       Authentication authentication) {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         String userId = principalDetails.getUsername();
 
@@ -51,6 +54,15 @@ public class UserController {
 
         UserDto.UserProfileLastResDto resDto = tbUserService.getLastUserByNodeGroup(userId);
         return resDto != null ? ResponseEntity.ok(resDto) : ResponseEntity.ok(new UserDto.UserProfileLastResDto());
+    }
+
+    @GetMapping("/programs")
+    public ResponseEntity<List<ProgramDto.ResponseDto>> getUserPrograms(Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String userId = principalDetails.getUsername();
+
+        List<ProgramDto.ResponseDto> resDto = tbUserService.getUserPrograms(userId);
+        return ResponseEntity.ok(resDto);
     }
 
 }

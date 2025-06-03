@@ -218,4 +218,23 @@
         WHERE cl.slug = #{clubSlug} AND prog.slug = #{programSlug} AND prog.deleted = 'N' AND cl.deleted = 'N';
     </select>
 
+    <select id="findProgramsByUserId" resultType="com.handongapp.cms.dto.v1.ProgramDto$ResponseDto">
+        SELECT p.id         AS programId,
+               p.name,
+               p.slug,
+               p.description,
+               p.start_date AS startDate,
+               p.end_date   AS endDate,
+               p.club_id    as clubId,
+               c.slug       as clubSlug,
+               pp.user_id   as userId
+        FROM tb_program_participant pp
+                 JOIN tb_program p ON pp.program_id = p.id
+                 JOIN tb_club c ON p.club_id = c.id
+        WHERE pp.user_id = #{userId}
+          AND pp.deleted = 'N'
+          AND p.deleted = 'N'
+          AND c.deleted = 'N'
+    </select>
+
 </mapper>

@@ -4,8 +4,64 @@ import { Box } from "@mui/system";
 import ClubBadge from "../components/ClubPage/ClubBadge";
 import ContinueNodeGroup from "../components/course/ContinueNodeGroup";
 import CourseList from "../components/course/CourseList";
+import { useFetchBe } from "../tools/api";
+import { useQuery } from "@tanstack/react-query";
+import { useParams, Link } from "react-router";
+import { currentProgram } from "../utils/currentProgram";
+import { formatTimestamp } from "../tools/tools";
+import calculateProgress from "../utils/calculateProcess";
+import useUserData from "../hooks/userData";
+import { courseListParser } from "../utils/courseListParser";
 
 function ClubPage() {
+  const { club } = useParams<{ club: string }>();
+  const fetchBe = useFetchBe();
+
+  const { userId } = useUserData();
+
+  const { data: clubInfo, isLoading: clubLoading } = useQuery({
+    queryKey: ["clubInfo", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}`),
+  });
+
+  const { data: clubPrograms, isLoading: programsLoading } = useQuery({
+    queryKey: ["clubPrograms", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/programs`),
+  });
+
+  const { data: clubCourses, isLoading: coursesLoading } = useQuery({
+    queryKey: ["clubCourses", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/courses`),
+  });
+
+  const getFirstCurrentProgram = currentProgram(clubPrograms || [])[0];
+  const { data: clubProgramProcess, isLoading: clubProgramProcessLoading } =
+    useQuery({
+      queryKey: ["clubProgramProcess", getFirstCurrentProgram?.slug],
+      queryFn: () =>
+        fetchBe(
+          `/v1/clubs/${club}/programs/${getFirstCurrentProgram?.slug}/users`
+        ),
+      enabled: !!getFirstCurrentProgram?.slug,
+    });
+
+  if (
+    clubLoading ||
+    programsLoading ||
+    coursesLoading ||
+    clubProgramProcessLoading
+  ) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  const calculatedProgramProgress = calculateProgress(
+    clubProgramProcess || { participants: [] }
+  );
+
+  const myProgress = calculatedProgramProgress.find(
+    (user) => user.userId === userId
+  );
+
   return (
     <Box
       display="flex"
@@ -15,14 +71,27 @@ function ClubPage() {
     >
       <Box width="100%" maxWidth={980}>
         <TopBanner
-          title="Club Name"
-          subtitle="Welcome to the club"
-          image="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1920"
+          title={clubInfo?.clubName || ""}
+          subtitle={clubInfo?.description || ""}
+          image={clubInfo?.bannerUrl || ""}
         />
       </Box>
-      <Box maxWidth={980} margin="auto" mx={2}>
+      <Box maxWidth={1012} width="100%" margin="auto" px={2}>
         <Box mt={0.5}>
-          <ClubBadge text="2025년도 GBC" />
+          {currentProgram(clubPrograms).map((program) => (
+            <Link
+              to={`/club/${club}/program/${program.slug}`}
+              key={program.id}
+              style={{ textDecoration: "none" }}
+            >
+              <ClubBadge
+                hoverable
+                text={`${program.name} (진행기간 ${formatTimestamp(
+                  program.startDate
+                )} ~ ${formatTimestamp(program.endDate)})`}
+              />
+            </Link>
+          ))}
         </Box>
         <Box mt={4}>
           <Typography variant="h5" fontWeight={700} mb={2}>
@@ -41,7 +110,7 @@ function ClubPage() {
           <Typography variant="h5" fontWeight={700} mb={2}>
             전체 강의
           </Typography>
-          <CourseList />
+          <CourseList courses={courseListParser(clubCourses, myProgress)} />
         </Box>
       </Box>
     </Box>

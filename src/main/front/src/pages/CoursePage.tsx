@@ -19,7 +19,6 @@ function CoursePage() {
 
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
-      console.log("Club slug or course slug is missing in the URL parameters.");
       return;
     }
 

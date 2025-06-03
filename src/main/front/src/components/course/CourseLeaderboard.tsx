@@ -16,115 +16,37 @@ import { formatTimestampRelativeOrAbsolute } from "../../tools/tools";
 import { useState } from "react";
 
 export interface CourseLeaderboardItem {
+  userId: string;
   name: string;
   progress: number; // 0~100
   lastStudiedAt: string; // ISO string or yyyy-MM-dd HH:mm
 }
 
 export interface CourseLeaderboardProps {
-  items?: CourseLeaderboardItem[];
+  items: CourseLeaderboardItem[];
 }
 
-const defaultItems: CourseLeaderboardItem[] = [
-  {
-    name: "김리더",
-    progress: 98,
-    lastStudiedAt: "2025-05-29T09:10:00",
-  },
-  {
-    name: "박열정",
-    progress: 85,
-    lastStudiedAt: "2025-05-28T22:10:00",
-  },
-  {
-    name: "이성실",
-    progress: 70,
-    lastStudiedAt: "2025-05-28T20:00:00",
-  },
-  {
-    name: "최꾸준",
-    progress: 60,
-    lastStudiedAt: "2025-05-27T18:30:00",
-  },
-  {
-    name: "정새싹",
-    progress: 40,
-    lastStudiedAt: "2025-05-26T15:00:00",
-  },
-  {
-    name: "오열심",
-    progress: 55,
-    lastStudiedAt: "2025-05-27T10:45:00",
-  },
-  {
-    name: "유도전",
-    progress: 35,
-    lastStudiedAt: "2025-05-25T14:20:00",
-  },
-  {
-    name: "임성장",
-    progress: 80,
-    lastStudiedAt: "2025-05-28T19:00:00",
-  },
-  {
-    name: "문새벽",
-    progress: 25,
-    lastStudiedAt: "2025-05-24T07:30:00",
-  },
-  {
-    name: "장도전",
-    progress: 50,
-    lastStudiedAt: "2025-05-26T21:10:00",
-  },
-  {
-    name: "배지각",
-    progress: 65,
-    lastStudiedAt: "2025-05-27T23:55:00",
-  },
-  {
-    name: "신성실",
-    progress: 90,
-    lastStudiedAt: "2025-05-29T08:00:00",
-  },
-  {
-    name: "황근면",
-    progress: 30,
-    lastStudiedAt: "2025-05-25T09:40:00",
-  },
-  {
-    name: "서노력",
-    progress: 45,
-    lastStudiedAt: "2025-05-26T18:15:00",
-  },
-  {
-    name: "조성취",
-    progress: 20,
-    lastStudiedAt: "2025-05-23T16:00:00",
-  },
-];
-
 interface HighlightOptions {
-  myName?: string;
+  myUserId?: string;
 }
 
 function CourseLeaderboard({
   items,
-  myName,
+  myUserId,
 }: CourseLeaderboardProps & HighlightOptions) {
   const [showAll, setShowAll] = useState(false);
   // 정렬: 학습율 내림차순, 동점이면 마지막 학습 최근순
-  const data = (items && items.length > 0 ? items : defaultItems)
-    .slice()
-    .sort((a, b) => {
-      if (b.progress !== a.progress) return b.progress - a.progress;
-      return (
-        new Date(b.lastStudiedAt).getTime() -
-        new Date(a.lastStudiedAt).getTime()
-      );
-    });
+  const data = items.slice().sort((a, b) => {
+    if (b.progress !== a.progress) return b.progress - a.progress;
+    return (
+      new Date(b.lastStudiedAt).getTime() - new Date(a.lastStudiedAt).getTime()
+    );
+  });
 
   // 내 등수 찾기
-  const myIdx = myName ? data.findIndex((row) => row.name === myName) : -1;
+  const myIdx = myUserId
+    ? data.findIndex((row) => row.userId === myUserId)
+    : -1;
   // 꼴등(마지막) 인덱스
   const lastIdx = data.length - 1;
 
@@ -290,7 +212,9 @@ function CourseLeaderboard({
                     align="center"
                     sx={{ color: "#b0b0b0", whiteSpace: "nowrap" }}
                   >
-                    {formatTimestampRelativeOrAbsolute(row.lastStudiedAt)}
+                    {row.lastStudiedAt === "0"
+                      ? "아직 학습하지 않음"
+                      : formatTimestampRelativeOrAbsolute(row.lastStudiedAt)}
                   </TableCell>
                 </TableRow>
               );

@@ -4,9 +4,10 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
 export interface ClubBadgeProps {
   text: string;
+  hoverable?: boolean;
 }
 
-const ClubBadge: React.FC<ClubBadgeProps> = ({ text }) => {
+const ClubBadge: React.FC<ClubBadgeProps> = ({ text, hoverable }) => {
   return (
     <Paper
       elevation={2}
@@ -26,6 +27,18 @@ const ClubBadge: React.FC<ClubBadgeProps> = ({ text }) => {
         minHeight: 48,
         width: "100%",
         boxSizing: "border-box",
+        transition: hoverable
+          ? "background 0.18s, box-shadow 0.18s, transform 0.18s"
+          : undefined,
+        cursor: hoverable ? "pointer" : undefined,
+        ...(hoverable
+          ? {
+              "&:hover": {
+                background: "rgba(255, 255, 255, 0.22)",
+                boxShadow: "0 2px 8px 0 rgba(0,0,0,0.18)",
+              },
+            }
+          : {}),
       }}
     >
       <EmojiEventsIcon sx={{ fontSize: 18, mr: 0.5, color: "#ffd700" }} />
