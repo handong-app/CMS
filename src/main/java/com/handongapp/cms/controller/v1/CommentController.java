@@ -63,7 +63,14 @@ public class CommentController {
     }
 
     private String extractUserId(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new IllegalStateException("인증 정보가 없습니다");
+        }
+        if (!(authentication.getPrincipal() instanceof PrincipalDetails)) {
+            throw new IllegalStateException("잘못된 인증 타입입니다");
+        }
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        
         return principalDetails.getUsername();
     }
 }
