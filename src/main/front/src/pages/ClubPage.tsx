@@ -6,7 +6,9 @@ import ContinueNodeGroup from "../components/course/ContinueNodeGroup";
 import CourseList from "../components/course/CourseList";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useParams, Link } from "react-router";
+import { currentProgram } from "../utils/currentProgram";
+import { formatTimestamp } from "../tools/tools";
 
 function ClubPage() {
   const { club } = useParams<{ club: string }>();
@@ -17,11 +19,18 @@ function ClubPage() {
     queryFn: () => fetchBe(`/v1/clubs/${club}`),
   });
 
+  const { data: clubPrograms, isLoading: programsLoading } = useQuery({
+    queryKey: ["clubPrograms", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/programs`),
+  });
+
   console.log("Club Info:", clubInfo);
 
-  if (clubLoading) {
+  if (clubLoading || programsLoading) {
     return <Typography>Loading...</Typography>;
   }
+
+  console.log("Club Programs:", clubPrograms);
 
   return (
     <Box
@@ -39,7 +48,19 @@ function ClubPage() {
       </Box>
       <Box maxWidth={980} margin="auto" mx={2}>
         <Box mt={0.5}>
-          <ClubBadge text="2025년도 GBC" />
+          {currentProgram(clubPrograms).map((program) => (
+            <Link
+              to={`/club/${club}/program/${program.slug}`}
+              key={program.id}
+              style={{ textDecoration: "none" }}
+            >
+              <ClubBadge
+                text={`${program.name} (진행기간 ${formatTimestamp(
+                  program.startDate
+                )} ~ ${formatTimestamp(program.endDate)})`}
+              />
+            </Link>
+          ))}
         </Box>
         <Box mt={4}>
           <Typography variant="h5" fontWeight={700} mb={2}>
