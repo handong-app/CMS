@@ -59,7 +59,7 @@ function ProgramPage() {
           image="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1920"
         />
       </Box>
-      <Box maxWidth={980} margin="auto" px={2} width="100%">
+      <Box maxWidth={1012} margin="auto" px={2} width="100%">
         <Box
           display="flex"
           my={2}

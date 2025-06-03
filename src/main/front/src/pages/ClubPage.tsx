@@ -51,7 +51,7 @@ function ClubPage() {
           image={clubInfo?.bannerUrl || ""}
         />
       </Box>
-      <Box maxWidth={980} margin="auto" mx={2}>
+      <Box maxWidth={1012} width="100%" margin="auto" px={2}>
         <Box mt={0.5}>
           {currentProgram(clubPrograms).map((program) => (
             <Link
