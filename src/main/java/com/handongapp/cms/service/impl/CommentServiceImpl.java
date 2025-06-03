@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new NotFoundException("삭제할 댓글을 찾을 수 없습니다. ID: " + commentId));
 
         if (!entity.getUserId().equals(userId)) {
-            throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
+            throw new NoAuthorizationException("댓글을 삭제할 권한이 없습니다.");
         }
 
         entity.setDeleted(DELETED_STATUS_YES);
