@@ -92,10 +92,30 @@ function CoursePage() {
           courseTitle={courseData?.title ?? ""}
           sections={(courseData?.sections ?? []).map((section) => ({
             ...section,
-            nodeGroups: section.nodeGroups.map((group) => ({
-              ...group,
-              isCompleted: true, // 추가 필드
-            })),
+            nodeGroups: section.nodeGroups.map((group) => {
+              // nodeGroup 완료 여부 및 진행중 여부 계산
+              let isCompleted = false;
+              let isInProgress = false;
+              if (courseData && programProcess) {
+                const calculatedProgress: UserProgress[] =
+                  calculateProgress(programProcess);
+                const myProgress = calculatedProgress.find(
+                  (u) => u.userId === userId
+                );
+                const courseId = courseData.id;
+                const courseProgress = myProgress?.courseProgress[courseId];
+                if (courseProgress && courseProgress.map) {
+                  const state = courseProgress.map[group.id];
+                  isCompleted = state === "DONE";
+                  isInProgress = state === "IN_PROGRESS";
+                }
+              }
+              return {
+                ...group,
+                isCompleted,
+                isInProgress,
+              };
+            }),
           }))}
           width={260}
         />

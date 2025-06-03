@@ -34,6 +34,9 @@ export interface CourseNodeGroup {
   title: string;
   order: number;
   nodes: CourseNode[] | null;
+  // 진도 상태 표시용(프론트 계산 결과)
+  isCompleted?: boolean;
+  isInProgress?: boolean;
 }
 
 export interface CourseSection {
