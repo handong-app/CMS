@@ -18,4 +18,20 @@ public interface NodeGroupRepository extends JpaRepository<TbNodeGroup, String> 
 
     @Query("SELECT ng FROM TbNodeGroup ng WHERE ng.sectionId = :sectionId AND ng.deleted = 'N' ORDER BY ng.order ASC LIMIT 1")
     Optional<TbNodeGroup> findFirstInNextSection(@Param("sectionId") String sectionId);
+    
+    /**
+     * 노드그룹 ID로 해당 노드그룹이 속한 코스 ID를 조회
+     * 
+     * @param nodeGroupId 노드그룹 ID
+     * @param deleted 삭제 여부
+     * @return 코스 ID
+     */
+    @Query(value = 
+        "SELECT c.id FROM tb_course c " +
+        "JOIN tb_section s ON c.id = s.course_id AND s.deleted = :deleted " +
+        "JOIN tb_node_group ng ON s.id = ng.section_id AND ng.deleted = :deleted " +
+        "WHERE ng.id = :nodeGroupId AND c.deleted = :deleted", nativeQuery = true)
+    Optional<String> findCourseIdByNodeGroupId(
+        @Param("nodeGroupId") String nodeGroupId, 
+        @Param("deleted") String deleted);
 }
