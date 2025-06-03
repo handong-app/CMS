@@ -14,7 +14,7 @@ import DownloadFileBox from "../components/NodeGroupPage/DownloadFileBox";
 import ImagePreviewWithDownload from "../components/NodeGroupPage/ImagePreviewWithDownload";
 import QuizBox from "../components/NodeGroupPage/QuizBox";
 import MultiAnswerQuizBox from "../components/NodeGroupPage/MultiAnswerQuizBox";
-
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import { useParams } from "react-router";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
@@ -206,20 +206,28 @@ function NodeGroupPage() {
                 gap={1}
               >
                 {/* 콘텐츠 영역 */}
+
                 <Box
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                   height="100%"
                   borderRadius={2}
-                  color="black"
+                  color="white"
                   sx={{
                     flex: 5,
                     cursor: node.type === "IMAGE" ? "pointer" : "default",
                     transition: "background-color 0.2s",
                   }}
                 >
-                  <Box width="100%" height="100%" alignContent="center">
+                  <Box
+                    width="100%"
+                    height="100%"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {/* 콘텐츠 조건 분기 */}
                     {node.type === "VIDEO" && node.data?.file?.playlist ? (
                       <VideoPlayer
                         src={`https://cms.handong.app${node.data.file.playlist}`}
@@ -230,42 +238,50 @@ function NodeGroupPage() {
                         src={node.data.file.presignedUrl}
                         filename={node.data.file.originalFileName}
                       />
+                    ) : node.type === "FILE" &&
+                      node.data?.file?.presignedUrl ? (
+                      <DownloadFileBox
+                        fileUrl={node.data.file.presignedUrl}
+                        fileName={node.data.file.originalFileName}
+                      />
+                    ) : node.type === "QUIZ" &&
+                      node.data?.question &&
+                      Array.isArray(node.data.options) &&
+                      typeof node.data.answer === "string" ? (
+                      node.data.answer.includes("&") ? (
+                        <MultiAnswerQuizBox
+                          question={node.data.question}
+                          options={node.data.options}
+                          answer={node.data.answer}
+                        />
+                      ) : (
+                        <QuizBox
+                          question={node.data.question}
+                          options={node.data.options}
+                          answer={node.data.answer}
+                        />
+                      )
                     ) : (
+                      // 👉 콘텐츠가 없을 때 표시되는 fallback 메시지
                       <Box
-                        color="white"
                         display="flex"
-                        justifyContent="start"
-                        flexDirection="row"
+                        justifyContent="center"
                         alignItems="center"
+                        height="100%"
+                        width="100%"
                       >
-                        {iconMap[node.type] || (
-                          <DescriptionIcon fontSize="large" />
-                        )}
-                        {node.type === "QUIZ" &&
-                          node.data?.question &&
-                          Array.isArray(node.data.options) &&
-                          typeof node.data.answer === "string" &&
-                          (node.data.answer.includes("&") ? (
-                            <MultiAnswerQuizBox
-                              question={node.data.question}
-                              options={node.data.options}
-                              answer={node.data.answer}
-                            />
-                          ) : (
-                            <QuizBox
-                              question={node.data.question}
-                              options={node.data.options}
-                              answer={node.data.answer}
-                            />
-                          ))}
-
-                        {node.type === "FILE" &&
-                          node.data?.file?.presignedUrl && (
-                            <DownloadFileBox
-                              fileUrl={node.data.file.presignedUrl}
-                              fileName={node.data.file.originalFileName}
-                            />
-                          )}
+                        <Typography
+                          color="#999"
+                          fontSize={18}
+                          display="flex"
+                          alignItems="center"
+                        >
+                          아직 콘텐츠가 없습니다.
+                          <HourglassEmptyIcon
+                            fontSize="large"
+                            style={{ marginLeft: "4px" }}
+                          />
+                        </Typography>
                       </Box>
                     )}
                   </Box>

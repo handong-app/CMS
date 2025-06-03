@@ -8,14 +8,12 @@ interface Props {
 
 const DownloadFileBox: React.FC<Props> = ({ fileUrl, fileName }) => {
   const handleDownload = () => {
-    // const link = document.createElement("a");
-    // link.href = fileUrl;
-    // link.download = fileName || "file";
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-
-    window.open(fileUrl, "_blank"); // 또는 "_self"로 현재 탭 다운로드
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = fileName || "file";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -23,16 +21,21 @@ const DownloadFileBox: React.FC<Props> = ({ fileUrl, fileName }) => {
       display="flex"
       justifyContent="start"
       alignItems="center"
-      width="100%"
+      // width="100%"
       height="100%"
       borderRadius={2}
       onClick={handleDownload}
-      sx={{ cursor: "pointer" }}
+      ml={2}
+      sx={{
+        padding: "5px",
+        cursor: "pointer",
+        "&:hover": {
+          background: "#ffffff86",
+        },
+      }}
     >
-      <Box textAlign="left">
-        <Typography variant="h5" ml={3}>
-          {fileName}
-        </Typography>
+      <Box textAlign="left" ml={2} mr={2}>
+        <Typography variant="h5">{fileName}</Typography>
       </Box>
     </Box>
   );
