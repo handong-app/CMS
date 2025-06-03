@@ -240,8 +240,8 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
           </Button>
         </Box>
         <List>
-          {courses.map((course, idx) => (
-            <React.Fragment key={course}>
+          {courses.map((course: any, idx) => (
+            <React.Fragment key={course.id || course.title || course}>
               <ListItem
                 secondaryAction={
                   <>
@@ -249,7 +249,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
                       edge="end"
                       onClick={() => {
                         setEditIdx(idx);
-                        setEditValue(course);
+                        setEditValue(course.title || course);
                       }}
                     >
                       <EditIcon />
@@ -263,7 +263,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
                   </>
                 }
               >
-                <ListItemText primary={course} />
+                <ListItemText primary={course.title || course} />
               </ListItem>
               {idx < courses.length - 1 && <Divider />}
             </React.Fragment>

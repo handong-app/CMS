@@ -4,32 +4,23 @@ import AddIcon from "@mui/icons-material/Add";
 import CourseItem, {
   CourseItemProps,
 } from "../../components/course/CourseItem";
+import { useQuery } from "@tanstack/react-query";
+import { fetchBe, useFetchBe } from "../../tools/api";
+import CourseList from "../../components/course/CourseList";
 
-export interface AdminCoursePageProps {
-  courses?: CourseItemProps[];
-}
-
-const defaultCourses: CourseItemProps[] = [
-  {
-    courseId: "course1",
-    name: "리액트 해킹",
-    picture: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-  },
-  {
-    courseId: "course2",
-    name: "TypeScript Advanced",
-    picture: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  },
-  {
-    courseId: "course3",
-    name: "UI/UX Design",
-    picture: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6",
-  },
-];
-
-function AdminCoursePage({ courses }: AdminCoursePageProps) {
-  const data = courses ?? defaultCourses;
+function AdminCoursePage() {
   const { club: clubId } = useParams<{ club: string }>();
+
+  const fetchBe = useFetchBe();
+
+  const { data: clubCourses, isLoading: coursesLoading } = useQuery({
+    queryKey: ["clubCourses", clubId],
+    queryFn: () => fetchBe(`/v1/clubs/${clubId}/courses`),
+  });
+
+  if (coursesLoading) return <Typography>Loading...</Typography>;
+  console.log(clubCourses);
+
   return (
     <Box maxWidth={1000} mx="auto" mt={6}>
       <Paper
@@ -62,17 +53,12 @@ function AdminCoursePage({ courses }: AdminCoursePageProps) {
           </Button>
         </Box>
         <Grid container spacing={3}>
-          {data.map((course) => (
-            <Grid key={course.name} size={{ xs: 12, sm: 6, md: 4 }}>
-              {/* 실제로는 course에 slug나 id가 있어야 함. 예시에서는 name을 사용 */}
-              <Link
-                to={`/club/${clubId}/admin/course/get/${course.courseId}`}
-                style={{ textDecoration: "none" }}
-              >
-                <CourseItem {...course} />
-              </Link>
-            </Grid>
-          ))}
+          <CourseList
+            courses={clubCourses.map((course: any) => ({
+              ...course,
+              url: `/club/${clubId}/admin/course/${course.id}/edit`,
+            }))}
+          />
         </Grid>
       </Paper>
     </Box>

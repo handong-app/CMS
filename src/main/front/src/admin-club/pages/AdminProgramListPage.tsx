@@ -15,6 +15,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Link as RouterLink } from "react-router";
 import { useNavigate, useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useFetchBe } from "../../tools/api";
 
 export interface AdminProgramListPageProps {
   programs?: ProgramItemProps[];
@@ -28,27 +30,15 @@ export interface ProgramItemProps {
   participants: number;
 }
 
-const defaultPrograms: ProgramItemProps[] = [
-  {
-    id: "camp2025",
-    name: "2025 해킹캠프",
-    description: "시스템 해킹과 보안, 실습 중심의 해킹 캠프 프로그램입니다.",
-    courses: ["리눅스 해킹 입문", "시스템 해킹", "네트워크 보안"],
-    participants: 42,
-  },
-  {
-    id: "webboot",
-    name: "웹 개발 부트캠프",
-    description: "프론트엔드와 백엔드, 실전 웹 개발을 배우는 부트캠프.",
-    courses: ["React 마스터", "Node.js 실전", "UI/UX 디자인"],
-    participants: 31,
-  },
-];
-
-function AdminProgramListPage({ programs }: AdminProgramListPageProps) {
-  const data = programs ?? defaultPrograms;
+function AdminProgramListPage() {
   const navigate = useNavigate();
+  const fetchBe = useFetchBe();
   const { club } = useParams<{ club: string }>();
+
+  const { data: programs, isLoading: programsLoading } = useQuery({
+    queryKey: ["clubPrograms", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/programs`),
+  });
 
   // 삭제 핸들러 (실제 구현 시 API 연동 필요)
   const handleDelete = (programId: string) => {
@@ -56,6 +46,9 @@ function AdminProgramListPage({ programs }: AdminProgramListPageProps) {
       alert(`프로그램 ${programId} 삭제됨 (실제 구현 필요)`);
     }
   };
+
+  if (programsLoading) return <Typography>로딩 중...</Typography>;
+  console.log(programs);
 
   return (
     <Box maxWidth={900} mx="auto" mt={6}>
@@ -81,99 +74,119 @@ function AdminProgramListPage({ programs }: AdminProgramListPageProps) {
           </Button>
         </Box>
         <List>
-          {data.map((program, idx) => {
-            // 실제로는 programId가 있어야 함. 여기선 name을 id로 가정
-            const programId = program.name.replace(/\s/g, "");
-            // 실제로는 programId, slug 등 고유값을 사용해야 함
-            return (
-              <Box key={program.name}>
-                <ListItem
-                  alignItems="flex-start"
-                  disableGutters
-                  sx={{ justifyContent: "space-between" }}
-                  secondaryAction={
-                    <Box display="flex" gap={1}>
-                      <IconButton
-                        edge="end"
-                        aria-label="view"
-                        component={RouterLink}
-                        to={`/club/${club}/program/${program.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+          {Array.isArray(programs) &&
+            programs.map((program, idx) => {
+              const programId = program.id;
+              return (
+                <Box key={program.id}>
+                  <ListItem
+                    alignItems="flex-start"
+                    disableGutters
+                    sx={{ justifyContent: "space-between" }}
+                    secondaryAction={
+                      <Box display="flex" gap={1}>
+                        <IconButton
+                          edge="end"
+                          aria-label="view"
+                          component={RouterLink}
+                          to={`/club/${club}/program/${program.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          aria-label="edit"
+                          onClick={() =>
+                            navigate(
+                              `/club/${club}/admin/program/edit/${program.slug}`
+                            )
+                          }
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDelete(programId)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    }
+                  >
+                    <ListItemText
+                      primary={
+                        <Typography variant="h6" fontWeight={600}>
+                          {program.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="body2" color="text.secondary">
+                          {program.description}
+                        </Typography>
+                      }
+                    />
+                    {/* participants 필드는 더미 데이터에만 있을 수 있으므로 안전하게 처리 */}
+                    {typeof program.participants !== "undefined" && (
+                      <Typography
+                        variant="subtitle2"
+                        color="text.secondary"
+                        fontWeight={500}
+                        sx={{ minWidth: 90, textAlign: "right" }}
                       >
-                        <VisibilityIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        aria-label="edit"
-                        onClick={() =>
-                          navigate(
-                            `/club/${club}/admin/program/edit/${programId}`
-                          )
+                        참여 인원: <b>{program.participants}</b>명
+                      </Typography>
+                    )}
+                  </ListItem>
+                  {/* courses가 배열일 때만 코스 리스트 렌더 */}
+                  {Array.isArray(program.courses) &&
+                    program.courses.length > 0 && (
+                      <List
+                        dense
+                        disablePadding
+                        sx={{ pl: 3, pb: 1 }}
+                        subheader={
+                          <ListSubheader
+                            component="div"
+                            disableSticky
+                            sx={{
+                              pl: 0,
+                              background: "transparent",
+                              color: "#888",
+                              fontWeight: 500,
+                            }}
+                          >
+                            포함 코스
+                          </ListSubheader>
                         }
                       >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDelete(programId)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  }
-                >
-                  <ListItemText
-                    primary={
-                      <Typography variant="h6" fontWeight={600}>
-                        {program.name}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography variant="body2" color="text.secondary">
-                        {program.description}
-                      </Typography>
-                    }
-                  />
-                  <Typography
-                    variant="subtitle2"
-                    color="text.secondary"
-                    fontWeight={500}
-                    sx={{ minWidth: 90, textAlign: "right" }}
-                  >
-                    참여 인원: <b>{program.participants}</b>명
-                  </Typography>
-                </ListItem>
-                <List
-                  dense
-                  disablePadding
-                  sx={{ pl: 3, pb: 1 }}
-                  subheader={
-                    <ListSubheader
-                      component="div"
-                      disableSticky
-                      sx={{
-                        pl: 0,
-                        background: "transparent",
-                        color: "#888",
-                        fontWeight: 500,
-                      }}
-                    >
-                      포함 코스
-                    </ListSubheader>
-                  }
-                >
-                  {program.courses.map((course) => (
-                    <ListItem key={course} sx={{ pl: 0 }}>
-                      <ListItemText primary={course} />
-                    </ListItem>
-                  ))}
-                </List>
-                {idx < data.length - 1 && <Divider sx={{ my: 2 }} />}
-              </Box>
-            );
-          })}
+                        {/* 코스가 객체 배열일 경우 title, 문자열 배열일 경우 그대로 출력 */}
+                        {program.courses.map((course: any) => (
+                          <ListItem
+                            key={
+                              typeof course === "string"
+                                ? course
+                                : course.id || course.title
+                            }
+                            sx={{ pl: 0 }}
+                          >
+                            <ListItemText
+                              primary={
+                                typeof course === "string"
+                                  ? course
+                                  : course.title
+                              }
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    )}
+                  {idx < programs.length - 1 && <Divider sx={{ my: 2 }} />}
+                </Box>
+              );
+            })}
         </List>
       </Paper>
     </Box>

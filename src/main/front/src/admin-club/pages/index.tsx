@@ -59,7 +59,7 @@ export const CLUB_ADMINMENU = [
         element: <AdminProgramListPage />,
       },
       {
-        path: "edit/:programId",
+        path: "edit/:programSlug",
         element: <AdminProgramPage />,
       },
       {
