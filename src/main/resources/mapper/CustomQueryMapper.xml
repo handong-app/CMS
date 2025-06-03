@@ -42,5 +42,19 @@
         JOIN tb_node n ON ng.id = n.node_group_id
         WHERE c.id = #{courseId}
     </select>
+    
+    <select id="findTargetIdsByNodeGroupId" resultType="string">
+        <!-- 
+            주어진 nodeGroupId에 해당하는 Node ID들과 nodeGroupId 자체를 검색합니다.
+            댓글의 targetId는 NodeGroup ID 또는 Node ID일 수 있습니다.
+        -->
+        SELECT #{nodeGroupId} AS target_id
+        
+        UNION
+        
+        SELECT n.id AS target_id
+        FROM tb_node n
+        WHERE n.node_group_id = #{nodeGroupId}
+    </select>
 
 </mapper>

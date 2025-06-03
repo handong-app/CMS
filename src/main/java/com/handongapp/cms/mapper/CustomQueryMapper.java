@@ -18,5 +18,9 @@ public interface CustomQueryMapper {
     // 이 메소드는 주어진 courseId에 속하는 모든 Section, NodeGroup, Node의 ID를
     // 계층적으로 탐색하여 List<String> 형태로 반환해야 합니다.
     // 댓글의 targetId가 nodeId 또는 nodeGroupId일 수 있으므로, 이들을 모두 포함해야 합니다.
+    
+    List<String> findTargetIdsByNodeGroupId(@Param("nodeGroupId") String nodeGroupId);
+    // 이 메소드는 주어진 nodeGroupId에 속하는 모든 Node의 ID와 nodeGroupId 자체를
+    // List<String> 형태로 반환합니다.
 
 }

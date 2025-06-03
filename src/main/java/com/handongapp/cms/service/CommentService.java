@@ -16,6 +16,7 @@ public interface CommentService {
             String courseId,
             String courseSlug,
             String courseName,
+            String nodeGroupId,
             String filterUserId,
             String username
     );

@@ -52,11 +52,12 @@ public class CommentController {
             @RequestParam(required = false) String courseId,
             @RequestParam(required = false) String courseSlug,
             @RequestParam(required = false) String courseName,
+            @RequestParam(required = false) String nodeGroupId,
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String username
     ) {
         List<CommentDto.Response> responses = commentService.searchComments(
-                courseId, courseSlug, courseName, userId, username
+                courseId, courseSlug, courseName, nodeGroupId, userId, username
         );
         return ResponseEntity.ok(responses);
     }

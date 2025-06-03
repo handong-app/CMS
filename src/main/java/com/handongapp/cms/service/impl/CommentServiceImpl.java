@@ -70,22 +70,38 @@ public class CommentServiceImpl implements CommentService {
             String courseId,
             String courseSlug,
             String courseName,
+            String nodeGroupId,
             String filterUserId,
             String username
     ) {
-        validateCourseParams(courseId, courseSlug, courseName);
-        validateUserParams(filterUserId, username);
-        
-        String resolvedCourseId = resolveCourseId(courseId, courseSlug, courseName);
+        validateInputParameters(nodeGroupId, courseId, courseSlug, courseName, filterUserId, username);
+
         String resolvedUserId = resolveUserId(filterUserId, username);
-        
-        List<String> targetIdsForQuery = resolveTargetIds(resolvedCourseId);
-        
+        List<String> targetIdsForQuery;
+
+        if (isNotEmpty(nodeGroupId)) {
+            targetIdsForQuery = resolveTargetIdsByNodeGroup(nodeGroupId);
+        } else {
+            String resolvedCourseId = resolveCourseId(courseId, courseSlug, courseName);
+            targetIdsForQuery = resolveTargetIds(resolvedCourseId);
+        }
+
         List<TbComment> comments = commentRepository.findCommentsByCriteria(targetIdsForQuery, resolvedUserId, DELETED_STATUS_NO);
-        
+
         return comments.stream()
                 .map(CommentDto.Response::from)
                 .collect(Collectors.toList());
+    }
+
+    private void validateInputParameters(String nodeGroupId, String courseId, String courseSlug, String courseName, String filterUserId, String username) {
+        if (isNotEmpty(nodeGroupId)) {
+            if (isNotEmpty(courseId) || isNotEmpty(courseSlug) || isNotEmpty(courseName)) {
+                throwIllegalArgumentException("nodeGroupId가 제공된 경우 course 필터(courseId, courseSlug, courseName)를 사용할 수 없습니다.");
+            }
+        } else {
+            validateCourseParams(courseId, courseSlug, courseName);
+        }
+        validateUserParams(filterUserId, username);
     }
 
     private void validateCourseParams(String courseId, String courseSlug, String courseName) {
@@ -162,7 +178,10 @@ public class CommentServiceImpl implements CommentService {
     private List<String> resolveTargetIds(String courseId) {
         return isNotEmpty(courseId) ? customQueryMapper.findTargetIdsByCourseId(courseId) : null;
     }
-
+    
+    private List<String> resolveTargetIdsByNodeGroup(String nodeGroupId) {
+        return isNotEmpty(nodeGroupId) ? customQueryMapper.findTargetIdsByNodeGroupId(nodeGroupId) : null;
+    }
 
     
 }
