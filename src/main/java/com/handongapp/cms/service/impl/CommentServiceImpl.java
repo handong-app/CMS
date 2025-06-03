@@ -5,7 +5,8 @@ import com.handongapp.cms.dto.v1.CommentDto;
 import com.handongapp.cms.repository.CommentRepository;
 import com.handongapp.cms.mapper.CustomQueryMapper;
 import com.handongapp.cms.service.CommentService;
-import jakarta.persistence.EntityNotFoundException;
+import com.handongapp.cms.exception.data.NotFoundException;
+import com.handongapp.cms.exception.auth.NoAuthorizationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,10 +41,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentDto.Response update(String commentId, String userId, CommentDto.UpdateRequest req) {
         TbComment entity = commentRepository.findByIdAndDeleted(commentId, DELETED_STATUS_NO)
-                .orElseThrow(() -> new EntityNotFoundException("수정할 댓글을 찾을 수 없습니다. ID: " + commentId));
+                .orElseThrow(() -> new NotFoundException("수정할 댓글을 찾을 수 없습니다. ID: " + commentId));
 
         if (!entity.getUserId().equals(userId)) {
-            throw new RuntimeException("댓글을 수정할 권한이 없습니다.");
+            throw new NoAuthorizationException("댓글을 수정할 권한이 없습니다.");
         }
 
         req.applyTo(entity);
@@ -54,7 +55,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteSoft(String commentId, String userId) {
         TbComment entity = commentRepository.findByIdAndDeleted(commentId, DELETED_STATUS_NO)
-                .orElseThrow(() -> new EntityNotFoundException("삭제할 댓글을 찾을 수 없습니다. ID: " + commentId));
+                .orElseThrow(() -> new NotFoundException("삭제할 댓글을 찾을 수 없습니다. ID: " + commentId));
 
         if (!entity.getUserId().equals(userId)) {
             throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
@@ -132,7 +133,7 @@ public class CommentServiceImpl implements CommentService {
     private String findCourseIdBySlug(String slug) {
         String courseId = customQueryMapper.findCourseIdBySlug(slug);
         if (courseId == null) {
-            throwEntityNotFoundException("다음 slug에 해당하는 코스를 찾을 수 없습니다: " + slug);
+            throwNotFoundException("다음 slug에 해당하는 코스를 찾을 수 없습니다: " + slug);
         }
         return courseId;
     }
@@ -140,7 +141,7 @@ public class CommentServiceImpl implements CommentService {
     private String findCourseIdByName(String name) {
         String courseId = customQueryMapper.findCourseIdByName(name);
         if (courseId == null) {
-            throwEntityNotFoundException("다음 이름에 해당하는 코스를 찾을 수 없습니다: " + name);
+            throwNotFoundException("다음 이름에 해당하는 코스를 찾을 수 없습니다: " + name);
         }
         return courseId;
     }
@@ -148,14 +149,14 @@ public class CommentServiceImpl implements CommentService {
     private String findUserIdByUsername(String username) {
         String userId = customQueryMapper.findUserIdByUsername(username);
         if (userId == null) {
-            throwEntityNotFoundException("다음 사용자 이름에 해당하는 사용자를 찾을 수 없습니다: " + username);
+            throwNotFoundException("다음 사용자 이름에 해당하는 사용자를 찾을 수 없습니다: " + username);
         }
         return userId;
     }
 
-    private void throwEntityNotFoundException(String message) {
+    private void throwNotFoundException(String message) {
         log.error(message);
-        throw new EntityNotFoundException(message);
+        throw new NotFoundException(message);
     }
 
     private List<String> resolveTargetIds(String courseId) {
