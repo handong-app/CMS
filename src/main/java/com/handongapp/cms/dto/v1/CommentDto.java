@@ -1,6 +1,7 @@
 package com.handongapp.cms.dto.v1;
 
 import com.handongapp.cms.domain.TbComment;
+import com.handongapp.cms.domain.TbCommentOfCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -23,9 +24,12 @@ public class CommentDto {
         private final String content;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
+        private final String categorySlug;
+        private final String categoryLabel;
+        private final String categoryEmoji;
 
         // Constructor for final fields
-        public Response(String id, String targetId, String userId, String categoryId, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        public Response(String id, String targetId, String userId, String categoryId, String content, LocalDateTime createdAt, LocalDateTime updatedAt, String categorySlug, String categoryLabel, String categoryEmoji) {
             this.id = id;
             this.targetId = targetId;
             this.userId = userId;
@@ -33,8 +37,14 @@ public class CommentDto {
             this.content = content;
             this.createdAt = createdAt;
             this.updatedAt = updatedAt;
+            this.categorySlug = categorySlug;
+            this.categoryLabel = categoryLabel;
+            this.categoryEmoji = categoryEmoji;
         }
 
+        /**
+         * TbComment 엔티티만 사용하여 Response 객체 생성
+         */
         public static Response from(TbComment entity) {
             if (entity == null) return null;
             return new Response(
@@ -44,7 +54,29 @@ public class CommentDto {
                     entity.getCategoryId(), 
                     entity.getContent(),
                     entity.getCreatedAt(),
-                    entity.getUpdatedAt()
+                    entity.getUpdatedAt(),
+                    null, // categorySlug
+                    null, // categoryLabel
+                    null  // categoryEmoji
+            );
+        }
+        
+        /**
+         * TbComment 엔티티와 TbCommentOfCategory 엔티티를 사용하여 Response 객체 생성
+         */
+        public static Response from(TbComment entity, TbCommentOfCategory category) {
+            if (entity == null) return null;
+            return new Response(
+                    entity.getId(),
+                    entity.getTargetId(),
+                    entity.getUserId(),
+                    entity.getCategoryId(), 
+                    entity.getContent(),
+                    entity.getCreatedAt(),
+                    entity.getUpdatedAt(),
+                    category != null ? category.getSlug() : null,
+                    category != null ? category.getLabel() : null,
+                    category != null ? category.getEmoji() : null
             );
         }
     }

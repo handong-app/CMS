@@ -1,8 +1,10 @@
 package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbComment;
+import com.handongapp.cms.domain.TbCommentOfCategory;
 import com.handongapp.cms.dto.v1.CommentDto;
 import com.handongapp.cms.repository.CommentRepository;
+import com.handongapp.cms.repository.CommentOfCategoryRepository;
 import com.handongapp.cms.mapper.CustomQueryMapper;
 import com.handongapp.cms.service.CommentService;
 import com.handongapp.cms.exception.data.NotFoundException;
@@ -24,6 +26,7 @@ public class CommentServiceImpl implements CommentService {
     private final CustomQueryMapper customQueryMapper;
 
     private final CommentRepository commentRepository;
+    private final CommentOfCategoryRepository commentOfCategoryRepository;
     private static final String DELETED_STATUS_NO = "N";
     private static final String DELETED_STATUS_YES = "Y";
 
@@ -34,7 +37,14 @@ public class CommentServiceImpl implements CommentService {
 
         TbComment entity = req.toEntity(userId);
         TbComment savedComment = commentRepository.save(entity);
-        return CommentDto.Response.from(savedComment);
+        
+        // 카테고리 정보를 함께 반환하기 위해 카테고리 조회
+        TbCommentOfCategory category = null;
+        if (savedComment.getCategoryId() != null) {
+            category = commentOfCategoryRepository.findById(savedComment.getCategoryId()).orElse(null);
+        }
+        
+        return CommentDto.Response.from(savedComment, category);
     }
 
     @Override
@@ -48,7 +58,14 @@ public class CommentServiceImpl implements CommentService {
         }
 
         req.applyTo(entity);
-        return CommentDto.Response.from(entity);
+        
+        // 카테고리 정보를 함께 반환하기 위해 카테고리 조회
+        TbCommentOfCategory category = null;
+        if (entity.getCategoryId() != null) {
+            category = commentOfCategoryRepository.findById(entity.getCategoryId()).orElse(null);
+        }
+        
+        return CommentDto.Response.from(entity, category);
     }
 
     @Override
@@ -86,10 +103,16 @@ public class CommentServiceImpl implements CommentService {
             targetIdsForQuery = resolveTargetIds(resolvedCourseId);
         }
 
-        List<TbComment> comments = commentRepository.findCommentsByCriteria(targetIdsForQuery, resolvedUserId, DELETED_STATUS_NO);
+        // 카테고리 정보를 함께 조회하는 조인 쿼리 사용
+        List<Object[]> commentsWithCategories = commentRepository.findCommentsWithCategoriesByCriteria(
+                targetIdsForQuery, resolvedUserId, DELETED_STATUS_NO);
 
-        return comments.stream()
-                .map(CommentDto.Response::from)
+        return commentsWithCategories.stream()
+                .<CommentDto.Response>map(result -> {
+                    TbComment comment = (TbComment) result[0];
+                    TbCommentOfCategory category = result.length > 1 ? (TbCommentOfCategory) result[1] : null;
+                    return CommentDto.Response.from(comment, category);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -182,6 +205,4 @@ public class CommentServiceImpl implements CommentService {
     private List<String> resolveTargetIdsByNodeGroup(String nodeGroupId) {
         return isNotEmpty(nodeGroupId) ? customQueryMapper.findTargetIdsByNodeGroupId(nodeGroupId) : null;
     }
-
-    
 }
