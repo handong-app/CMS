@@ -1,6 +1,7 @@
 package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.S3Dto;
+import com.handongapp.cms.exception.auth.NoAuthorizationException;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.UploadNotifyService;
@@ -51,7 +52,10 @@ public class S3Controller {
             @RequestParam String filename,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        // 여기에, 필요하다면 업로드 권한 검증 로직 추가 가능!
+        if ("user-profile".equals(type) && !id.equals(principalDetails.getTbUser().getId())) {
+            throw new NoAuthorizationException("자신의 프로필만 업로드할 수 있습니다");
+        }
+
         S3Dto.UploadUrlResponse response = presignedUrlService.generateBannerUploadUrl(
                 type, id, filename, principalDetails.getTbUser().getId());
 
