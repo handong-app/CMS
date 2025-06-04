@@ -13,10 +13,13 @@ import com.handongapp.cms.mapper.UserMapper;
 import com.handongapp.cms.repository.ClubRoleRepository;
 import com.handongapp.cms.repository.UserClubRoleRepository;
 import com.handongapp.cms.repository.UserRepository;
+import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,20 +28,23 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final ClubRoleRepository clubRoleRepository;
+//    private final ClubRoleRepository clubRoleRepository;
     private final UserClubRoleRepository userClubRoleRepository;
     private final UserMapper userMapper;
     private final ProgramMapper programMapper;
+    private final PresignedUrlService presignedUrlService;
 
     public UserServiceImpl(UserRepository userRepository,
                            ClubRoleRepository clubRoleRepository,
                            UserClubRoleRepository userClubRoleRepository,
-                           UserMapper userMapper, ProgramMapper programMapper) {
+                           UserMapper userMapper, ProgramMapper programMapper,
+                           PresignedUrlService presignedUrlService) {
             this.userRepository = userRepository;
-            this.clubRoleRepository = clubRoleRepository;
+//            this.clubRoleRepository = clubRoleRepository;
             this.userClubRoleRepository = userClubRoleRepository;
             this.userMapper = userMapper;
         this.programMapper = programMapper;
+        this.presignedUrlService = presignedUrlService;
     }
 
     public TbUser saveOrUpdateUser(String userId, String email, String name) {
@@ -95,7 +101,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto.UserProfileResDto findUserId(String userId) {
-        return UserDto.UserProfileResDto.of(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found")));
+        TbUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        // 파일 키가 존재하면 Presigned URL 생성
+        String profileImageUrl = null;
+        if (StringUtils.hasText(user.getFileKey()) && FileStatus.UPLOADED.equals(user.getFileStatus())) {
+            profileImageUrl = presignedUrlService
+                    .generateDownloadUrl(user.getFileKey(), Duration.ofMinutes(60))
+                    .toString();
+        }
+
+        return new UserDto.UserProfileResDto(
+                user.getId(),
+                user.getName(),
+                user.getStudentId(),
+                user.getEmail(),
+                user.getPhone(),
+                profileImageUrl
+        );
     }
 
     @Override
@@ -139,15 +163,5 @@ public class UserServiceImpl implements UserService {
         public InvalidEmailDomainException(String message) {
             super(message);
         }
-    }
-
-    @Override
-    @Transactional
-    public void updateUserProfile(String userId, String fileKey) {
-        TbUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
-        user.setFileKey(fileKey);
-        user.setFileStatus(FileStatus.UPLOADING);
-        userRepository.save(user);
     }
 }

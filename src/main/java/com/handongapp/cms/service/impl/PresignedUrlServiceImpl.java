@@ -1,19 +1,17 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.domain.TbClubRole;
-import com.handongapp.cms.domain.TbFileList;
-import com.handongapp.cms.domain.TbNode;
-import com.handongapp.cms.domain.TbUserClubRole;
+import com.handongapp.cms.domain.*;
 import com.handongapp.cms.domain.enums.ClubUserRole;
+import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.S3Dto;
+import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.exception.file.PresignedUrlCreationException;
 import com.handongapp.cms.mapper.NodeMapper;
-import com.handongapp.cms.repository.ClubRoleRepository;
-import com.handongapp.cms.repository.FileListRepository;
-import com.handongapp.cms.repository.UserClubRoleRepository;
+import com.handongapp.cms.repository.*;
 import com.handongapp.cms.service.*;
 import com.handongapp.cms.util.FileUtil;
 import jakarta.annotation.PreDestroy;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -68,12 +66,13 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
 
     private final NodeMapper nodeMapper;
     private final UserClubRoleRepository userClubRoleRepository;
+    private final ClubRepository clubRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+
     private final ClubRoleRepository clubRoleRepository;
     private final FileListRepository fileListRepository;
     private final NodeService nodeService;
-    private final UserService userService;
-    private final ClubService clubService;
-    private final CourseService courseService;
 
 
     /**
@@ -151,6 +150,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
      * @throws PresignedUrlCreationException    Presigned URL 생성 또는 DB 처리 중 오류가 발생할 경우 발생
      */
     @Override
+    @Transactional
     public S3Dto.UploadUrlResponse generateBannerUploadUrl(String targetType, String targetId, String originalFilename, String userId) {
         String path;
         switch (targetType) {
@@ -191,9 +191,9 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
             TbFileList savedFileList = fileListRepository.save(fileListBuilder.build());
 
             switch (targetType) {
-                case "course-banner" -> courseService.updateCourseBanner(targetId, fileKey);
-                case "club-banner" -> clubService.updateClubBanner(targetId, fileKey);
-                case "user-profile" -> userService.updateUserProfile(targetId, fileKey);
+                case "course-banner" -> updateCourseBanner(targetId, fileKey);
+                case "club-banner" -> updateClubBanner(targetId, fileKey);
+                case "user-profile" -> updateUserProfile(targetId, fileKey);
             }
 
             return S3Dto.UploadUrlResponse.builder()
@@ -427,5 +427,29 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
             case FILE -> true;  // FILE 타입에서는 모든 mimeType 허용
             default ->  false;  // TEXT, QUIZ 등은 업로드 허용하지 않음
         };
+    }
+
+    private void updateUserProfile(String userId, String fileKey) {
+        TbUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
+        user.setFileKey(fileKey);
+        user.setFileStatus(FileStatus.UPLOADING);
+        userRepository.save(user);
+    }
+
+    private void updateClubBanner(String clubId, String fileKey) {
+        TbClub club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new NotFoundException("Club not found with id: " + clubId));
+        club.setFileKey(fileKey);
+        club.setFileStatus(FileStatus.UPLOADING);
+        clubRepository.save(club);
+    }
+
+    private void updateCourseBanner(String courseId, String fileKey) {
+        TbCourse course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found with id: " + courseId));
+        course.setFileKey(fileKey);
+        course.setFileStatus(FileStatus.UPLOADING);
+        courseRepository.save(course);
     }
 }

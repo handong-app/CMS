@@ -8,5 +8,4 @@ public interface CourseService {
     CourseDto.Response updateBySlug(String clubSlug, String courseSlug, CourseDto.UpdateRequest req);
     void deleteSoftBySlug(String slug);
     String getCourseDetailsAsJsonBySlug(String courseSlug);
-    void updateCourseBanner(String courseId, String fileKey);
 }

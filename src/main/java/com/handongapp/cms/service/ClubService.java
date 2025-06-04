@@ -13,6 +13,4 @@ public interface ClubService {
     ClubDto.ClubProfileResDto createClub(ClubDto.ClubProfileReqDto dto);
 
     void deleteClub(String clubSlug);
-
-    void updateClubBanner(String clubId, String fileKey);
 }
