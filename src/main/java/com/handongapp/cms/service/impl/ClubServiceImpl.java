@@ -21,7 +21,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -157,6 +162,7 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     public String getCoursesByClubSlugAsJson(String clubSlug) {
+        // 클럽 존재 여부 검증
         clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "코스 정보를 조회할 클럽을 찾을 수 없습니다: " + clubSlug));
 
@@ -166,12 +172,26 @@ public class ClubServiceImpl implements ClubService {
             JsonNode root = objectMapper.readTree(rawJson);
 
             if (root.isArray()) {
+                // courseId를 먼저 모아둠
+                List<String> courseIds = new ArrayList<>();
+                for (JsonNode courseNode : root) {
+                    String courseId = courseNode.path("id").asText(null);
+                    if (StringUtils.hasText(courseId)) {
+                        courseIds.add(courseId);
+                    }
+                }
+
+                // findAllById로 한 번의 쿼리로 모든 코스 조회
+                Map<String, TbCourse> courseMap = courseRepository.findAllById(courseIds)
+                        .stream()
+                        .collect(Collectors.toMap(TbCourse::getId, Function.identity()));
+
+                // 각 노드에서 조회
                 for (JsonNode courseNode : root) {
                     String courseId = courseNode.path("id").asText(null);
 
                     if (StringUtils.hasText(courseId)) {
-                        TbCourse course = courseRepository.findById(courseId)
-                                .orElse(null);
+                        TbCourse course = courseMap.get(courseId);
 
                         if (course != null &&
                                 StringUtils.hasText(course.getFileKey()) &&
