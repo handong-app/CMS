@@ -3,6 +3,7 @@ package com.handongapp.cms.controller.v1;
 import com.handongapp.cms.dto.v1.NodeGroupDto;
 import com.handongapp.cms.service.NodeGroupService;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.Collections; 
@@ -24,15 +25,11 @@ public class NodeGroupController {
 
     private final NodeGroupService nodeGroupService;
 
-    // @PostMapping
-    // public ResponseEntity<NodeGroupDto.Response> create(
-    //         @PathVariable String clubId,
-    //         @PathVariable String courseSlug,
-    //         @PathVariable String sectionId,
-    //         @RequestBody @Valid NodeGroupDto.CreateRequest req) {
-    //     req.setSectionId(sectionId); // URL의 sectionId를 DTO에 설정
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(nodeGroupService.create(req));
-    // }
+     @PostMapping
+     public ResponseEntity<NodeGroupDto.Response> create(
+             @RequestBody @Valid NodeGroupDto.CreateRequest req) {
+         return ResponseEntity.status(HttpStatus.CREATED).body(nodeGroupService.create(req));
+     }
 
     @GetMapping("/{nodeGroupId}")
     public ResponseEntity<String> get(
@@ -46,20 +43,18 @@ public class NodeGroupController {
         return new ResponseEntity<>(nodeGroupJson, httpHeaders, HttpStatus.OK);
     }
 
-    // @PatchMapping("/{nodeGroupId}")
-    // public ResponseEntity<NodeGroupDto.Response> update(
-    //         @PathVariable String nodeGroupId,
-    //         @RequestBody @Valid NodeGroupDto.UpdateRequest req) {
-    //     return ResponseEntity.ok(nodeGroupService.update(nodeGroupId, req));
-    // }
+     @PatchMapping("/{nodeGroupId}")
+     public ResponseEntity<NodeGroupDto.Response> update(
+             @PathVariable String nodeGroupId,
+             @RequestBody @Valid NodeGroupDto.UpdateRequest req) {
+         return ResponseEntity.ok(nodeGroupService.update(nodeGroupId, req));
+     }
 
-    // @DeleteMapping("/{nodeGroupId}")
-    // public ResponseEntity<Void> delete(
-    //         @PathVariable String nodeGroupId,
-    //         @PathVariable String nodeGroupId) {
-    //     nodeGroupService.deleteSoft(nodeGroupId);
-    //     return ResponseEntity.noContent().build();
-    // }
+     @DeleteMapping("/{nodeGroupId}")
+     public ResponseEntity<Void> delete(@PathVariable String nodeGroupId) {
+         nodeGroupService.deleteSoft(nodeGroupId);
+         return ResponseEntity.noContent().build();
+     }
 
     @GetMapping("/next")
     public ResponseEntity<?> getNextNodeGroupInfo(@RequestParam @NotBlank String nodeGroupId) {

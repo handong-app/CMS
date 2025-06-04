@@ -53,22 +53,18 @@ public class NodeGroupDto {
 
     // CreateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class CreateRequest {
         private String sectionId;
         
         @NotBlank
-        private final String title;
-        
-        private final Integer order;
+        private String title;
+        private Integer order;
 
         public CreateRequest(String sectionId, String title, Integer order) {
             this.sectionId = sectionId;
             this.title = title;
             this.order = order;
-        }
-
-        public void setSectionId(String sectionId) {
-            this.sectionId = sectionId;
         }
 
         public TbNodeGroup toEntity() {
@@ -82,9 +78,10 @@ public class NodeGroupDto {
 
     // UpdateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class UpdateRequest {
-        private final String title;
-        private final Integer order;
+        private String title;
+        private Integer order;
 
         public UpdateRequest(String title, Integer order) {
             this.title = title;

@@ -11,10 +11,12 @@ import com.handongapp.cms.repository.CourseRepository;
 import com.handongapp.cms.service.CourseService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.handongapp.cms.mapper.CourseMapper;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional
     public CourseDto.Response create(String clubSlug, String userId, CourseDto.CreateRequest req) {
+        courseRepository.findBySlugAndDeleted(req.getSlug(), "N").ifPresent(c -> {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용중인 클럽 Slug 입니다: " + req.getSlug());
+        });
         String clubId = clubRepository.findBySlugAndDeleted(clubSlug, "N")
                 .orElseThrow(() -> new EntityNotFoundException("클럽을 찾을 수 없습니다. Slug: " + clubSlug)).getId();
         TbCourse entity = req.toEntity(clubId, userId);

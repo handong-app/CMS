@@ -85,10 +85,11 @@ public class NodeDto {
 
     // UpdateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class UpdateRequest {
-        private final Boolean commentPermitted;
-        private final Map<String, Object> data;
-        private final Integer order;
+        private Boolean commentPermitted;
+        private Map<String, Object> data;
+        private Integer order;
 
         public UpdateRequest(Boolean commentPermitted, Map<String, Object> data, Integer order) {
             this.commentPermitted = commentPermitted;
