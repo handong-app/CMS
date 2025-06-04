@@ -61,8 +61,6 @@ function AdminCourseDetailPage() {
     }
   };
 
-  console.log("AdminCourseDetailPage sections", sections);
-
   if (clubCourseLoading) return <div>Loading...</div>;
   return (
     <div>

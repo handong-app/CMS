@@ -48,7 +48,6 @@ function AdminProgramListPage() {
   };
 
   if (programsLoading) return <Typography>로딩 중...</Typography>;
-  console.log(programs);
 
   return (
     <Box maxWidth={900} mx="auto" mt={6}>

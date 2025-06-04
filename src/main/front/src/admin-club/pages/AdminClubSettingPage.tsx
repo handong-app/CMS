@@ -60,8 +60,6 @@ function AdminClubSettingPage() {
     clubData?.bannerUrl,
   ]);
 
-  console.log("clubData", clubData);
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
