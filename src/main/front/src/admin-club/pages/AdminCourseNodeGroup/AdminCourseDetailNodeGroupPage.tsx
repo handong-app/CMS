@@ -160,18 +160,14 @@ function AdminCourseNodeGroupPage() {
     enabled: !!nodeGroupId,
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>노드 그룹 정보를 불러올 수 없습니다.</div>;
-  if (!data) return <div>노드 그룹 정보 없음</div>;
-
   // 노드 그룹 제목 수정 상태
   const [editingTitle, setEditingTitle] = useState(false);
-  const [title, setTitle] = useState(data.title || "");
+  const [title, setTitle] = useState(data?.title || "");
   const [savingTitle, setSavingTitle] = useState(false);
 
   useEffect(() => {
-    setTitle(data.title || "");
-  }, [data.title]);
+    setTitle(data?.title || "");
+  }, [data?.title]);
 
   const handleTitleSave = async () => {
     setSavingTitle(true);
@@ -188,6 +184,10 @@ function AdminCourseNodeGroupPage() {
       setSavingTitle(false);
     }
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>노드 그룹 정보를 불러올 수 없습니다.</div>;
+  if (!data) return <div>노드 그룹 정보 없음</div>;
 
   return (
     <Box maxWidth={800} mx="auto" mt={4}>
