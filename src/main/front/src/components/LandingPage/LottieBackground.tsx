@@ -1,7 +1,6 @@
-// src/components/LandingPage/LottieBackground.tsx (가정)
 import React from 'react';
 import Lottie from 'lottie-react';
-import animationData from '../../assets/Animation2.json'; // 실제 경로로 변경하세요
+import animationData from '../../assets/Animation2.json';
 
 interface LottieBackgroundProps {
   appBarHeight?: string; // AppBar 높이를 props로 받습니다. (string 타입으로)
