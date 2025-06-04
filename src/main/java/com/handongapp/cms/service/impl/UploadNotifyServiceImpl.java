@@ -82,14 +82,14 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
         log.info("📁 TbNode fileKey 업데이트 완료: {}", dto.getFileKey());
 
         if (nodeType == TbNode.NodeType.VIDEO) {
-//            TODO: 트랜스코딩 기능 임시 비활성화 - 개발 완료 후 활성화 필요
+//            TODO: 트랜스코딩 현황 업데이트 기능 추가 요망
             log.info("트랜스코딩 기능이 임시 비활성화되었습니다.");
-//            triggerTranscode(
-//                    S3Dto.TransCodeRequest.builder()
-//                    .fileKey(dto.getFileKey())
-//                    .filetype("video")
-//                    .build()
-//            );
+            triggerTranscode(
+                    S3Dto.TransCodeRequest.builder()
+                    .fileKey(dto.getFileKey())
+                    .filetype("video")
+                    .build()
+            );
         }
     }
 
