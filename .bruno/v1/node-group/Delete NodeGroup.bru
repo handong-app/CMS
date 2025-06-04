@@ -1,0 +1,15 @@
+meta {
+  name: Delete NodeGroup
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{BASE_URL_LOCAL}}/api/v1/node-group/{{NODE_GROUP_ID}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  NODE_GROUP_ID: 7d404f3b36404c32aa41d2078852a2ac
+}

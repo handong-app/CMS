@@ -109,7 +109,7 @@ export function calculateDiffChange(
   oldValue: string,
   newValue: string
 ): string {
-  let diff = newValue.length - oldValue.length;
+  const diff = newValue.length - oldValue.length;
   if (diff === 0) return "일치";
   return `${diff > 0 ? "+" : ""}${diff}`;
 }

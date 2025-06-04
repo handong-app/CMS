@@ -64,7 +64,7 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     @Value("${cloud.aws.s3.presigned-url-duration}")
     private Duration signatureDuration;
 
-    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[\\p{L}\\p{N}._\\- ]+$");
+    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[\\p{L}\\p{N}._!()-\\- ]+$");
 
     private final NodeMapper nodeMapper;
     private final UserClubRoleRepository userClubRoleRepository;

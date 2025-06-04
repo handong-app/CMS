@@ -5,13 +5,14 @@ meta {
 }
 
 post {
-  url: {{BASE_URL_LOCAL}}/api/v1/courses/{{courseId}}/sections/{{sectionId}}/node-groups/{{nodeGroupId}}/nodes
+  url: {{BASE_URL_LOCAL}}/api/v1/nodes
   body: json
   auth: inherit
 }
 
 body:json {
   {
+    "nodeGroupId": "{{nodeGroupId}}",
     "type": "VIDEO",
     "commentPermitted": true,
     "data": {

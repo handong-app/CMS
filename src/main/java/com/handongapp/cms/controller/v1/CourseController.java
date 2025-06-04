@@ -1,6 +1,7 @@
 package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.CourseDto;
+import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.CourseService;
 import com.handongapp.cms.service.ClubService;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,8 +24,9 @@ public class CourseController {
     @PostMapping
     public ResponseEntity<CourseDto.Response> create(
             @PathVariable String clubSlug,
-            @RequestParam String userId, // userId는 JWT에서 가져올 예정 테스트를 위해 일단은 RequestParam으로 받음
-            @RequestBody @Valid CourseDto.CreateRequest req) {
+            @RequestBody @Valid CourseDto.CreateRequest req, Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        String userId = principalDetails.getUsername();
         return ResponseEntity.ok(courseService.create(clubSlug, userId, req));
     }
 
