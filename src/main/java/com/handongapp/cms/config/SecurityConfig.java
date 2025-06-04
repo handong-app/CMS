@@ -66,7 +66,6 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/**").authenticated()
 
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/**/*.html")).permitAll()
@@ -77,6 +76,8 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN")
 //                        .requestMatchers("/api/member/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN", "CLUB_MEMBER")
 //                        .requestMatchers("/api/user/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN", "CLUB_MEMBER", "USER")
+
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll());
 
         return http.build();
