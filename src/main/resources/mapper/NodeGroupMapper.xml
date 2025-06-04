@@ -44,7 +44,7 @@
                     )
                 ), JSON_ARRAY())
                 FROM tb_node n
-                WHERE n.node_group_id = ng.id AND n.deleted = FALSE
+                WHERE n.node_group_id = ng.id AND n.deleted = 'N'
                 ORDER BY n.order ASC
             ),
             'comments', ( -- Comments for the main node group 'ng'

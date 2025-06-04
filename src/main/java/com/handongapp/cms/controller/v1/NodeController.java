@@ -54,9 +54,6 @@ public class NodeController {
 
     @DeleteMapping("/{nodeId}")
     public ResponseEntity<Void> delete(
-            @PathVariable String courseId,
-            @PathVariable String sectionId,
-            @PathVariable String nodeGroupId,
             @PathVariable String nodeId) {
 
         //validator.validateNodeGroupHierarchy(courseId, sectionId, nodeGroupId);
