@@ -35,59 +35,25 @@ public class S3Controller {
     }
 
     /**
-     * 코스 배너 이미지 업로드용 Presigned URL을 발급합니다.
+     * 배너/프로필 이미지 업로드용 Presigned URL 발급 (통합 엔드포인트).
      *
-     * @param courseId  코스 ID (UUID)
-     * @param filename  클라이언트가 업로드하려는 원본 파일명
+     * @param type       업로드 타입 (예: "course-banner", "club-banner", "user-profile")
+     * @param id   코스ID, 클럽ID, 사용자ID (UUID)
+     * @param filename   클라이언트가 업로드하려는 원본 파일명
+     * @param principalDetails 인증 사용자 정보
      * @return 업로드용 Presigned URL 및 메타데이터
      */
-    @PostMapping("/upload-url/course-banner")
-    public ResponseEntity<S3Dto.UploadUrlResponse> getCourseBannerUploadUrl(
-            @RequestParam String courseId,
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/upload-url/{type}")
+    public ResponseEntity<S3Dto.UploadUrlResponse> getUploadUrl(
+            @PathVariable String type,
+            @RequestParam String id,
             @RequestParam String filename,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        // UUID를 파일명으로 사용하고, 확장자만 원본에서 추출
+        // 여기에, 필요하다면 업로드 권한 검증 로직 추가 가능!
         S3Dto.UploadUrlResponse response = presignedUrlService.generateBannerUploadUrl(
-                "course-banner", courseId, filename, principalDetails.getTbUser().getId());
-
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * 동아리 배너 이미지 업로드용 Presigned URL을 발급합니다.
-     *
-     * @param clubId    동아리 ID (UUID)
-     * @param filename  클라이언트가 업로드하려는 원본 파일명
-     * @return 업로드용 Presigned URL 및 메타데이터
-     */
-    @PostMapping("/upload-url/club-banner")
-    public ResponseEntity<S3Dto.UploadUrlResponse> getClubBannerUploadUrl(
-            @RequestParam String clubId,
-            @RequestParam String filename,
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-
-        S3Dto.UploadUrlResponse response = presignedUrlService.generateBannerUploadUrl(
-                "club-banner", clubId, filename, principalDetails.getTbUser().getId());
-
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * 사용자 프로필 이미지 업로드용 Presigned URL을 발급합니다.
-     *
-     * @param userId    사용자 ID (UUID)
-     * @param filename  클라이언트가 업로드하려는 원본 파일명
-     * @return 업로드용 Presigned URL 및 메타데이터
-     */
-    @PostMapping("/upload-url/user-profile")
-    public ResponseEntity<S3Dto.UploadUrlResponse> getUserProfileUploadUrl(
-            @RequestParam String userId,
-            @RequestParam String filename,
-            @AuthenticationPrincipal PrincipalDetails principalDetails) {
-
-        S3Dto.UploadUrlResponse response = presignedUrlService.generateBannerUploadUrl(
-                "user-profile", userId, filename, principalDetails.getTbUser().getId());
+                type, id, filename, principalDetails.getTbUser().getId());
 
         return ResponseEntity.ok(response);
     }
