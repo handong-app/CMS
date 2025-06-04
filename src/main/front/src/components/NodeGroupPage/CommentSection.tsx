@@ -56,7 +56,12 @@ const CommentSection: React.FC<Props> = ({ comments, onSubmit }) => {
     onSubmit({
       category: newCategory,
       content: newContent,
-      author: "현재유저",
+      author: {
+        name: "현재유저",
+        uid: "user-uid",
+        studentId: "student-id",
+      },
+      timestamp: new Date().toISOString(),
     });
     setNewContent("");
   };

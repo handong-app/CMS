@@ -74,10 +74,10 @@ function NodeGroupPage() {
         {nodeGroupDummy.nodes.map((node, index) => {
           const emojiCountMap: Record<string, number> = {};
           node.comments.forEach((comment) => {
-            const emoji = categoryEmojiMap[comment.category];
-            if (emoji) {
-              emojiCountMap[emoji] = (emojiCountMap[emoji] || 0) + 1;
-            }
+            // const emoji = categoryEmojiMap[comment.category];
+            // if (emoji) {
+            //   emojiCountMap[emoji] = (emojiCountMap[emoji] || 0) + 1;
+            // }
           });
 
           const emojiSummary = Object.entries(emojiCountMap)
@@ -186,7 +186,7 @@ function NodeGroupPage() {
                 key={node.id}
                 borderRadius={4}
                 bgcolor={"#f0f0f010"}
-                height={nodeHeightMap[node.type.toLowerCase()] || 400}
+                // height={nodeHeightMap[node.type.toLowerCase()] || 400}
                 mt={1}
                 position="relative"
                 p={2}
@@ -227,9 +227,9 @@ function NodeGroupPage() {
                         flexDirection="row"
                         alignItems="center"
                       >
-                        {iconMap[node.type] || (
+                        {/* {iconMap[node.type] || (
                           <DescriptionIcon fontSize="large" />
-                        )}
+                        )} */}
                         {node.type === "QUIZ" &&
                           node.data?.question &&
                           Array.isArray(node.data.options) &&
