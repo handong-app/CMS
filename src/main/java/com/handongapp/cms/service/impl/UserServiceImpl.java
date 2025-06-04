@@ -95,8 +95,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto.UserProfileResDto findUserId(String userId) {
-        UserDto.UserProfileResDto userProfileResDto = UserDto.UserProfileResDto.of(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
-        return userProfileResDto;
+        return UserDto.UserProfileResDto.of(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found")));
     }
 
     @Override
