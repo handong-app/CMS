@@ -12,6 +12,7 @@ public class ClubDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ClubProfileResDto {
+        private String id;
         private String clubName;
         private String slug;
         private String description;

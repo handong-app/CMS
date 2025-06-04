@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { useFetchBe } from "../../../tools/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Box } from "@mui/material";
+import CourseBannerUploadBox from "../../components/CourseBannerUploadBox";
 import SectionList from "./SectionList";
 
 import React, { useEffect } from "react";
@@ -61,6 +62,11 @@ function AdminCourseDetailPage() {
     }
   };
 
+  // 배너 이미지 업로드 완료 시 refetch만 수행 (upload-complete는 CourseBannerUploadBox에서 처리)
+  const handleBannerUploadComplete = async () => {
+    await refetch();
+  };
+
   if (clubCourseLoading) return <div>Loading...</div>;
   return (
     <div>
@@ -69,6 +75,28 @@ function AdminCourseDetailPage() {
         <p>Club ID: {clubId}</p>
         <p>Course Slug: {courseSlug}</p>
       </div>
+      <Box mb={3} maxWidth={400}>
+        <CourseBannerUploadBox
+          targetId={courseData?.id || ""}
+          targetType="course-banner"
+          onComplete={handleBannerUploadComplete}
+        />
+        {courseData?.pictureUrl && (
+          <Box mt={2}>
+            <img
+              src={courseData.pictureUrl}
+              alt="배너 이미지"
+              style={{
+                width: "100%",
+                maxHeight: 120,
+                objectFit: "cover",
+                borderRadius: 8,
+                border: "1px solid #ccc",
+              }}
+            />
+          </Box>
+        )}
+      </Box>
       <div>
         <Box ml={2}>
           <SectionList sections={sections} refreshSections={refreshSections} />
