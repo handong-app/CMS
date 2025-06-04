@@ -205,23 +205,26 @@ const GoogleOAuthCallback: React.FC = () => {
         spacing={2}
         sx={{ mt: theme.spacing(3) }}
       >
+        {/* 로그인 상태 확인 버튼 수정: variant="outlined"로 변경하고 color="primary" 유지 */}
         <Button
-          variant="contained"
+          variant="outlined" // 여기를 "outlined"로 변경
           color="primary"
           onClick={checkLoginStatus}
         >
           로그인 상태 확인
         </Button>
+        {/* 로그아웃 버튼: variant="outlined"로 유지하고 color를 primary로 통일 (선택 사항) */}
         <Button
           variant="outlined"
-          color="secondary"
+          color="primary" // primary 색상으로 통일
           onClick={logout}
         >
           로그아웃
         </Button>
+        {/* JWT 토큰 재발급 버튼: variant="outlined"로 유지하고 color를 primary로 통일 (선택 사항) */}
         <Button
           variant="outlined"
-          color="info"
+          color="primary" // primary 색상으로 통일
           onClick={refreshAccessToken}
         >
           JWT 토큰 재발급
@@ -260,19 +263,16 @@ const GoogleOAuthCallback: React.FC = () => {
             maxWidth: '600px',
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.secondary,
-            // 텍스트 오버플로우 처리 스타일 추가
-            overflow: 'hidden', // 내용이 넘치면 숨김
-            textOverflow: 'ellipsis', // 넘친 부분을 ...으로 표시
-            whiteSpace: 'nowrap', // 텍스트를 한 줄로 유지
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
             boxShadow: theme.shadows[1],
           }}
         >
           <Typography component="pre" variant="body2" sx={{
-            // 각 Typography에도 개별적으로 오버플로우 스타일 적용
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            // Pre 태그의 기본 스타일 (줄바꿈 방지)이 남아있을 수 있으므로 추가적으로 강제
           }}>
             JWT Token: {jwtToken || "없음"}
           </Typography>
