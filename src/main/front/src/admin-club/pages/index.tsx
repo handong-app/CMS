@@ -12,6 +12,7 @@ import AdminProgramListPage from "./AdminProgramListPage";
 import AdminProgramPage from "./AdminProgramPage";
 import AdminCommentListPage from "./AdminCommentListPage";
 import AdminCourseDetailPage from "./AdminCourseDetailPage/AdminCourseDetailPage";
+import AdminCourseNodeGroupPage from "./AdminCourseNodeGroup/AdminCourseDetailNodeGroupPage";
 
 export const CLUB_ADMINMENU = [
   {
@@ -47,6 +48,10 @@ export const CLUB_ADMINMENU = [
       {
         path: ":courseSlug",
         element: <AdminCourseDetailPage />,
+      },
+      {
+        path: ":courseSlug/node-groups/:nodeGroupId",
+        element: <AdminCourseNodeGroupPage />,
       },
     ],
   },

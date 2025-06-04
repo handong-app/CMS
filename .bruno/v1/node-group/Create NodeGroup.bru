@@ -1,0 +1,23 @@
+meta {
+  name: Create NodeGroup
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/node-group
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "sectionId": "{{SECTION_ID}}",
+    "title": "{{$randomWords}}",
+    "order": 1
+  }
+}
+
+vars:pre-request {
+  SECTION_ID: ffe3756170314e74aa794caab88f92b3
+}

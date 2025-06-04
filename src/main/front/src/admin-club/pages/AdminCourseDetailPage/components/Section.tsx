@@ -1,12 +1,14 @@
-import { Typography, Paper, IconButton } from "@mui/material";
+import { Typography, Paper, IconButton, Box, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 
 export interface SectionProps {
   text: string;
   onEdit?: () => void;
+  onAddPage?: () => void;
 }
 
-const Section: React.FC<SectionProps> = ({ text, onEdit }) => {
+const Section: React.FC<SectionProps> = ({ text, onEdit, onAddPage }) => {
   return (
     <Paper
       elevation={2}
@@ -34,11 +36,22 @@ const Section: React.FC<SectionProps> = ({ text, onEdit }) => {
       >
         {text}
       </Typography>
-      {onEdit && (
-        <IconButton size="small" onClick={onEdit} sx={{ color: "#fff" }}>
-          <EditIcon fontSize="small" />
-        </IconButton>
-      )}
+      <Box display="flex" alignItems="center" gap={0.5}>
+        {onAddPage && (
+          <Tooltip title="새 페이지 추가">
+            <IconButton size="small" onClick={onAddPage} sx={{ color: "#fff" }}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {onEdit && (
+          <Tooltip title="섹션 수정">
+            <IconButton size="small" onClick={onEdit} sx={{ color: "#fff" }}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
     </Paper>
   );
 };
