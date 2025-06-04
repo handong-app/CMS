@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbClub;
+import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.ClubDto;
+import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.service.ClubService;
@@ -35,7 +37,7 @@ public class ClubServiceImpl implements ClubService {
                         club.getName(),
                         club.getSlug(),
                         club.getDescription(),
-                        club.getBannerUrl()
+                        club.getFileKey()
                 ))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "클럽을 찾을 수 없습니다: " + clubSlug));
     }
@@ -55,7 +57,7 @@ public class ClubServiceImpl implements ClubService {
             }
             clubEntity.setName(dto.getName());
             clubEntity.setDescription(dto.getDescription());
-            clubEntity.setBannerUrl(dto.getBannerUrl());
+            clubEntity.setFileKey(dto.getFileKey());
             clubEntity.setDeleted(DELETED_FLAG_NO);
         } else { //update existing non-deleted club
             clubEntity = existingClubOpt.get();
@@ -82,11 +84,11 @@ public class ClubServiceImpl implements ClubService {
                 clubEntity.setDescription(dto.getDescription());
             }
 
-            if (dto.getBannerUrl() != null) {
-                if (StringUtils.hasText(dto.getBannerUrl())) {
-                    clubEntity.setBannerUrl(dto.getBannerUrl());
+            if (dto.getFileKey() != null) {
+                if (StringUtils.hasText(dto.getFileKey())) {
+                    clubEntity.setFileKey(dto.getFileKey());
                 } else {
-                    clubEntity.setBannerUrl(null);
+                    clubEntity.setFileKey(null);
                 }
             }
         }
@@ -111,7 +113,7 @@ public class ClubServiceImpl implements ClubService {
         newClub.setName(dto.getName());
         newClub.setSlug(dto.getSlug());
         newClub.setDescription(dto.getDescription());
-        newClub.setBannerUrl(dto.getBannerUrl());
+        newClub.setFileKey(dto.getFileKey());
         newClub.setDeleted(DELETED_FLAG_NO);
 
         TbClub savedClub = clubRepository.save(newClub);
@@ -120,7 +122,7 @@ public class ClubServiceImpl implements ClubService {
                 savedClub.getName(),
                 savedClub.getSlug(),
                 savedClub.getDescription(),
-                savedClub.getBannerUrl()
+                savedClub.getFileKey()
         );
     }
 
@@ -149,4 +151,14 @@ public class ClubServiceImpl implements ClubService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "코스 JSON 파싱/직렬화에 실패했습니다.", e);
         }
     }
+
+    @Override
+    public void updateClubBanner(String clubId, String fileKey) {
+        TbClub club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new NotFoundException("Club not found with id: " + clubId));
+        club.setFileKey(fileKey);
+        club.setFileStatus(FileStatus.UPLOADING);
+        clubRepository.save(club);
+    }
+
 }
