@@ -1,11 +1,11 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.domain.TbFileList;
-import com.handongapp.cms.domain.TbNode;
+import com.handongapp.cms.domain.*;
+import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.S3Dto;
 import com.handongapp.cms.exception.file.UploadNotificationException;
 import com.handongapp.cms.mapper.NodeMapper;
-import com.handongapp.cms.repository.FileListRepository;
+import com.handongapp.cms.repository.*;
 import com.handongapp.cms.service.UploadNotifyService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +42,9 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
     private final AmqpTemplate amqpTemplate;
     private final S3Client s3Client;
     private final FileListRepository fileListRepository;
+    private final UserRepository userRepository;
+    private final ClubRepository clubRepository;
+    private final CourseRepository courseRepository;
     private final NodeMapper nodeMapper;
     private final NodeServiceImpl nodeService;
 
@@ -50,6 +53,63 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
 
     @Value("${rabbitmq.queue.transcode-request}")
     private String transcodeRequestQueue;
+
+    /**
+     * 업로드 완료 알림 처리 메소드.
+     * <p>
+     * - 요청된 fileKey가 DB의 fileKey와 일치하는지 검증 후, {@link TbFileList}의 상태를 '업로드 완료'로 업데이트합니다.
+     * - 업로드가 완료된 파일의 fileKey를 연관된 엔티티(코스, 클럽, 사용자)에 반영합니다.
+     *
+     * @param request 업로드 완료 요청 DTO
+     * @throws IllegalArgumentException fileKey 불일치 또는 파일 리스트가 없을 경우 발생
+     */
+    @Override
+    public void completeUpload(S3Dto.UploadCompleteRequest request) {
+        TbFileList fileList = fileListRepository.findById(request.getFileListId())
+                .orElseThrow(() -> new IllegalArgumentException("파일 리스트를 찾을 수 없습니다."));
+
+        if (!request.getFileKey().equals(fileList.getFileKey())) {
+            throw new IllegalArgumentException("파일키 불일치: 요청과 저장된 파일키가 다릅니다.");
+        }
+
+        fileList.setIsUploadComplete(true);
+        fileList.setCompletedAt(LocalDateTime.now());
+        fileListRepository.save(fileList);
+
+        updateRelatedEntityFileKey(request.getId(), fileList.getFileKey());
+    }
+
+    /**
+     * 업로드 완료 후, 연관 엔티티의 fileKey 및 상태를 업데이트합니다.
+     * <p>
+     * {@code course-banner/}, {@code club-banner/}, {@code user-profile/} 경로에 따라
+     * 각각 {@link TbCourse}, {@link TbClub}, {@link TbUser}의 fileKey와 fileStatus를 갱신합니다.
+     *
+     * @param id       엔티티 ID
+     * @param fileKey  S3에 업로드된 파일 키
+     * @throws IllegalStateException 엔티티를 찾을 수 없는 경우 발생
+     */
+    private void updateRelatedEntityFileKey(String id, String fileKey) {
+        if (fileKey.startsWith("course-banner/")) {
+            TbCourse course = courseRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("Course not found"));
+            course.setFileKey(fileKey);
+            course.setFileStatus(FileStatus.UPLOADED);
+            courseRepository.save(course);
+        } else if (fileKey.startsWith("club-banner/")) {
+            TbClub club = clubRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("Club not found"));
+            club.setFileKey(fileKey);
+            club.setFileStatus(FileStatus.UPLOADED);
+            clubRepository.save(club);
+        } else if (fileKey.startsWith("user-profile/")) {
+            TbUser user = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("User not found"));
+            user.setFileKey(fileKey);
+            user.setFileStatus(FileStatus.UPLOADED);
+            userRepository.save(user);
+        }
+    }
 
 
     /**
