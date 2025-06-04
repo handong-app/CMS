@@ -153,6 +153,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
+    @Transactional
     public void updateClubBanner(String clubId, String fileKey) {
         TbClub club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new NotFoundException("Club not found with id: " + clubId));
