@@ -9,17 +9,31 @@ describe("CourseProgressList", () => {
       {
         id: "s1",
         title: "Section 1",
+        description: "Description for Section 1",
+        order: 1,
         nodeGroups: [
-          { id: "g1", title: "Group 1", isCompleted: true },
-          { id: "g2", title: "Group 2", isCompleted: false },
+          {
+            id: "g1",
+            title: "Group 1",
+            isCompleted: true,
+            order: 1,
+            nodes: [],
+          },
+          {
+            id: "g2",
+            title: "Group 2",
+            isCompleted: false,
+            order: 2,
+            nodes: [],
+          },
         ],
       },
     ],
     width: 300,
   };
 
-  const renderComponent = (props = {}) =>
-    render(<CourseProgressList {...defaultProps} {...props} />);
+  const renderComponent = () =>
+    render(<CourseProgressList {...defaultProps} />);
 
   it("renders the course title", () => {
     renderComponent();

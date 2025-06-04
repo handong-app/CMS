@@ -4,9 +4,9 @@ import calculateProgress from "./calculateProcess";
 
 const mockData: ProgramData = {
   programId: "prog001",
-  programName: "Test Program",
-  programSlug: "test-program",
-  programDescription: "Test Desc",
+  name: "Test Program",
+  slug: "test-program",
+  description: "Test Desc",
   participants: [
     {
       userId: "user1",
@@ -59,6 +59,11 @@ const mockData: ProgramData = {
       ],
     },
   ],
+  clubId: "",
+  clubSlug: "",
+  userId: "",
+  startDate: "",
+  endDate: "",
 };
 
 describe("calculateProgress", () => {

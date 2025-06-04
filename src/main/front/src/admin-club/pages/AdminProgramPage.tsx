@@ -1,6 +1,5 @@
 import { useParams } from "react-router";
 import AdminProgramEdit from "../components/AdminProgramEdit";
-import { ClubMember } from "../components/AdminClubMemberTable";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchBe } from "../../tools/api";
 

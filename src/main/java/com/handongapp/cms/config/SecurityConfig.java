@@ -66,9 +66,10 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/**").authenticated()
+
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/**/*.html")).permitAll()
-
                         .requestMatchers("/api/auth/google/**", "/api/login", "/api/health", "/api/v1/stream/**").permitAll()
 
                         // TODO: 추후 route 별 권한 체킹 도입시 수정요망. (2025.06.01, 현재는 route 별 권한체킹 사용안함)
@@ -76,7 +77,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/club/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN")
 //                        .requestMatchers("/api/member/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN", "CLUB_MEMBER")
 //                        .requestMatchers("/api/user/**").hasAnyRole("SERVICE_ADMIN", "CLUB_SUPER_ADMIN", "CLUB_MEMBER", "USER")
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         return http.build();
     }
