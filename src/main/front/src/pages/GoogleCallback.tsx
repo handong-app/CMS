@@ -1,7 +1,9 @@
-import React, { useRef , useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import useAuthStore from "../store/authStore";
 import { jwtDecode } from "jwt-decode";
+import { useTheme } from "@mui/material/styles";
+import { Box, Button, Typography, Paper, Stack } from "@mui/material";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -18,12 +20,12 @@ interface DecodedToken {
   [key: string]: any;
 }
 
-
-
 const GoogleOAuthCallback: React.FC = () => {
+  const theme = useTheme();
+
   const [output, setOutput] = useState("처리 중...");
   const [loginCheckResult, setLoginCheckResult] = useState("");
-  const hasFetched = useRef(false); 
+  const hasFetched = useRef(false);
 
   const {
     jwtToken,
@@ -39,67 +41,65 @@ const GoogleOAuthCallback: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  const code = searchParams.get("code");
-  console.log("📦 받은 code:", code);
+    const code = searchParams.get("code");
+    console.log("📦 받은 code:", code);
 
-
-  if (!code) {
-    console.error("❌ Authorization code가 없습니다.");
-    setOutput("Authorization code가 없습니다.");
-    return;
-  }
-
-  if (hasFetched.current) {
-    console.log("⚠️ 이미 요청을 보낸 code입니다. 중복 방지");
-    return;
-  }
-
-  hasFetched.current = true; // ✅ 한 번만 실행되도록 설정
-
-  const fetchTokens = async (code: string) => {
-    try {
-      console.log("🚀 백엔드로 code 전송 중...");
-      const res = await fetch(
-        `${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`
-      );
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.error || res.statusText);
-      }
-
-      const data: GoogleOAuthResponse = await res.json();
-
-      try {
-        const decoded: DecodedToken = jwtDecode(data.accessToken);
-
-        setJwtToken(data.accessToken);
-        setRefreshToken(data.refreshToken);
-        setUser({
-          name: decoded.name,
-          email: decoded.email,
-          photoURL:
-            decoded.picture ||
-            "https://lh3.googleusercontent.com/a/default-user",
-        });
-
-        console.log("✅ 디코딩된 유저 정보:", decoded);
-        setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
-        navigate("/register");
-      } catch (decodeError) {
-        console.error("JWT 디코딩 실패:", decodeError);
-        throw new Error("유효하지 않은 토큰입니다.");
-      }
-    } catch (err: any) {
-      console.error("🚨 로그인 처리 중 오류:", err.message || err);
-      setOutput("로그인 실패: " + (err.message || "알 수 없는 오류"));
-      hasFetched.current = false; // 에러 시 재시도 가능하도록 플래그 재설정
+    if (!code) {
+      console.error("❌ Authorization code가 없습니다.");
+      setOutput("Authorization code가 없습니다.");
+      return;
     }
-  };
+
+    if (hasFetched.current) {
+      console.log("⚠️ 이미 요청을 보낸 code입니다. 중복 방지");
+      return;
+    }
+
+    hasFetched.current = true;
+
+    const fetchTokens = async (code: string) => {
+      try {
+        console.log("🚀 백엔드로 code 전송 중...");
+        const res = await fetch(
+          `${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`
+        );
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => null);
+          throw new Error(errorData?.error || res.statusText);
+        }
+
+        const data: GoogleOAuthResponse = await res.json();
+
+        try {
+          const decoded: DecodedToken = jwtDecode(data.accessToken);
+
+          setJwtToken(data.accessToken);
+          setRefreshToken(data.refreshToken);
+          setUser({
+            name: decoded.name,
+            email: decoded.email,
+            photoURL:
+              decoded.picture ||
+              "https://lh3.googleusercontent.com/a/default-user",
+          });
+
+          console.log("✅ 디코딩된 유저 정보:", decoded);
+          setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
+          navigate("/register");
+        } catch (decodeError) {
+          console.error("JWT 디코딩 실패:", decodeError);
+          throw new Error("유효하지 않은 토큰입니다.");
+        }
+      } catch (err: any) {
+        console.error("🚨 로그인 처리 중 오류:", err.message || err);
+        setOutput("로그인 실패: " + (err.message || "알 수 없는 오류"));
+        hasFetched.current = false;
+      }
+    };
     fetchTokens(code);
   }, [searchParams, navigate, setJwtToken, setRefreshToken, setUser]);
 
-  
   const checkLoginStatus = () => {
     if (!jwtToken) {
       setLoginCheckResult("jwtToken이 없습니다.");
@@ -164,26 +164,135 @@ const GoogleOAuthCallback: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Google OAuth 인증 처리 중...</h2>
-      <pre>{output}</pre>
-      <button style={{ marginTop: 10 }} onClick={checkLoginStatus}>
-        로그인 상태 확인
-      </button>
-      <pre>{loginCheckResult}</pre>
-      <button style={{ marginTop: 10 }} onClick={logout}>
-        로그아웃
-      </button>
-      <button style={{ marginTop: 10 }} onClick={refreshAccessToken}>
-        JWT 토큰 재발급
-      </button>
-      <div style={{ marginTop: 20 }}>
-        <h4>🔐 토큰 및 사용자 정보</h4>
-        <pre>JWT Token: {jwtToken || "없음"}</pre>
-        <pre>Refresh Token: {refreshToken || "없음"}</pre>
-        <pre>User Email: {user?.email || "없음"}</pre>
-      </div>
-    </div>
+    <Box
+      sx={{
+        padding: theme.spacing(3),
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.text.primary,
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <Typography variant="h4" component="h2" gutterBottom sx={{ color: theme.palette.primary.main }}>
+        Google OAuth 인증 처리 중...
+      </Typography>
+
+      <Paper
+        variant="outlined"
+        sx={{
+          mt: theme.spacing(3),
+          p: theme.spacing(2),
+          width: '100%',
+          maxWidth: '600px',
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.secondary,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          boxShadow: theme.shadows[1],
+        }}
+      >
+        <Typography component="pre" variant="body2">
+          {output}
+        </Typography>
+      </Paper>
+
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={2}
+        sx={{ mt: theme.spacing(3) }}
+      >
+        {/* 로그인 상태 확인 버튼 수정: variant="outlined"로 변경하고 color="primary" 유지 */}
+        <Button
+          variant="outlined" // 여기를 "outlined"로 변경
+          color="primary"
+          onClick={checkLoginStatus}
+        >
+          로그인 상태 확인
+        </Button>
+        {/* 로그아웃 버튼: variant="outlined"로 유지하고 color를 primary로 통일 (선택 사항) */}
+        <Button
+          variant="outlined"
+          color="primary" // primary 색상으로 통일
+          onClick={logout}
+        >
+          로그아웃
+        </Button>
+        {/* JWT 토큰 재발급 버튼: variant="outlined"로 유지하고 color를 primary로 통일 (선택 사항) */}
+        <Button
+          variant="outlined"
+          color="primary" // primary 색상으로 통일
+          onClick={refreshAccessToken}
+        >
+          JWT 토큰 재발급
+        </Button>
+      </Stack>
+
+      <Paper
+        variant="outlined"
+        sx={{
+          mt: theme.spacing(3),
+          p: theme.spacing(2),
+          width: '100%',
+          maxWidth: '600px',
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.text.secondary,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          boxShadow: theme.shadows[1],
+        }}
+      >
+        <Typography component="pre" variant="body2">
+          {loginCheckResult}
+        </Typography>
+      </Paper>
+
+      {/* 토큰 및 사용자 정보 섹션 */}
+      <Box sx={{ mt: theme.spacing(4) }}>
+        <Typography variant="h6" component="h4" gutterBottom>
+          🔐 토큰 및 사용자 정보
+        </Typography>
+        <Paper
+          variant="outlined"
+          sx={{
+            p: theme.spacing(2),
+            width: '100%',
+            maxWidth: '600px',
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.secondary,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            boxShadow: theme.shadows[1],
+          }}
+        >
+          <Typography component="pre" variant="body2" sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            JWT Token: {jwtToken || "없음"}
+          </Typography>
+          <Typography component="pre" variant="body2" sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            Refresh Token: {refreshToken || "없음"}
+          </Typography>
+          <Typography component="pre" variant="body2" sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            User Email: {user?.email || "없음"}
+          </Typography>
+        </Paper>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,37 +1,101 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
-import {initiateGoogleLogin} from "../utils/auth"; // 구글 로그인 함수 위치에 맞게 조정
+import { useTheme } from "@mui/material/styles";
+import { initiateGoogleLogin } from "../utils/auth";
+import LottieBackground from '../components/LandingPage/LottieBackground';
 
 const LandingPage: React.FC = () => {
-  
+  const theme = useTheme(); 
+  const appBarHeight = `${theme.mixins.toolbar.minHeight}px`;
+
   return (
-    <>
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.default || "#1A1A1A",
+        minHeight: "100vh",
+        color: theme.palette.text.primary || "#FFFFFF",
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      <LottieBackground appBarHeight={appBarHeight} />
+
       <Box
         display="flex"
-        flexDirection="column"
+        flexDirection={{ xs: "column", md: "row" }}
         alignItems="center"
-        justifyContent="center"
-        height="calc(100vh - 64px)" // AppBar 높이 제외
-        textAlign="center"
-        px={2}
+        justifyContent="space-between"
+        sx={{
+          paddingTop: appBarHeight, 
+          minHeight: `calc(100vh - ${appBarHeight})`, 
+          textAlign: { xs: "center", md: "left" },
+          maxWidth: "1600px",
+          mx: "auto",
+          px: 1,
+          gap: 4,
+          pt: { xs: 4, md: 0 },
+          position: 'relative',
+          zIndex: 1, 
+        }}
       >
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          랜딩페이지가 생길 예정
-        </Typography>
-        <Typography variant="h5" color="primary" gutterBottom>
-          이미지로 넣는게 편해보임
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          소개 글이나 온보딩 관련 글 ㅋㅋ
-        </Typography>
+        <Box sx={{ flex: 1, maxWidth: { md: "50%" }, pr: { md: 4 } }}>
+          <Typography
+            variant="h2"
+            fontWeight="bold"
+            gutterBottom
+            sx={{
+              fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.5rem" },
+              lineHeight: 1.1,
+            }}
+          >
+            Unlock <br /> Your Club's <br /> Full Potential
+          </Typography>
+        </Box>
 
-        <Box mt={4}>
-          <Button variant="contained" onClick={initiateGoogleLogin}>
-            구글 계정으로 로그인
-          </Button>
+        <Box sx={{ flex: 1, maxWidth: { md: "50%" }, position: "relative", pl: { md: 4 } }}>
+          
+          <Box sx={{ mt: 4, maxWidth: "500px", ml: { md: "auto" }, textAlign: { xs: "center", md: "right" } }}>
+            <Typography variant="body1" sx={{ color: theme.palette.grey[400] || "#AAAAAA", lineHeight: 1.6 }}>
+              Let's make club management a strength for your organization. We're here to help with everything from
+              member registration and event scheduling to communication and continuous monitoring, ensuring your
+              club's growth is always protected.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={initiateGoogleLogin}
+              sx={{
+                mt: 4,
+                backgroundColor: theme.palette.primary.main || "#7B68EE",
+                "&:hover": {
+                  backgroundColor: theme.palette.primary.dark || "#6A5ACD",
+                },
+                color: theme.palette.primary.contrastText || "#FFFFFF",
+                fontWeight: "bold",
+                px: 4,
+                py: 1.5,
+                borderRadius: "8px",
+              }}
+            >
+              Google 계정으로 로그인
+            </Button>
+          </Box>
         </Box>
       </Box>
-    </>
+
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 20,
+          left: "50%",
+          transform: "translateX(-50%)",
+          textAlign: "center",
+          color: theme.palette.grey[600] || "#999999",
+          zIndex: 1,
+        }}
+      >
+        <Typography variant="body2">Club Management System</Typography>
+      </Box>
+    </Box>
   );
 };
 
