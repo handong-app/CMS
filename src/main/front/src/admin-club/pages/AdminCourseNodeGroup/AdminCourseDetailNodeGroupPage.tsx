@@ -140,9 +140,9 @@ function AdminCourseNodeGroupPage() {
       });
       setAddOpen(false);
       // 강제 리프레시
-      window.location.reload();
-    } catch (e: any) {
-      setAddError(e?.message || "노드 추가 실패");
+      refetch && (await refetch());
+    } catch (e) {
+      setAddError(e instanceof Error ? e.message : "노드 추가 실패");
     }
   };
 

@@ -9,7 +9,7 @@ export interface NodeImageProps {
   node: Node;
   refetch?: (
     options?: RefetchOptions
-  ) => Promise<QueryObserverResult<any, Error>>;
+  ) => Promise<QueryObserverResult<Node, Error>>;
 }
 
 const NodeImage: React.FC<NodeImageProps> = ({ node, refetch }) => {

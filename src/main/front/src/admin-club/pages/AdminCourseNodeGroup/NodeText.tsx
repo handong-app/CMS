@@ -21,7 +21,7 @@ export interface NodeTextProps {
   node: Node;
   refetch?: (
     options?: RefetchOptions
-  ) => Promise<QueryObserverResult<any, Error>>;
+  ) => Promise<QueryObserverResult<Node, Error>>;
 }
 
 const CrepeEditor: React.FC<{ defaultValue: string }> = ({ defaultValue }) => {
@@ -39,27 +39,30 @@ const CrepeEditor: React.FC<{ defaultValue: string }> = ({ defaultValue }) => {
 };
 
 // ✅ This is the correct way - EditorControls is inside MilkdownProvider
-const EditorControls: React.FC<{ doSave: (content: string) => void }> = ({
-  doSave,
-}) => {
+interface EditorControlsProps {
+  doSave: (content: string) => void;
+  saving: boolean;
+}
+const EditorControls: React.FC<EditorControlsProps> = ({ doSave, saving }) => {
   const [isLoading, getInstance] = useInstance();
 
   const handleSave = () => {
-    if (isLoading) return;
-
+    if (isLoading || saving) return;
     const editor = getInstance();
     if (!editor) return;
-
     const content = editor;
-    console.log("Editor content:", content.action(getMarkdown()));
     doSave(content.action(getMarkdown()));
-    // Do something with the content
   };
 
   return (
-    <button onClick={handleSave} disabled={isLoading}>
-      Save
-    </button>
+    <Button
+      onClick={handleSave}
+      disabled={isLoading || saving}
+      variant="contained"
+      size="small"
+    >
+      {saving ? "저장 중..." : "저장"}
+    </Button>
   );
 };
 
@@ -137,7 +140,7 @@ const NodeText: React.FC<NodeTextProps> = ({ node, refetch }) => {
         <Box>
           <MilkdownProvider>
             <CrepeEditor defaultValue={node.data?.description || ""} />
-            <EditorControls doSave={handleSave} />
+            <EditorControls doSave={handleSave} saving={saving} />
           </MilkdownProvider>
         </Box>
       ) : (

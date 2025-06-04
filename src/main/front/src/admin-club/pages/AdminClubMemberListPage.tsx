@@ -1,14 +1,6 @@
 import { Box, Paper, Typography } from "@mui/material";
 import AdminClubMemberTable from "../components/AdminClubMemberTable";
-
-export interface ClubMember {
-  userId: string;
-  name: string;
-  studentId: string;
-  email: string;
-  phone: string;
-  profileImageUrl: string;
-}
+import { ClubMember } from "../../types/clubmember.types";
 
 export interface AdminClubMemberListPageProps {
   members?: ClubMember[];

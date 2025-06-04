@@ -27,6 +27,7 @@ function AdminCoursePage() {
     pictureUrl: "",
     isVisible: true,
   });
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const { data: clubCourses, isLoading: coursesLoading } = useQuery({
     queryKey: ["clubCourses", clubSlug],
@@ -35,16 +36,21 @@ function AdminCoursePage() {
 
   // 코스 저장 핸들러 (실제 API 연동 필요)
   const handleSaveCourse = async () => {
-    // 실제로는 fetchBe 등으로 POST 요청 필요
-    await fetchBe(`/v1/clubs/${clubSlug}/courses`, {
-      method: "POST",
-      body: newCourse,
-    });
-    // 여기서는 저장 성공 가정
-    setAddDialogOpen(false);
-    setTimeout(() => {
-      navigate(`/club/${clubSlug}/admin/course/${newCourse.slug}`);
-    }, 300);
+    setIsSaving(true);
+    try {
+      await fetchBe(`/v1/clubs/${clubSlug}/courses`, {
+        method: "POST",
+        body: newCourse,
+      });
+      setAddDialogOpen(false);
+      setTimeout(() => {
+        navigate(`/club/${clubSlug}/admin/course/${newCourse.slug}`);
+      }, 300);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "코스 저장 중 오류 발생");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (coursesLoading) return <Typography>Loading...</Typography>;
@@ -98,9 +104,14 @@ function AdminCoursePage() {
                 label="슬러그"
                 value={newCourse.slug}
                 onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, slug: e.target.value }))
+                  setNewCourse((c) => ({
+                    ...c,
+                    slug: e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9-]/g, ""),
+                  }))
                 }
-                fullWidth
+                helperText="영문 소문자, 숫자, 하이픈만 사용 가능"
               />
               <TextField
                 label="설명"
@@ -134,15 +145,49 @@ function AdminCoursePage() {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setAddDialogOpen(false)}>취소</Button>
+            <Button onClick={() => setAddDialogOpen(false)} disabled={isSaving}>
+              취소
+            </Button>
             <Button
               variant="contained"
               onClick={handleSaveCourse}
               disabled={
-                !newCourse.title || !newCourse.slug || !newCourse.description
+                isSaving ||
+                !newCourse.title ||
+                !newCourse.slug ||
+                !newCourse.description
               }
             >
-              저장
+              {isSaving ? (
+                <>
+                  <span style={{ marginRight: 8 }}>
+                    <svg width="18" height="18" viewBox="0 0 50 50">
+                      <circle
+                        cx="25"
+                        cy="25"
+                        r="20"
+                        fill="none"
+                        stroke="#fff"
+                        strokeWidth="5"
+                        strokeDasharray="31.4 31.4"
+                        strokeLinecap="round"
+                      >
+                        <animateTransform
+                          attributeName="transform"
+                          type="rotate"
+                          from="0 25 25"
+                          to="360 25 25"
+                          dur="1s"
+                          repeatCount="indefinite"
+                        />
+                      </circle>
+                    </svg>
+                  </span>
+                  저장 중...
+                </>
+              ) : (
+                "저장"
+              )}
             </Button>
           </DialogActions>
         </Dialog>

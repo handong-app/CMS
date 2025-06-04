@@ -10,7 +10,7 @@ export interface NodeFileProps {
   node: Node;
   refetch?: (
     options?: RefetchOptions
-  ) => Promise<QueryObserverResult<any, Error>>;
+  ) => Promise<QueryObserverResult<Node, Error>>;
 }
 
 const NodeFile: React.FC<NodeFileProps> = ({ node, refetch }) => {

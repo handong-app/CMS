@@ -5,11 +5,15 @@ import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { useFetchBe } from "../../../tools/api";
 import { Node } from "../../../types/node.types";
 
+interface QuizNodeData extends Node {
+  data: { question: string; options: string[]; answer: number };
+}
+
 export interface NodeQuizProps {
-  node: Node;
+  node: QuizNodeData;
   refetch?: (
     options?: RefetchOptions
-  ) => Promise<QueryObserverResult<any, Error>>;
+  ) => Promise<QueryObserverResult<Node, Error>>;
 }
 
 const NodeQuiz: React.FC<NodeQuizProps> = ({ node, refetch }) => {
@@ -144,7 +148,7 @@ const NodeQuiz: React.FC<NodeQuizProps> = ({ node, refetch }) => {
       <QuizBox
         question={node.data.question}
         options={node.data.options}
-        answer={node.data.answer}
+        answer={node.data.options[node.data.answer] || ""}
       />
       <Box mt={2}>
         <button onClick={() => setEditing(true)}>수정</button>

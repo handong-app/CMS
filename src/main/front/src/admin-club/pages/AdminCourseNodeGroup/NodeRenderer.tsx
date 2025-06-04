@@ -15,7 +15,7 @@ export interface NodeRendererProps {
   node: Node;
   refetch: (
     options?: RefetchOptions
-  ) => Promise<QueryObserverResult<any, Error>>;
+  ) => Promise<QueryObserverResult<Node, Error>>;
 }
 
 const NodeRenderer: React.FC<NodeRendererProps> = ({ node, refetch }) => {

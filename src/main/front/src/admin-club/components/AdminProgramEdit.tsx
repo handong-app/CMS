@@ -21,17 +21,24 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
-import AdminClubMemberTable, { ClubMember } from "./AdminClubMemberTable";
+import AdminClubMemberTable from "./AdminClubMemberTable";
+import { ClubMember } from "../../types/clubmember.types";
+
+export interface CourseItem {
+  id: string;
+  title: string;
+  [key: string]: any;
+}
 
 export interface AdminProgramEditProps {
-  allCourses: string[]; // 전체 코스 목록 (id/slug로 대체 가능)
+  allCourses: CourseItem[]; // 전체 코스 목록 (id/slug/title 등 포함)
   initialName?: string;
   initialDescription?: string;
-  initialCourses?: string[];
+  initialCourses?: (string | CourseItem)[];
   onSave?: (data: {
     name: string;
     description: string;
-    courses: string[];
+    courses: (string | CourseItem)[];
   }) => void;
   enrolledMembers?: ClubMember[]; // 수강중인 회원 목록
 }
@@ -46,26 +53,37 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
 }) => {
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
-  const [courses, setCourses] = useState<string[]>(initialCourses);
+  // courses는 CourseItem[]으로 관리
+  const [courses, setCourses] = useState<CourseItem[]>(
+    initialCourses.map((c) =>
+      typeof c === "string"
+        ? allCourses.find((ac) => ac.id === c || ac.title === c) || {
+            id: c,
+            title: c,
+          }
+        : c
+    )
+  );
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editIdx, setEditIdx] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState("");
+  const [editValue, setEditValue] = useState<CourseItem | null>(null);
 
   const [members, setMembers] = useState<ClubMember[]>(enrolledMembers ?? []);
   const [memberDialogOpen, setMemberDialogOpen] = useState(false);
   const [newMember, setNewMember] = useState<Partial<ClubMember>>({});
 
   // 코스 추가
-  const handleAddCourse = (course: string) => {
-    if (!courses.includes(course)) setCourses([...courses, course]);
+  const handleAddCourse = (course: CourseItem) => {
+    if (!courses.some((c) => c.id === course.id))
+      setCourses([...courses, course]);
     setAddDialogOpen(false);
   };
 
   // 코스 수정
-  const handleEditCourse = (idx: number, newValue: string) => {
+  const handleEditCourse = (idx: number, newValue: CourseItem) => {
     setCourses((prev) => prev.map((c, i) => (i === idx ? newValue : c)));
     setEditIdx(null);
-    setEditValue("");
+    setEditValue(null);
   };
 
   // 코스 삭제
@@ -152,7 +170,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
               label="이름"
               value={newMember.name ?? ""}
               onChange={(e) =>
-                setNewMember((m) => ({ ...m, name: e.target.value }))
+                setNewMember((m: any) => ({ ...m, name: e.target.value }))
               }
               fullWidth
               sx={{ mb: 2 }}
@@ -161,7 +179,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
               label="학번"
               value={newMember.studentId ?? ""}
               onChange={(e) =>
-                setNewMember((m) => ({ ...m, studentId: e.target.value }))
+                setNewMember((m: any) => ({ ...m, studentId: e.target.value }))
               }
               fullWidth
               sx={{ mb: 2 }}
@@ -170,7 +188,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
               label="이메일"
               value={newMember.email ?? ""}
               onChange={(e) =>
-                setNewMember((m) => ({ ...m, email: e.target.value }))
+                setNewMember((m: any) => ({ ...m, email: e.target.value }))
               }
               fullWidth
               sx={{ mb: 2 }}
@@ -179,7 +197,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
               label="전화번호"
               value={newMember.phone ?? ""}
               onChange={(e) =>
-                setNewMember((m) => ({ ...m, phone: e.target.value }))
+                setNewMember((m: any) => ({ ...m, phone: e.target.value }))
               }
               fullWidth
               sx={{ mb: 2 }}
@@ -188,7 +206,10 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
               label="프로필 이미지 URL"
               value={newMember.profileImageUrl ?? ""}
               onChange={(e) =>
-                setNewMember((m) => ({ ...m, profileImageUrl: e.target.value }))
+                setNewMember((m: any) => ({
+                  ...m,
+                  profileImageUrl: e.target.value,
+                }))
               }
               fullWidth
               sx={{ mb: 2 }}
@@ -197,7 +218,7 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
               label="유저 ID"
               value={newMember.userId ?? ""}
               onChange={(e) =>
-                setNewMember((m) => ({ ...m, userId: e.target.value }))
+                setNewMember((m: any) => ({ ...m, userId: e.target.value }))
               }
               fullWidth
               sx={{ mb: 2 }}
@@ -240,34 +261,44 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
           </Button>
         </Box>
         <List>
-          {courses.map((course: any, idx) => (
-            <React.Fragment key={course.id || course.title || course}>
-              <ListItem
-                secondaryAction={
-                  <>
-                    <IconButton
-                      edge="end"
-                      onClick={() => {
-                        setEditIdx(idx);
-                        setEditValue(course.title || course);
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      edge="end"
-                      onClick={() => handleDeleteCourse(idx)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </>
-                }
-              >
-                <ListItemText primary={course.title || course} />
-              </ListItem>
-              {idx < courses.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
+          {courses.map((course: string | CourseItem, idx) => {
+            const key =
+              typeof course === "object" && course !== null
+                ? course.id
+                : String(course);
+            const label =
+              typeof course === "object" && course !== null
+                ? course.title
+                : course;
+            return (
+              <React.Fragment key={key}>
+                <ListItem
+                  secondaryAction={
+                    <>
+                      <IconButton
+                        edge="end"
+                        onClick={() => {
+                          setEditIdx(idx);
+                          setEditValue(course as CourseItem);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleDeleteCourse(idx)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  }
+                >
+                  <ListItemText primary={label} />
+                </ListItem>
+                {idx < courses.length - 1 && <Divider />}
+              </React.Fragment>
+            );
+          })}
         </List>
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button
@@ -286,12 +317,16 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
         <DialogTitle>코스 추가</DialogTitle>
         <DialogContent>
           <Autocomplete
-            options={allCourses.filter((c) => !courses.includes(c))}
+            options={allCourses.filter(
+              (c) => !courses.some((cc) => cc.id === c.id)
+            )}
+            getOptionLabel={(option) => option.title}
             renderInput={(params) => (
               <TextField {...params} label="코스 선택" />
             )}
             onChange={(_, value) => value && handleAddCourse(value)}
             autoHighlight
+            value={null}
           />
         </DialogContent>
         <DialogActions>
@@ -305,8 +340,11 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
         <DialogContent>
           <Autocomplete
             options={allCourses.filter(
-              (c) => !courses.includes(c) || c === editValue
+              (c) =>
+                !courses.some((cc) => cc.id === c.id) ||
+                (editValue && c.id === editValue.id)
             )}
+            getOptionLabel={(option) => option.title}
             value={editValue}
             renderInput={(params) => (
               <TextField {...params} label="코스 선택" />
@@ -319,7 +357,9 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
           <Button onClick={() => setEditIdx(null)}>취소</Button>
           <Button
             onClick={() =>
-              editIdx !== null && handleEditCourse(editIdx, editValue)
+              editIdx !== null &&
+              editValue &&
+              handleEditCourse(editIdx, editValue)
             }
             disabled={!editValue}
             variant="contained"

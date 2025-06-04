@@ -10,15 +10,7 @@ import {
   Paper,
 } from "@mui/material";
 import { Link } from "react-router";
-
-export interface ClubMember {
-  userId: string;
-  name: string;
-  studentId: string;
-  email: string;
-  phone: string;
-  profileImageUrl: string;
-}
+import { ClubMember } from "../../types/clubmember.types";
 
 export interface AdminClubMemberTableProps {
   members: ClubMember[];

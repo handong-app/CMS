@@ -55,8 +55,8 @@ const FileUploadBox: React.FC<FileUploadBoxProps> = ({ node, onComplete }) => {
       });
       setProgress(100);
       onComplete && (await onComplete());
-    } catch (e: any) {
-      setError(e?.message || "업로드 중 오류 발생");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "업로드 중 오류 발생");
     } finally {
       setUploading(false);
     }

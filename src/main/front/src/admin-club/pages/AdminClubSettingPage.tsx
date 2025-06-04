@@ -13,14 +13,9 @@ import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchBe } from "../../tools/api";
 
-export interface AdminClubSettingPageProps {
-  slug?: string;
-  description?: string;
-  bannerUrl?: string;
-}
 const isValidSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
 
-function AdminClubSettingPage({}: AdminClubSettingPageProps) {
+function AdminClubSettingPage() {
   const [form, setForm] = useState({
     name: "",
     slug: "",

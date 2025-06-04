@@ -8,7 +8,7 @@ export interface NodeVideoProps {
   node: Node;
   refetch?: (
     options?: RefetchOptions
-  ) => Promise<QueryObserverResult<any, Error>>;
+  ) => Promise<QueryObserverResult<Node, Error>>;
 }
 
 const NodeVideo: React.FC<NodeVideoProps> = ({ node }) => {
