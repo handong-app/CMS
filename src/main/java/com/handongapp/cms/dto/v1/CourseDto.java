@@ -23,7 +23,7 @@ public class CourseDto {
         private final String slug;
         private final String description;
         private final boolean isVisible;
-        private final String pictureUrl;
+        private final String fileKey;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
 
@@ -37,7 +37,7 @@ public class CourseDto {
                     entity.getSlug(),
                     entity.getDescription(),
                     entity.isVisible(),
-                    entity.getPictureUrl(),
+                    entity.getFileKey(),
                     entity.getCreatedAt(),
                     entity.getUpdatedAt()
             );
@@ -58,7 +58,7 @@ public class CourseDto {
         private String description;
         @Builder.Default
         private Boolean isVisible = true;
-        private String pictureUrl;
+        private String fileKey;
 
         public TbCourse toEntity(String clubId, String userId) {
             TbCourse course = new TbCourse();
@@ -68,7 +68,7 @@ public class CourseDto {
             course.setSlug(this.slug);
             course.setDescription(this.description);
             course.setVisible(this.isVisible != null ? this.isVisible : true);
-            course.setPictureUrl(this.pictureUrl);
+            course.setFileKey(this.fileKey);
             return course;
         }
     }
@@ -80,15 +80,15 @@ public class CourseDto {
         private final String slug;
         private final String description;
         private final Boolean isVisible;
-        private final String pictureUrl;
+        private final String fileKey;
 
         public UpdateRequest(String title, String slug, String description, 
-                           Boolean isVisible, String pictureUrl) {
+                           Boolean isVisible, String fileKey) {
             this.title = title;
             this.slug = slug;
             this.description = description;
             this.isVisible = isVisible;
-            this.pictureUrl = pictureUrl;
+            this.fileKey = fileKey;
         }
 
         public void applyTo(TbCourse entity) {
@@ -104,8 +104,8 @@ public class CourseDto {
             if (this.isVisible != null) {
                 entity.setVisible(this.isVisible);
             }
-            if (this.pictureUrl != null) {
-                entity.setPictureUrl(this.pictureUrl);
+            if (this.fileKey != null) {
+                entity.setFileKey(this.fileKey);
             }
         }
     }

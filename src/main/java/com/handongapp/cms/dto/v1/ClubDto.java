@@ -16,7 +16,7 @@ public class ClubDto {
         private String clubName;
         private String slug;
         private String description;
-        private String bannerUrl;
+        private String fileKey;
 
     }
 
@@ -27,8 +27,7 @@ public class ClubDto {
         private String slug;
         private String name;
         private String description;
-        private String bannerUrl;
-
+        private String fileKey;
     }
 
     @Getter
