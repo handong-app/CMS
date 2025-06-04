@@ -5,10 +5,10 @@ import { initiateGoogleLogin } from "../utils/auth";
 import LottieBackground from '../components/LandingPage/LottieBackground';
 
 const LandingPage: React.FC = () => {
-  const theme = useTheme(); // 테마 객체 가져오기
-  const appBarHeight = `calc(${theme.mixins.toolbar.minHeight}px + ${theme.spacing(2)})`;
-  return (
+  const theme = useTheme(); 
+  const appBarHeight = `${theme.mixins.toolbar.minHeight}px`;
 
+  return (
     <Box
       sx={{
         backgroundColor: theme.palette.background.default || "#1A1A1A",
@@ -52,9 +52,8 @@ const LandingPage: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* 오른쪽 이미지/소개 글/로그인 버튼 블록 */}
         <Box sx={{ flex: 1, maxWidth: { md: "50%" }, position: "relative", pl: { md: 4 } }}>
-         
+          
           <Box sx={{ mt: 4, maxWidth: "500px", ml: { md: "auto" }, textAlign: { xs: "center", md: "right" } }}>
             <Typography variant="body1" sx={{ color: theme.palette.grey[400] || "#AAAAAA", lineHeight: 1.6 }}>
               Let's make club management a strength for your organization. We're here to help with everything from
