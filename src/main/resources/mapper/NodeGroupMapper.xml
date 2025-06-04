@@ -39,7 +39,7 @@
                             ), JSON_ARRAY())
                             FROM tb_comment c_node
                             LEFT JOIN tb_comment_of_category coc_node ON c_node.category_id = coc_node.id
-                            WHERE c_node.is_node_deledted = 'N' AND c_node.deledted = 'N' AND c_node.target_id = n.id
+                            WHERE c_node.is_node_deleted = 'N' AND c_node.deleted = 'N' AND c_node.target_id = n.id
                         )
                     )
                 ), JSON_ARRAY())
@@ -64,10 +64,10 @@
                 ), JSON_ARRAY())
                 FROM tb_comment c_ng
                 LEFT JOIN tb_comment_of_category coc_ng ON c_ng.category_id = coc_ng.id
-                WHERE c_ng.target_id = ng.id AND c_ng.is_node_deleted = TRUE AND c_ng.deledted = 'N'
+                WHERE c_ng.target_id = ng.id AND c_ng.is_node_deleted = TRUE AND c_ng.deleted = 'N'
             )
         )
     FROM tb_node_group ng
-    WHERE ng.id = #{nodeGroupId} AND ng.deledted = 'N';
+    WHERE ng.id = #{nodeGroupId} AND ng.deleted = 'N';
 </select>
 </mapper>
