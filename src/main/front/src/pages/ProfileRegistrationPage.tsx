@@ -12,6 +12,10 @@ import {
 import useAuthStore from "../store/authStore";
 import { useFetchBe } from "../tools/api";
 import { useTheme } from "@mui/material/styles";
+import UserProfileImageUploadBox from "../components/UserProfileImageUploadBox";
+import useUserData from "../hooks/userData";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 // 전화번호 자동 하이픈 함수
 const formatPhoneNumber = (value: string): string => {
@@ -47,6 +51,9 @@ const ProfileRegistrationPage: React.FC = () => {
 
   const user = useAuthStore((state) => state.user);
   const fetchBe = useFetchBe();
+  const navigate = useNavigate();
+
+  const userData = useUserData();
 
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
@@ -58,6 +65,21 @@ const ProfileRegistrationPage: React.FC = () => {
   useEffect(() => {
     if (user?.name) setName(user.name);
   }, [user]);
+
+  const { data: myData, refetch } = useQuery({
+    queryKey: ["myData"],
+    queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
+  });
+
+  useEffect(() => {
+    if (myData) {
+      setName((prev) => prev || myData.name || "");
+      setStudentId((prev) => prev || myData.studentId || "");
+      setPhoneNumber((prev) => prev || myData.phone || "");
+      setTermsAgreed(!!myData.studentId);
+      setPrivacyAgreed(!!myData.studentId);
+    }
+  }, [myData]);
 
   const validateStudentId = (id: string): string => {
     if (!id) {
@@ -150,6 +172,7 @@ const ProfileRegistrationPage: React.FC = () => {
 
       alert("프로필이 성공적으로 등록되었습니다.");
       // TODO: 성공 후 페이지 이동 또는 상태 변경 로직 (예: router.push('/profile'))
+      navigate("/club/callein");
     } catch (err: any) {
       alert("프로필 등록에 실패했습니다: " + (err.message || "서버 오류"));
       console.error(err);
@@ -179,13 +202,14 @@ const ProfileRegistrationPage: React.FC = () => {
         }}
       >
         <Box textAlign="center" mb={3}>
-          <Avatar
-            alt={user?.name || "사용자"}
-            src={
-              user?.photoURL ||
-              "https://lh3.googleusercontent.com/a/default-user"
-            }
-            sx={{ width: 80, height: 80, mx: "auto", mb: 2 }}
+          <UserProfileImageUploadBox
+            key={myData?.profileImage}
+            userId={userData?.userId || ""}
+            photoURL={myData?.profileImage}
+            size={80}
+            onUploaded={async (url) => {
+              refetch();
+            }}
           />
           <Typography variant="h6" fontWeight="bold">
             프로필 등록
