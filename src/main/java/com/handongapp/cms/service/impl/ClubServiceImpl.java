@@ -3,11 +3,14 @@ package com.handongapp.cms.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.handongapp.cms.domain.TbClub;
+import com.handongapp.cms.domain.TbCourse;
 import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.ClubDto;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.ClubRepository;
+import com.handongapp.cms.repository.CourseRepository;
 import com.handongapp.cms.service.ClubService;
 import com.handongapp.cms.service.PresignedUrlService;
 import jakarta.transaction.Transactional;
@@ -25,6 +28,7 @@ import java.util.Optional;
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
+    private final CourseRepository courseRepository;
     private final ClubMapper clubMapper;
     private final ObjectMapper objectMapper;
 
@@ -151,15 +155,36 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     public String getCoursesByClubSlugAsJson(String clubSlug) {
-        // Ensure club exists and is not deleted before fetching courses
         clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "코스 정보를 조회할 클럽을 찾을 수 없습니다: " + clubSlug));
-        
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "코스 정보를 조회할 클럽을 찾을 수 없습니다: " + clubSlug));
+
         String rawJson = clubMapper.getCoursesByClubSlugAsJson(clubSlug);
 
         try {
-            JsonNode node = objectMapper.readTree(rawJson);
-            return objectMapper.writeValueAsString(node);
+            JsonNode root = objectMapper.readTree(rawJson);
+
+            if (root.isArray()) {
+                for (JsonNode courseNode : root) {
+                    String courseId = courseNode.path("id").asText(null);
+
+                    if (StringUtils.hasText(courseId)) {
+                        TbCourse course = courseRepository.findById(courseId)
+                                .orElse(null);
+
+                        if (course != null &&
+                                StringUtils.hasText(course.getFileKey()) &&
+                                FileStatus.UPLOADED.equals(course.getFileStatus())) {
+
+                            String presignedUrl = presignedUrlService.generateDownloadUrl(
+                                    course.getFileKey(), Duration.ofMinutes(60)).toString();
+
+                            ((ObjectNode) courseNode).put("pictureUrl", presignedUrl);
+                        }
+                    }
+                }
+            }
+
+            return objectMapper.writeValueAsString(root);
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "코스 JSON 파싱/직렬화에 실패했습니다.", e);
         }
