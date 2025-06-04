@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbClub;
+import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.ClubDto;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.ClubRepository;
@@ -37,9 +38,11 @@ public class ClubServiceImpl implements ClubService {
         return clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
                 .map(club -> {
                     String presignedUrl = null;
-                    if (StringUtils.hasText(club.getFileKey())) {
+                    if (StringUtils.hasText(club.getFileKey()) && FileStatus.UPLOADED.equals(club.getFileStatus())) {
                         // Presigned URL 생성
-                        presignedUrl = presignedUrlService.generateDownloadUrl(club.getFileKey(), Duration.ofMinutes(60)).toString();
+                        presignedUrl = presignedUrlService
+                                .generateDownloadUrl(club.getFileKey(), Duration.ofMinutes(60))
+                                .toString();
                     }
 
                     return new ClubDto.ClubProfileResDto(
