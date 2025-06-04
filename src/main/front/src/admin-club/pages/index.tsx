@@ -11,6 +11,7 @@ import AdminCoursePage from "./AdminCoursePage";
 import AdminProgramListPage from "./AdminProgramListPage";
 import AdminProgramPage from "./AdminProgramPage";
 import AdminCommentListPage from "./AdminCommentListPage";
+import AdminCourseDetailPage from "./AdminCourseDetailPage";
 
 export const CLUB_ADMINMENU = [
   {
@@ -44,8 +45,8 @@ export const CLUB_ADMINMENU = [
         element: <AdminCoursePage />,
       },
       {
-        path: "get/:courseId",
-        element: <div>코스 상세 정보</div>,
+        path: ":courseSlug",
+        element: <AdminCourseDetailPage />,
       },
     ],
   },

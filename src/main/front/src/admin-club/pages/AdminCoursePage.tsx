@@ -1,21 +1,18 @@
 import { Box, Paper, Typography, Button, Grid } from "@mui/material";
 import { Link, useParams } from "react-router";
 import AddIcon from "@mui/icons-material/Add";
-import CourseItem, {
-  CourseItemProps,
-} from "../../components/course/CourseItem";
 import { useQuery } from "@tanstack/react-query";
-import { fetchBe, useFetchBe } from "../../tools/api";
+import { useFetchBe } from "../../tools/api";
 import CourseList from "../../components/course/CourseList";
 
 function AdminCoursePage() {
-  const { club: clubId } = useParams<{ club: string }>();
+  const { club: clubSlug } = useParams<{ club: string }>();
 
   const fetchBe = useFetchBe();
 
   const { data: clubCourses, isLoading: coursesLoading } = useQuery({
-    queryKey: ["clubCourses", clubId],
-    queryFn: () => fetchBe(`/v1/clubs/${clubId}/courses`),
+    queryKey: ["clubCourses", clubSlug],
+    queryFn: () => fetchBe(`/v1/clubs/${clubSlug}/courses`),
   });
 
   if (coursesLoading) return <Typography>Loading...</Typography>;
@@ -56,7 +53,7 @@ function AdminCoursePage() {
           <CourseList
             courses={clubCourses.map((course: any) => ({
               ...course,
-              url: `/club/${clubId}/admin/course/${course.id}/edit`,
+              url: `/club/${clubSlug}/admin/course/${course.slug}`,
             }))}
           />
         </Grid>
