@@ -35,12 +35,20 @@ public class ClubServiceImpl implements ClubService {
     @Override
     public ClubDto.ClubProfileResDto getClubProfile(String clubSlug) {
         return clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
-                .map(club -> new ClubDto.ClubProfileResDto(
-                        club.getName(),
-                        club.getSlug(),
-                        club.getDescription(),
-                        club.getFileKey()
-                ))
+                .map(club -> {
+                    String presignedUrl = null;
+                    if (StringUtils.hasText(club.getFileKey())) {
+                        // Presigned URL 생성
+                        presignedUrl = presignedUrlService.generateDownloadUrl(club.getFileKey(), Duration.ofMinutes(60)).toString();
+                    }
+
+                    return new ClubDto.ClubProfileResDto(
+                            club.getName(),
+                            club.getSlug(),
+                            club.getDescription(),
+                            presignedUrl
+                    );
+                })
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "클럽을 찾을 수 없습니다: " + clubSlug));
     }
 

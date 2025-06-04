@@ -15,8 +15,7 @@ public class ClubDto {
         private String clubName;
         private String slug;
         private String description;
-        private String fileKey;
-
+        private String bannerUrl;
     }
 
     @Getter
