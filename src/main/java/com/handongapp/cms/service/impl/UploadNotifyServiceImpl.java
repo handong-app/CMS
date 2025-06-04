@@ -74,7 +74,8 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
         log.info("🔍 노드 타입 확인: {}", nodeType);
 
         // 같은 노드ID를 가지지만 fileListId는 제외한 다른 파일들을 삭제
-        deleteOtherFilesByNodeIdExcept(dto.getId(), dto.getFileListId());
+        // 같은 확장자를 가졌다면, 이미 MinIO 에 upsert 되었으므로 이미 파일이 1개일 것임
+        deleteOtherFilesByNodeIdExcept(dto.getId(), dto.getFileListId(), dto.getFileKey());
 
         nodeService.updateNodeFileData(dto.getId(), dto.getFileListId());
 
@@ -107,14 +108,14 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
                 .orElseThrow(() -> new IllegalArgumentException("요청된 파일 정보가 유효하지 않습니다. fileListId=" + fileListId));
     }
 
-     /**
+    /**
      * 업로드 완료 상태를 DB에 반영합니다.
      * <p>
      * 주어진 fileListId의 파일을 조회하고, 업로드 완료로 상태를 변경합니다.
      *
      * @param dto 업로드 완료 요청 DTO
      */
-     private void markFileAsUploaded(S3Dto.UploadCompleteRequest dto) {
+    private void markFileAsUploaded(S3Dto.UploadCompleteRequest dto) {
         TbFileList fileList = fileListRepository.findById(dto.getFileListId())
                 .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + dto.getFileListId()));
 
@@ -148,11 +149,12 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      * @param nodeId         노드 ID
      * @param fileListIdToKeep 유지할 파일 리스트 ID
      */
-    private void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep) {
+    private void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep, String fileKeyToKeep) {
         List<TbFileList> otherFiles = fileListRepository.findByNodeIdForUpdate(nodeId);
         for (TbFileList file : otherFiles) {
             if (!file.getId().equals(fileListIdToKeep)) {
-                deleteFileFromS3(file.getFileKey());
+                if(!file.getFileKey().equals(fileKeyToKeep))
+                    deleteFileFromS3(file.getFileKey());
                 fileListRepository.delete(file);
                 log.info("🗑️ 같은 노드ID 다른 파일 삭제됨: {}", file.getFileKey());
             }
