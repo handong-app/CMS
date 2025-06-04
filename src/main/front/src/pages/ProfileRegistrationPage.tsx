@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import useAuthStore from "../store/authStore";
 import { useFetchBe } from "../tools/api";
+import { useTheme } from "@mui/material/styles";
 
 // 전화번호 자동 하이픈 함수
 const formatPhoneNumber = (value: string): string => {
@@ -36,12 +37,14 @@ const formatPhoneNumber = (value: string): string => {
 };
 
 const ProfileRegistrationPage: React.FC = () => {
+  const theme = useTheme(); 
+
   const user = useAuthStore((state) => state.user);
   const fetchBe = useFetchBe();
 
   const [name, setName] = useState("");
-  const [studentId, setStudentId] = useState(""); // studentYear -> studentId로 변경
-  const [studentIdError, setStudentIdError] = useState<string>(""); // 학번 유효성 검사 오류 메시지 상태
+  const [studentId, setStudentId] = useState("");
+  const [studentIdError, setStudentIdError] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
@@ -52,9 +55,9 @@ const ProfileRegistrationPage: React.FC = () => {
 
   const validateStudentId = (id: string): string => {
     if (!id) {
-      return "학번을 입력해주세요."; // 필수 입력으로 가정
+      return "학번을 입력해주세요.";
     }
-    if (!/^\d+$/.test(id) && id.length > 0) { // 숫자만 있는지 확인 (이미 onChange에서 처리하지만, 이중 체크)
+    if (!/^\d+$/.test(id)) {
         return "숫자만 입력해주세요.";
     }
     if (id[0] !== '2') {
@@ -63,26 +66,17 @@ const ProfileRegistrationPage: React.FC = () => {
     if (id.length !== 8) {
       return "학번은 8자리여야 합니다.";
     }
-    return ""; // 유효한 경우 빈 문자열 반환
+    return "";
   };
 
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d]/g, ""); // 숫자 이외의 문자 제거
-    const slicedValue = value.slice(0, 8); // 최대 8자리로 제한
+    const value = e.target.value.replace(/[^\d]/g, "");
+    const slicedValue = value.slice(0, 8); 
 
     setStudentId(slicedValue);
 
-    if (slicedValue.length > 0) { // 입력이 있을 때만 유효성 검사 메시지 업데이트
-        if (slicedValue[0] !== '2') {
-            setStudentIdError("학번은 '2'로 시작해야 합니다.");
-        } else if (slicedValue.length < 8) {
-            setStudentIdError("학번은 8자리여야 합니다.");
-        } else {
-            setStudentIdError(""); // 모든 조건 만족
-        }
-    } else {
-        setStudentIdError(""); // 비어있을 때는 에러 메시지 없음 (또는 "학번을 입력해주세요"로 설정 가능)
-    }
+    const error = slicedValue.length > 0 ? validateStudentId(slicedValue) : "";
+    setStudentIdError(error);
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,19 +85,16 @@ const ProfileRegistrationPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // 학번 최종 유효성 검사
     const currentStudentIdError = validateStudentId(studentId);
     if (currentStudentIdError) {
-      setStudentIdError(currentStudentIdError); // 에러 상태 업데이트하여 UI에 표시
+      setStudentIdError(currentStudentIdError);
       alert(`학번 오류: ${currentStudentIdError}`);
       return;
     }
-    // 에러 상태가 이미 있다면 그것도 체크 (실시간 피드백과 중복될 수 있으나 안전장치)
     if (studentIdError) {
         alert(`학번 형식을 확인해주세요. (${studentIdError})`);
         return;
     }
-
 
     if (!termsAgreed || !privacyAgreed) {
       alert("필수 약관에 동의해주세요.");
@@ -119,7 +110,6 @@ const ProfileRegistrationPage: React.FC = () => {
         const decodedPayload = JSON.parse(atob(jwtToken.split(".")[1]));
         uid = decodedPayload.sub;
         email = decodedPayload.email;
-        // console.log("JWT Payload:", decodedPayload); // JWT 로깅은 필요시 활성화
       } catch (e) {
         console.error("JWT 디코딩 실패:", e);
         alert("사용자 정보를 가져오는데 실패했습니다. 다시 로그인해주세요.");
@@ -141,7 +131,7 @@ const ProfileRegistrationPage: React.FC = () => {
     const payload = {
       userId: uid,
       name: name,
-      studentId: studentId, // studentYear -> studentId
+      studentId: studentId,
       email: email,
       phone: rawPhoneNumber,
       profileImage: null,
@@ -165,11 +155,12 @@ const ProfileRegistrationPage: React.FC = () => {
     <Box
       display="flex"
       justifyContent="center"
-      alignItems="center"
-      height="calc(100vh - 64px)"
+      alignItems="flex-start" // 변경: 상단에 붙이고 paddingTop으로 여백 조절
+      height="calc(110vh - 64px)" 
       sx={{
-        background: "linear-gradient(to bottom, #0f0f1a, #1c1c2e)",
+        background: theme.palette.background.default || "#1A1A1A",
         px: 2,
+        paddingTop: theme.spacing(10), 
       }}
     >
       <Paper
@@ -178,7 +169,7 @@ const ProfileRegistrationPage: React.FC = () => {
           width: 400,
           p: 4,
           borderRadius: 4,
-          backgroundColor: "#1e1e2f",
+          backgroundColor: theme.palette.background.paper,
           color: "white",
         }}
       >
@@ -215,17 +206,16 @@ const ProfileRegistrationPage: React.FC = () => {
             fullWidth
             label="학번"
             value={studentId}
-            onChange={handleStudentIdChange} // 변경된 핸들러 사용
-            error={!!studentIdError} // studentIdError가 있으면 true
-            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"} // 에러 메시지 또는 안내 문구
+            onChange={handleStudentIdChange}
+            error={!!studentIdError}
+            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"}
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: { color: "white" },
-              // maxLength: 8, // onChange 핸들러에서 slice로 처리하므로 중복이지만, 명시적으로 둘 수도 있음
             }}
             variant="outlined"
-            type="text" // type="number"는 스피너를 표시할 수 있어 text로 두고 숫자만 필터링
-            inputMode="numeric" // 모바일에서 숫자 키패드 유도
+            type="text"
+            inputMode="numeric"
           />
         </Box>
         <Box mb={2}>
@@ -237,7 +227,6 @@ const ProfileRegistrationPage: React.FC = () => {
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: { color: "white" },
-              // maxLength: 13, // formatPhoneNumber 함수에서 길이 조절
             }}
             variant="outlined"
             type="tel"
@@ -280,7 +269,7 @@ const ProfileRegistrationPage: React.FC = () => {
           fullWidth
           onClick={handleSubmit}
           sx={{ mt: 1 }}
-          disabled={!!studentIdError && studentId.length > 0} // 학번 에러가 있고, 입력값이 존재하면 제출 버튼 비활성화
+          disabled={!!studentIdError && studentId.length > 0}
         >
           회원가입
         </Button>
