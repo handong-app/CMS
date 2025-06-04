@@ -3,9 +3,7 @@ package com.handongapp.cms.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbCourse;
-import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.CourseDto;
-import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.repository.CourseRepository;
 import com.handongapp.cms.service.CourseService;
@@ -79,15 +77,5 @@ public class CourseServiceImpl implements CourseService {
         } catch (Exception e) {
             throw new IllegalStateException("코스 JSON 파싱/직렬화에 실패했습니다.", e);
         }
-    }
-
-    @Override
-    @Transactional
-    public void updateCourseBanner(String courseId, String fileKey) {
-        TbCourse course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new NotFoundException("Course not found with id: " + courseId));
-        course.setFileKey(fileKey);
-        course.setFileStatus(FileStatus.UPLOADING);
-        courseRepository.save(course);
     }
 }

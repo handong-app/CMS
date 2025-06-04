@@ -25,7 +25,7 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final ClubRoleRepository clubRoleRepository;
+//    private final ClubRoleRepository clubRoleRepository;
     private final UserClubRoleRepository userClubRoleRepository;
     private final UserMapper userMapper;
     private final ProgramMapper programMapper;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
                            UserClubRoleRepository userClubRoleRepository,
                            UserMapper userMapper, ProgramMapper programMapper) {
             this.userRepository = userRepository;
-            this.clubRoleRepository = clubRoleRepository;
+//            this.clubRoleRepository = clubRoleRepository;
             this.userClubRoleRepository = userClubRoleRepository;
             this.userMapper = userMapper;
         this.programMapper = programMapper;
@@ -139,15 +139,5 @@ public class UserServiceImpl implements UserService {
         public InvalidEmailDomainException(String message) {
             super(message);
         }
-    }
-
-    @Override
-    @Transactional
-    public void updateUserProfile(String userId, String fileKey) {
-        TbUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
-        user.setFileKey(fileKey);
-        user.setFileStatus(FileStatus.UPLOADING);
-        userRepository.save(user);
     }
 }

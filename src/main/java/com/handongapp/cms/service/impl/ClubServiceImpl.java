@@ -4,12 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.handongapp.cms.domain.TbClub;
-import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.ClubDto;
-import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.service.ClubService;
+import com.handongapp.cms.service.PresignedUrlService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.util.Optional;
 
 @Service
@@ -26,6 +26,8 @@ public class ClubServiceImpl implements ClubService {
     private final ClubRepository clubRepository;
     private final ClubMapper clubMapper;
     private final ObjectMapper objectMapper;
+
+    private final PresignedUrlService presignedUrlService;
 
     private static final String DELETED_FLAG_YES = "Y";
     private static final String DELETED_FLAG_NO = "N";
@@ -151,15 +153,4 @@ public class ClubServiceImpl implements ClubService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "코스 JSON 파싱/직렬화에 실패했습니다.", e);
         }
     }
-
-    @Override
-    @Transactional
-    public void updateClubBanner(String clubId, String fileKey) {
-        TbClub club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new NotFoundException("Club not found with id: " + clubId));
-        club.setFileKey(fileKey);
-        club.setFileStatus(FileStatus.UPLOADING);
-        clubRepository.save(club);
-    }
-
 }
