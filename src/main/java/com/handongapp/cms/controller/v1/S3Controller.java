@@ -5,6 +5,7 @@ import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.UploadNotifyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +30,7 @@ public class S3Controller {
     @PostMapping("/upload-complete/node-file")
     public ResponseEntity<Void> notifyUploadComplete(@RequestBody S3Dto.UploadCompleteRequest dto) {
         uploadNotifyService.nodeFileUploadComplete(dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 //    @GetMapping("/download-url")
