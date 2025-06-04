@@ -10,4 +10,5 @@ public interface NodeService {
     List<NodeDto.Response> listByGroup(String nodeGroupId);
     NodeDto.Response update(String nodeId, NodeDto.UpdateRequest req);
     void deleteSoft(String nodeId);
+    void updateNodeFileDataToUploading(String nodeId, String fileListId);
 }
