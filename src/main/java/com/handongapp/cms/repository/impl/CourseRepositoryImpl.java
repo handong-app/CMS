@@ -31,7 +31,8 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
                         course.title.as("courseTitle"),
                         user.name.as("programCreator"),
                         course.description.as("courseDescription"),
-                        course.pictureUrl.as("coursePictureUrl")
+                        course.fileKey.as("courseFileKey"),
+                        course.fileStatus.as("courseFileStatus")
                 ))
                 .from(club)
                 .join(program).on(program.clubId.eq(club.id))
