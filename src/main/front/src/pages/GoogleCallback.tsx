@@ -5,8 +5,6 @@ import { jwtDecode } from "jwt-decode";
 import { useTheme } from "@mui/material/styles";
 import { Box, Button, Typography, Paper, Stack } from "@mui/material";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
 interface GoogleOAuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -61,7 +59,7 @@ const GoogleOAuthCallback: React.FC = () => {
       try {
         console.log("🚀 백엔드로 code 전송 중...");
         const res = await fetch(
-          `${baseUrl}/api/auth/google?code=${encodeURIComponent(code)}`
+          `/api/auth/google?code=${encodeURIComponent(code)}`
         );
 
         if (!res.ok) {
@@ -106,7 +104,7 @@ const GoogleOAuthCallback: React.FC = () => {
       return;
     }
 
-    fetch(`${baseUrl}/api/auth/google/cb`, {
+    fetch(`/api/auth/google/cb`, {
       method: "GET",
       headers: { Authorization: "Bearer " + jwtToken },
     })
@@ -125,7 +123,7 @@ const GoogleOAuthCallback: React.FC = () => {
     if (!jwtToken) return alert("jwtToken이 없습니다.");
 
     try {
-      const res = await fetch(`${baseUrl}/api/auth/google/logout`, {
+      const res = await fetch(`/api/auth/google/logout`, {
         method: "POST",
         headers: { Authorization: "Bearer " + jwtToken },
       });
@@ -145,7 +143,7 @@ const GoogleOAuthCallback: React.FC = () => {
   const refreshAccessToken = () => {
     if (!refreshToken) return alert("refreshToken이 없습니다.");
 
-    fetch(`${baseUrl}/api/auth/google/refresh`, {
+    fetch(`/api/auth/google/refresh`, {
       method: "POST",
       headers: { "Refresh-Token": "Bearer " + refreshToken },
     })
@@ -169,15 +167,20 @@ const GoogleOAuthCallback: React.FC = () => {
         padding: theme.spacing(3),
         backgroundColor: theme.palette.background.default,
         color: theme.palette.text.primary,
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
       }}
     >
-      <Typography variant="h4" component="h2" gutterBottom sx={{ color: theme.palette.primary.main }}>
+      <Typography
+        variant="h4"
+        component="h2"
+        gutterBottom
+        sx={{ color: theme.palette.primary.main }}
+      >
         Google OAuth 인증 처리 중...
       </Typography>
 
@@ -186,12 +189,12 @@ const GoogleOAuthCallback: React.FC = () => {
         sx={{
           mt: theme.spacing(3),
           p: theme.spacing(2),
-          width: '100%',
-          maxWidth: '600px',
+          width: "100%",
+          maxWidth: "600px",
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.secondary,
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
           boxShadow: theme.shadows[1],
         }}
       >
@@ -201,7 +204,7 @@ const GoogleOAuthCallback: React.FC = () => {
       </Paper>
 
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
+        direction={{ xs: "column", sm: "row" }}
         spacing={2}
         sx={{ mt: theme.spacing(3) }}
       >
@@ -236,12 +239,12 @@ const GoogleOAuthCallback: React.FC = () => {
         sx={{
           mt: theme.spacing(3),
           p: theme.spacing(2),
-          width: '100%',
-          maxWidth: '600px',
+          width: "100%",
+          maxWidth: "600px",
           backgroundColor: theme.palette.background.paper,
           color: theme.palette.text.secondary,
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
           boxShadow: theme.shadows[1],
         }}
       >
@@ -259,35 +262,47 @@ const GoogleOAuthCallback: React.FC = () => {
           variant="outlined"
           sx={{
             p: theme.spacing(2),
-            width: '100%',
-            maxWidth: '600px',
+            width: "100%",
+            maxWidth: "600px",
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.secondary,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
             boxShadow: theme.shadows[1],
           }}
         >
-          <Typography component="pre" variant="body2" sx={{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
+          <Typography
+            component="pre"
+            variant="body2"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             JWT Token: {jwtToken || "없음"}
           </Typography>
-          <Typography component="pre" variant="body2" sx={{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
+          <Typography
+            component="pre"
+            variant="body2"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             Refresh Token: {refreshToken || "없음"}
           </Typography>
-          <Typography component="pre" variant="body2" sx={{
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
+          <Typography
+            component="pre"
+            variant="body2"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             User Email: {user?.email || "없음"}
           </Typography>
         </Paper>
