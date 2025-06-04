@@ -11,7 +11,6 @@ RUN apk add --no-cache bash curl \
 
 # Timezone 설정 (이미지에 반영)
 ENV TZ=Asia/Seoul
-ENV REACT_BUILD=1
 
 # jar 파일을 컨테이너에 복사
 COPY ${JAR_FILE} /runme.jar

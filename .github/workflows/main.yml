@@ -58,7 +58,9 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2.6.0
         with:
-          arguments: build -x test 
+          arguments: build -x test
+        env:
+          REACT_BUILD: "1"
 
       # 다른 JOB 사용 가능하도록 artifact 생성
       - name: Upload JAR artifact
