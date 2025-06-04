@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -9,32 +9,63 @@ import {
   IconButton,
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useFetchBe } from "../../tools/api";
 
 export interface AdminClubSettingPageProps {
   slug?: string;
   description?: string;
   bannerUrl?: string;
 }
+const isValidSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
 
-const defaultClub = {
-  slug: "ai-club",
-  description: "A student-run club focused on AI projects.",
-  bannerUrl: "https://example.com/images/ai-club-banner.jpg",
-};
-
-function AdminClubSettingPage({
-  slug,
-  description,
-  bannerUrl,
-}: AdminClubSettingPageProps) {
+function AdminClubSettingPage({}: AdminClubSettingPageProps) {
   const [form, setForm] = useState({
-    slug: slug ?? defaultClub.slug,
-    description: description ?? defaultClub.description,
-    bannerUrl: bannerUrl ?? defaultClub.bannerUrl,
+    name: "",
+    slug: "",
+    description: "",
+    bannerUrl: "",
   });
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string>(form.bannerUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchBe = useFetchBe();
+
+  const { club } = useParams<{ club: string }>();
+
+  const { data: clubData, isLoading: clubLoading } = useQuery({
+    queryKey: ["clubData", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}`),
+    enabled: !!club,
+  });
+
+  useEffect(() => {
+    if (clubData) {
+      setForm((prev) => {
+        // if prev data is empty, use clubData
+        return {
+          name: prev.name || clubData.clubName || "",
+          slug: prev.slug || clubData.slug || "",
+          description: prev.description || clubData.description || "",
+          bannerUrl: prev.bannerUrl || clubData.bannerUrl || "",
+        };
+      });
+      setBannerPreview(clubData.bannerUrl || "");
+    }
+  }, [
+    clubData,
+    setForm,
+    setBannerPreview,
+    clubLoading,
+    clubData?.name,
+    clubData?.slug,
+    clubData?.description,
+    clubData?.bannerUrl,
+  ]);
+
+  console.log("clubData", clubData);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -59,20 +90,27 @@ function AdminClubSettingPage({
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 파일 업로드 및 저장 로직 추가
-    alert(
-      "저장되었습니다!\n" +
-        JSON.stringify(
-          {
-            ...form,
-            bannerFile: bannerFile ? bannerFile.name : undefined,
-          },
-          null,
-          2
-        )
-    );
+    setSaving(true);
+    try {
+      // 동아리 정보 PATCH (이미지 제외)
+      await fetchBe(`/v1/clubs/${club}`, {
+        method: "PATCH",
+        body: {
+          name: form.name,
+          // slug: form.slug,
+          description: form.description,
+          // bannerUrl: form.bannerUrl, // 이미지는 나중에
+        },
+      });
+      alert("저장되었습니다!");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "저장 중 오류 발생");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -86,6 +124,17 @@ function AdminClubSettingPage({
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
+            label="이름"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            required
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+          <TextField
             label="슬러그"
             name="slug"
             value={form.slug}
@@ -93,6 +142,13 @@ function AdminClubSettingPage({
             fullWidth
             margin="normal"
             variant="outlined"
+            error={!isValidSlug(form.slug)}
+            disabled
+            helperText={
+              !isValidSlug(form.slug)
+                ? "소문자, 숫자, 하이픈만 사용 가능합니다"
+                : ""
+            }
             slotProps={{ inputLabel: { shrink: true } }}
           />
           <TextField
@@ -168,8 +224,9 @@ function AdminClubSettingPage({
               borderRadius: 2,
             }}
             fullWidth
+            disabled={saving}
           >
-            저장
+            {saving ? "저장 중..." : "저장"}
           </Button>
         </Box>
       </Paper>
