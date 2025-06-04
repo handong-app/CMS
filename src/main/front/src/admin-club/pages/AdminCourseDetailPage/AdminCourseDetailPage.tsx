@@ -1,9 +1,11 @@
+import AddSectionButton from "./AddSectionButton";
 import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Box } from "@mui/material";
 import { useFetchBe } from "../../../tools/api";
-import Section from "../../../components/coursePage/Section";
-import SectionCourses from "../../../components/coursePage/SectionCourses";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Box } from "@mui/material";
+import SectionList from "./SectionList";
+
+import React, { useEffect } from "react";
 
 function AdminCourseDetailPage() {
   const { club: clubId, courseSlug } = useParams<{
@@ -12,11 +14,54 @@ function AdminCourseDetailPage() {
   }>();
 
   const fetchBe = useFetchBe();
+  const queryClient = useQueryClient();
 
-  const { data: courseData, isLoading: clubCourseLoading } = useQuery({
+  const [sections, setSections] = React.useState<any[]>([]);
+  const {
+    data: courseData,
+    isLoading: clubCourseLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["clubCourses", clubId, courseSlug],
     queryFn: () => fetchBe(`/v1/clubs/${clubId}/courses/${courseSlug}`),
   });
+
+  const refreshSections = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ["clubCourses", clubId, courseSlug],
+    });
+  };
+
+  useEffect(() => {
+    if (
+      courseData &&
+      typeof courseData === "object" &&
+      "sections" in courseData
+    ) {
+      setSections((courseData as any).sections ?? []);
+    }
+  }, [courseData]);
+
+  // section 추가 핸들러
+  const handleAddSection = async (section: {
+    title: string;
+    description: string;
+    order: number;
+  }) => {
+    try {
+      await fetchBe(`/v1/clubs/${clubId}/courses/${courseSlug}/sections`, {
+        method: "POST",
+        body: section,
+      });
+      await refetch();
+      // refetch 후 최신 데이터로 sections 갱신
+      // (courseData는 비동기적으로 업데이트되므로, useEffect에서 처리)
+    } catch (e) {
+      alert("섹션 추가 실패: " + (e as any)?.message);
+    }
+  };
+
+  console.log("AdminCourseDetailPage sections", sections);
 
   if (clubCourseLoading) return <div>Loading...</div>;
   return (
@@ -28,56 +73,9 @@ function AdminCourseDetailPage() {
       </div>
       <div>
         <Box ml={2}>
-          <Box>
-            {(courseData?.sections ?? []).map((section: any) => (
-              <Box key={section.id} mt={1}>
-                <Section text={section.title} />
-                {section.nodeGroups.map((group: any) => (
-                  <Box mt={1.6} key={group.id}>
-                    <SectionCourses
-                      title={group.title}
-                      description={section.description}
-                      nodes={
-                        Array.isArray(group.nodes)
-                          ? group.nodes.map((node: any) => {
-                              let title = "";
-                              switch (node.type) {
-                                case "VIDEO":
-                                case "IMAGE":
-                                case "FILE":
-                                case "TEXT":
-                                  title = node.data?.title ?? "";
-                                  break;
-                                case "QUIZ":
-                                  title = node.data?.question ?? "";
-                                  break;
-                                default:
-                                  title = "";
-                              }
-                              return {
-                                id: node.id,
-                                type:
-                                  node.type === "FILE"
-                                    ? "doc"
-                                    : (node.type.toLowerCase() as
-                                        | "video"
-                                        | "image"
-                                        | "quiz"
-                                        | "doc"
-                                        | "file"
-                                        | "text"),
-                                title,
-                              };
-                            })
-                          : []
-                      }
-                    />
-                  </Box>
-                ))}
-              </Box>
-            ))}
-          </Box>
+          <SectionList sections={sections} refreshSections={refreshSections} />
         </Box>
+        <AddSectionButton onAddSection={handleAddSection} />
       </div>
     </div>
   );

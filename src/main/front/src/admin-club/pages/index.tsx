@@ -11,7 +11,7 @@ import AdminCoursePage from "./AdminCoursePage";
 import AdminProgramListPage from "./AdminProgramListPage";
 import AdminProgramPage from "./AdminProgramPage";
 import AdminCommentListPage from "./AdminCommentListPage";
-import AdminCourseDetailPage from "./AdminCourseDetailPage";
+import AdminCourseDetailPage from "./AdminCourseDetailPage/AdminCourseDetailPage";
 
 export const CLUB_ADMINMENU = [
   {
