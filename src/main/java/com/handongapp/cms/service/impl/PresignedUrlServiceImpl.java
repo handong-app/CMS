@@ -11,7 +11,7 @@ import com.handongapp.cms.mapper.NodeMapper;
 import com.handongapp.cms.repository.ClubRoleRepository;
 import com.handongapp.cms.repository.FileListRepository;
 import com.handongapp.cms.repository.UserClubRoleRepository;
-import com.handongapp.cms.service.PresignedUrlService;
+import com.handongapp.cms.service.*;
 import com.handongapp.cms.util.FileUtil;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +70,10 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     private final UserClubRoleRepository userClubRoleRepository;
     private final ClubRoleRepository clubRoleRepository;
     private final FileListRepository fileListRepository;
-    private final NodeServiceImpl nodeService;
+    private final NodeService nodeService;
+    private final UserService userService;
+    private final ClubService clubService;
+    private final CourseService courseService;
 
 
     /**
@@ -129,6 +132,80 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         response.setFileListId(savedFileList.getId());
 
         return response;
+    }
+
+    /**
+     * 대상별(코스, 클럽, 사용자) Presigned Upload URL을 생성합니다.
+     * <p>
+     * 업로드 대상의 타입({@code targetType})에 따라 S3 경로 및 {@code fileKey}를 생성하며,
+     * {@link TbFileList} 엔티티를 생성 및 저장합니다.
+     * <p>
+     * 업로드 URL 생성 후, 각 대상 테이블(course/club/user)의 {@code fileKey}도 함께 업데이트됩니다.
+     *
+     * @param targetType      업로드 대상의 타입 (예: {@code course-banner}, {@code club-banner}, {@code user-profile})
+     * @param targetId        업로드 대상의 ID (코스 ID, 클럽 ID, 사용자 ID)
+     * @param originalFilename 원본 파일명
+     * @param userId          업로더의 사용자 ID
+     * @return Presigned Upload URL 및 파일 정보 DTO
+     * @throws IllegalArgumentException         지원하지 않는 {@code targetType}일 경우 발생
+     * @throws PresignedUrlCreationException    Presigned URL 생성 또는 DB 처리 중 오류가 발생할 경우 발생
+     */
+    @Override
+    public S3Dto.UploadUrlResponse generateBannerUploadUrl(String targetType, String targetId, String originalFilename, String userId) {
+        String path;
+        switch (targetType) {
+            case "course-banner" -> path = "course-banner/";
+            case "club-banner" -> path = "club-banner/";
+            case "user-profile" -> path = "user-profile/";
+            default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
+        }
+
+        String extension = FilenameUtils.getExtension(originalFilename);
+        String mimeType = FileUtil.detectMimeTypeByFilename(originalFilename);
+        String fileKey = path + targetId + "." + extension;
+
+        try {
+            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileKey)
+                    .contentType(mimeType)
+                    .build();
+
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(signatureDuration)
+                    .putObjectRequest(objectRequest)
+                    .build();
+
+            TbFileList.TbFileListBuilder fileListBuilder = TbFileList.builder()
+                    .userId(userId)
+                    .fileKey(fileKey)
+                    .originalFileName(originalFilename)
+                    .contentType(mimeType)
+                    .isUploadComplete(false)
+                    .requestedAt(LocalDateTime.now());
+
+            switch (targetType) {
+                case "course-banner" -> fileListBuilder.courseId(targetId);
+                case "club-banner" -> fileListBuilder.clubId(targetId);
+            }
+            TbFileList savedFileList = fileListRepository.save(fileListBuilder.build());
+
+            switch (targetType) {
+                case "course-banner" -> courseService.updateCourseBanner(targetId, fileKey);
+                case "club-banner" -> clubService.updateClubBanner(targetId, fileKey);
+                case "user-profile" -> userService.updateUserProfile(targetId, fileKey);
+            }
+
+            return S3Dto.UploadUrlResponse.builder()
+                    .presignedUrl(presigner.presignPutObject(presignRequest).url().toString())
+                    .fileKey(fileKey)
+                    .originalFilename(originalFilename)
+                    .fileListId(savedFileList.getId())
+                    .build();
+
+        } catch (Exception e) {
+            throw new PresignedUrlCreationException("Presigned URL 생성 실패: " + e.getMessage(), e);
+        }
     }
 
     /**
