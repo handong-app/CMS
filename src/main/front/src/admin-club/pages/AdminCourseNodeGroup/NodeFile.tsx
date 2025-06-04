@@ -4,9 +4,10 @@ import DownloadFileBox from "../../../components/NodeGroupPage/DownloadFileBox";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { useFetchBe } from "../../../tools/api";
 import FileUploadBox from "./FileUploadBox";
+import { Node } from "../../../types/node.types";
 
 export interface NodeFileProps {
-  node: any;
+  node: Node;
   refetch?: (
     options?: RefetchOptions
   ) => Promise<QueryObserverResult<any, Error>>;

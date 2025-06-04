@@ -8,14 +8,15 @@ import NodeText from "./NodeText";
 import { Typography, Button, Box } from "@mui/material";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
+import { useFetchBe } from "../../../tools/api";
+import { Node } from "../../../types/node.types";
+
 export interface NodeRendererProps {
-  node: any;
+  node: Node;
   refetch: (
     options?: RefetchOptions
   ) => Promise<QueryObserverResult<any, Error>>;
 }
-
-import { useFetchBe } from "../../../tools/api";
 
 const NodeRenderer: React.FC<NodeRendererProps> = ({ node, refetch }) => {
   const fetchBe = useFetchBe();

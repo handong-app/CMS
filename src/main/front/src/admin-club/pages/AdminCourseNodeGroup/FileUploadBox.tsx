@@ -2,10 +2,11 @@ import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { useState } from "react";
 import { useFetchBe } from "../../../tools/api";
 import { Box, Button, Typography } from "@mui/material";
+import { Node } from "../../../types/node.types";
 
 // 파일 업로드용 임시 컴포넌트
 interface FileUploadBoxProps {
-  node: any;
+  node: Node;
   onComplete?: () => void;
 }
 

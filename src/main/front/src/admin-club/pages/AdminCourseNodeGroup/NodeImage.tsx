@@ -3,9 +3,10 @@ import { Box, Typography, Button } from "@mui/material";
 import ImagePreviewWithDownload from "../../../components/NodeGroupPage/ImagePreviewWithDownload";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import FileUploadBox from "./FileUploadBox";
+import { Node } from "../../../types/node.types";
 
 export interface NodeImageProps {
-  node: any;
+  node: Node;
   refetch?: (
     options?: RefetchOptions
   ) => Promise<QueryObserverResult<any, Error>>;

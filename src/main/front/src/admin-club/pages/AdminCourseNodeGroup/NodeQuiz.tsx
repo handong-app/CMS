@@ -3,9 +3,10 @@ import { Box, Typography } from "@mui/material";
 import QuizBox from "../../../components/NodeGroupPage/QuizBox";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { useFetchBe } from "../../../tools/api";
+import { Node } from "../../../types/node.types";
 
 export interface NodeQuizProps {
-  node: any;
+  node: Node;
   refetch?: (
     options?: RefetchOptions
   ) => Promise<QueryObserverResult<any, Error>>;

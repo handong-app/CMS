@@ -15,9 +15,10 @@ import "@milkdown/crepe/theme/nord-dark.css";
 import "./milkdown-overrides.css";
 import { useFetchBe } from "../../../tools/api";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { Node } from "../../../types/node.types";
 
 export interface NodeTextProps {
-  node: any;
+  node: Node;
   refetch?: (
     options?: RefetchOptions
   ) => Promise<QueryObserverResult<any, Error>>;
