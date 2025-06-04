@@ -1,0 +1,21 @@
+meta {
+  name: Course banner upload
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/s3/upload-url/course-banner?courseId=1a0f230711f54f78a0c0a2d32d1ef972&filename=flower.jpeg
+  body: none
+  auth: inherit
+}
+
+params:query {
+  courseId: 1a0f230711f54f78a0c0a2d32d1ef972
+  filename: flower.jpeg
+}
+
+vars:pre-request {
+  courseId: 1a0f230711f54f78a0c0a2d32d1ef972
+  filename: flower.jpeg
+}

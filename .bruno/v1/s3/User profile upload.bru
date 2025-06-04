@@ -1,0 +1,16 @@
+meta {
+  name: User profile upload
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/s3/upload-url/user-profile?userId=b31378c2fe4f4d7b9dca22f77a088447&filename=flower.jpeg
+  body: none
+  auth: inherit
+}
+
+params:query {
+  userId: b31378c2fe4f4d7b9dca22f77a088447
+  filename: flower.jpeg
+}
