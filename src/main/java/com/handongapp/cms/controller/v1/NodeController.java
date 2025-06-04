@@ -23,7 +23,6 @@ public class NodeController {
             @RequestBody @Valid NodeDto.CreateRequest req) {
 
         //validator.validateNodeGroupHierarchy(courseId, sectionId, nodeGroupId);
-        req.setNodeGroupId(req.getNodeGroupId()); // URL의 nodeGroupId를 DTO에 설정
         NodeDto.Response result = nodeService.create(req); // nodeGroupId 파라미터 없이 호출
         return ResponseEntity.ok(result);
     }

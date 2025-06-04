@@ -128,18 +128,16 @@ function AdminCourseNodeGroupPage() {
     const order = Array.isArray(data.nodes) ? data.nodes.length + 1 : 1;
     // API 경로: /api/v1/courses/{courseId}/sections/{sectionId}/node-groups/{nodeGroupId}/nodes
     try {
-      await fetchBe(
-        `/v1/courses/${courseSlug}/sections/_/node-groups/${nodeGroupId}/nodes`,
-        {
-          method: "POST",
-          body: {
-            type: addType,
-            commentPermitted: addCommentPermitted,
-            data: addData,
-            order,
-          },
-        }
-      );
+      await fetchBe(`/v1/nodes`, {
+        method: "POST",
+        body: {
+          nodeGroupId,
+          type: addType,
+          commentPermitted: addCommentPermitted,
+          data: addData,
+          order,
+        },
+      });
       setAddOpen(false);
       // 강제 리프레시
       window.location.reload();
