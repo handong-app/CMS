@@ -1,6 +1,9 @@
 package com.handongapp.cms.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * <p>TbCourseLastView Entity – records the last node-group a user has viewed
@@ -9,6 +12,9 @@ import jakarta.persistence.*;
  * <p><b>Design Pattern:</b> Plain Old Java Object, used as a JPA Aggregate Root.</p>
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "tb_course_last_view",
         indexes = {
                 @Index(columnList = "deleted")
