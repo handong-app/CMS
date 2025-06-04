@@ -12,7 +12,7 @@ import type { ProgramData, UserProgress } from "../types/process.types";
 import calculateProgress from "../utils/calculateProcess";
 import { useFetchBe } from "../tools/api";
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
 
@@ -20,6 +20,7 @@ function CoursePage() {
   const { userId } = useUserData();
   const fetchBe = useFetchBe();
   const { clubSlug, courseSlug } = useParams();
+  const navigate = useNavigate();
 
   // 내 프로그램 리스트
   const { data: myPrograms } = useQuery<
@@ -127,7 +128,7 @@ function CoursePage() {
           courseTitle={courseData?.title ?? ""}
           sections={(courseData?.sections ?? []).map((section) => ({
             ...section,
-            nodeGroups: section.nodeGroups?.map((group) => {
+            nodeGroups: section.nodeGroups.map((group) => {
               // nodeGroup 완료 여부 및 진행중 여부 계산
               let isCompleted = false;
               let isInProgress = false;
@@ -135,7 +136,7 @@ function CoursePage() {
                 const courseId = courseData.id;
                 const courseProgress = myProgress.courseProgress[courseId];
                 if (courseProgress?.map) {
-                  const state = courseProgress?.map[group.id];
+                  const state = courseProgress.map[group.id];
                   isCompleted = state === "DONE";
                   isInProgress = state === "IN_PROGRESS";
                 }
@@ -218,7 +219,7 @@ function CoursePage() {
                     scrollbarColor: "rgba(255,255,255,0.08) transparent",
                   }}
                 >
-                  {latestComments?.map((comment, index) => (
+                  {latestComments.map((comment, index) => (
                     <Box
                       key={comment.id || index}
                       display="flex"
@@ -263,8 +264,9 @@ function CoursePage() {
               {(courseData?.sections ?? []).map((section) => (
                 <Box key={section.id} mt={1}>
                   <Section text={section.title} />
-                  {section.nodeGroups?.map((group) => (
+                  {section.nodeGroups.map((group) => (
                     <Box mt={1.6} key={group.id}>
+                      {" "}
                       <SectionCourses
                         title={group.title}
                         description={section.description}
@@ -302,6 +304,21 @@ function CoursePage() {
                               })
                             : []
                         }
+                        onTitleClick={() => {
+                          console.log("group slug", group.title);
+                          if (clubSlug && courseSlug && group.title) {
+                            navigate(
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.title}`
+                            );
+                          }
+                        }}
+                        onNodeClick={() => {
+                          if (clubSlug && courseSlug && group.title) {
+                            navigate(
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.title}`
+                            );
+                          }
+                        }}
                       />
                     </Box>
                   ))}
