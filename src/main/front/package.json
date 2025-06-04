@@ -23,6 +23,7 @@
     "date-fns": "^4.1.0",
     "hls.js": "^1.6.5",
     "jwt-decode": "^4.0.0",
+    "lottie-react": "^2.4.1",
     "react": "^19.1.0",
     "react-circular-progressbar": "^2.2.0",
     "react-dom": "^19.1.0",
