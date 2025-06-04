@@ -2,6 +2,7 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbComment;
 import com.handongapp.cms.dto.v1.CommentDto;
+import com.handongapp.cms.dto.v1.CommentResponseDto;
 import com.handongapp.cms.repository.CommentRepository;
 import com.handongapp.cms.mapper.CustomQueryMapper;
 import com.handongapp.cms.service.CommentService;
@@ -66,7 +67,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentDto.Response> searchComments(
+    public List<CommentResponseDto> searchComments(
             String courseId,
             String courseSlug,
             String courseName,
@@ -86,11 +87,7 @@ public class CommentServiceImpl implements CommentService {
             targetIdsForQuery = resolveTargetIds(resolvedCourseId);
         }
 
-        List<TbComment> comments = commentRepository.findCommentsByCriteria(targetIdsForQuery, resolvedUserId, DELETED_STATUS_NO);
-
-        return comments.stream()
-                .map(CommentDto.Response::from)
-                .collect(Collectors.toList());
+        return commentRepository.findCommentsByCriteria(targetIdsForQuery, resolvedUserId, DELETED_STATUS_NO);
     }
 
     private void validateInputParameters(String nodeGroupId, String courseId, String courseSlug, String courseName, String filterUserId, String username) {
