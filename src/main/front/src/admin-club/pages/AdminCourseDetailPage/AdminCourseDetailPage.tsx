@@ -1,9 +1,9 @@
 import { useParams } from "react-router";
-import { useFetchBe } from "../../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { Box } from "@mui/material";
-import Section from "../../components/coursePage/Section";
-import SectionCourses from "../../components/coursePage/SectionCourses";
+import { useFetchBe } from "../../../tools/api";
+import Section from "../../../components/coursePage/Section";
+import SectionCourses from "../../../components/coursePage/SectionCourses";
 
 function AdminCourseDetailPage() {
   const { club: clubId, courseSlug } = useParams<{
