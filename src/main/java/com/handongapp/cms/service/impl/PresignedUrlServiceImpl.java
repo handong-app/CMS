@@ -73,9 +73,6 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     private final ClubRoleRepository clubRoleRepository;
     private final FileListRepository fileListRepository;
     private final NodeService nodeService;
-    private final UserService userService;
-    private final ClubService clubService;
-    private final CourseService courseService;
 
 
     /**
