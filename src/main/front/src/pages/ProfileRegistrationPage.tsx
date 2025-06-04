@@ -21,23 +21,29 @@ const formatPhoneNumber = (value: string): string => {
 
   if (phoneNumberLength < 4) return phoneNumber;
   if (phoneNumberLength < 7) {
-    return phoneNumber.replace(/^(\d{2,3})(\d{1,3})/, '$1-$2');
+    return phoneNumber.replace(/^(\d{2,3})(\d{1,3})/, "$1-$2");
   }
   if (phoneNumberLength < 10) {
     if (phoneNumber.startsWith("02")) {
-        return phoneNumber.replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (match, p1, p2, p3) => {
-            return `${p1}-${p2}${p3 ? '-' + p3 : ''}`;
-        }).substring(0, 12);
+      return phoneNumber
+        .replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (match, p1, p2, p3) => {
+          return `${p1}-${p2}${p3 ? "-" + p3 : ""}`;
+        })
+        .substring(0, 12);
     }
-    return phoneNumber.replace(/^(\d{3})(\d{3})(\d{0,4})/, (match, p1, p2, p3) => {
-        return `${p1}-${p2}${p3 ? '-' + p3 : ''}`;
-    }).substring(0, 13);
+    return phoneNumber
+      .replace(/^(\d{3})(\d{3})(\d{0,4})/, (match, p1, p2, p3) => {
+        return `${p1}-${p2}${p3 ? "-" + p3 : ""}`;
+      })
+      .substring(0, 13);
   }
-  return phoneNumber.replace(/^(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3').substring(0, 13);
+  return phoneNumber
+    .replace(/^(\d{2,3})(\d{3,4})(\d{4})/, "$1-$2-$3")
+    .substring(0, 13);
 };
 
 const ProfileRegistrationPage: React.FC = () => {
-  const theme = useTheme(); 
+  const theme = useTheme();
 
   const user = useAuthStore((state) => state.user);
   const fetchBe = useFetchBe();
@@ -58,9 +64,9 @@ const ProfileRegistrationPage: React.FC = () => {
       return "학번을 입력해주세요.";
     }
     if (!/^\d+$/.test(id)) {
-        return "숫자만 입력해주세요.";
+      return "숫자만 입력해주세요.";
     }
-    if (id[0] !== '2') {
+    if (id[0] !== "2") {
       return "학번은 '2'로 시작해야 합니다.";
     }
     if (id.length !== 8) {
@@ -71,7 +77,7 @@ const ProfileRegistrationPage: React.FC = () => {
 
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, "");
-    const slicedValue = value.slice(0, 8); 
+    const slicedValue = value.slice(0, 8);
 
     setStudentId(slicedValue);
 
@@ -92,8 +98,8 @@ const ProfileRegistrationPage: React.FC = () => {
       return;
     }
     if (studentIdError) {
-        alert(`학번 형식을 확인해주세요. (${studentIdError})`);
-        return;
+      alert(`학번 형식을 확인해주세요. (${studentIdError})`);
+      return;
     }
 
     if (!termsAgreed || !privacyAgreed) {
@@ -134,7 +140,6 @@ const ProfileRegistrationPage: React.FC = () => {
       studentId: studentId,
       email: email,
       phone: rawPhoneNumber,
-      profileImage: null,
     };
     console.log("최종 제출 payload:", payload);
     try {
@@ -156,11 +161,11 @@ const ProfileRegistrationPage: React.FC = () => {
       display="flex"
       justifyContent="center"
       alignItems="flex-start" // 변경: 상단에 붙이고 paddingTop으로 여백 조절
-      height="calc(110vh - 64px)" 
+      height="calc(110vh - 64px)"
       sx={{
         background: theme.palette.background.default || "#1A1A1A",
         px: 2,
-        paddingTop: theme.spacing(10), 
+        paddingTop: theme.spacing(10),
       }}
     >
       <Paper
@@ -176,7 +181,10 @@ const ProfileRegistrationPage: React.FC = () => {
         <Box textAlign="center" mb={3}>
           <Avatar
             alt={user?.name || "사용자"}
-            src={user?.photoURL || "https://lh3.googleusercontent.com/a/default-user"}
+            src={
+              user?.photoURL ||
+              "https://lh3.googleusercontent.com/a/default-user"
+            }
             sx={{ width: 80, height: 80, mx: "auto", mb: 2 }}
           />
           <Typography variant="h6" fontWeight="bold">
@@ -208,7 +216,10 @@ const ProfileRegistrationPage: React.FC = () => {
             value={studentId}
             onChange={handleStudentIdChange}
             error={!!studentIdError}
-            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"}
+            helperText={
+              studentIdError ||
+              "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"
+            }
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: { color: "white" },
