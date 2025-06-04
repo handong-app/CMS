@@ -149,7 +149,7 @@ function AdminCourseNodeGroupPage() {
   };
 
   // nodeGroupId로 노드 그룹 상세 및 노드 목록 조회
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["nodeGroupDetail", nodeGroupId],
     queryFn: async () => {
       if (!nodeGroupId) return null;
@@ -203,7 +203,7 @@ function AdminCourseNodeGroupPage() {
                 {idx + 1}.{" "}
                 {node.data?.title || node.data?.question || node.type}
               </Typography>
-              <NodeRenderer node={node} />
+              <NodeRenderer node={node} refetch={refetch} />
             </Box>
           ))
         ) : (

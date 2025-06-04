@@ -46,9 +46,6 @@ public class NodeController {
 
     @PatchMapping("/{nodeId}")
     public ResponseEntity<NodeDto.Response> update(
-            @PathVariable String courseId,
-            @PathVariable String sectionId,
-            @PathVariable String nodeGroupId,
             @PathVariable String nodeId,
             @RequestBody @Valid NodeDto.UpdateRequest req) {
 

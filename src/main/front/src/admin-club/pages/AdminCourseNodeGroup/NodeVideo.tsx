@@ -1,9 +1,13 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import VideoPlayer from "../../../components/NodeGroupPage/VideoPlayer";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 export interface NodeVideoProps {
   node: any;
+  refetch?: (
+    options?: RefetchOptions
+  ) => Promise<QueryObserverResult<any, Error>>;
 }
 
 const NodeVideo: React.FC<NodeVideoProps> = ({ node }) => {

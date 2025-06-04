@@ -1,9 +1,13 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import QuizBox from "../../../components/NodeGroupPage/QuizBox";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 export interface NodeQuizProps {
   node: any;
+  refetch?: (
+    options?: RefetchOptions
+  ) => Promise<QueryObserverResult<any, Error>>;
 }
 
 const NodeQuiz: React.FC<NodeQuizProps> = ({ node }) => {

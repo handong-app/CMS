@@ -1,9 +1,13 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import DownloadFileBox from "../../../components/NodeGroupPage/DownloadFileBox";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
 export interface NodeFileProps {
   node: any;
+  refetch?: (
+    options?: RefetchOptions
+  ) => Promise<QueryObserverResult<any, Error>>;
 }
 
 const NodeFile: React.FC<NodeFileProps> = ({ node }) => {
