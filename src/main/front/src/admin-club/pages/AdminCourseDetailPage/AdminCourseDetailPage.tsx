@@ -2,11 +2,10 @@ import AddSectionButton from "./AddSectionButton";
 import { useParams } from "react-router";
 import { useFetchBe } from "../../../tools/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import CourseBannerUploadBox from "../../components/CourseBannerUploadBox";
 import SectionList from "./SectionList";
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 function AdminCourseDetailPage() {
   const { club: clubId, courseSlug } = useParams<{
@@ -55,14 +54,12 @@ function AdminCourseDetailPage() {
         body: section,
       });
       await refetch();
-      // refetch 후 최신 데이터로 sections 갱신
-      // (courseData는 비동기적으로 업데이트되므로, useEffect에서 처리)
     } catch (e) {
       alert("섹션 추가 실패: " + (e as any)?.message);
     }
   };
 
-  // 배너 이미지 업로드 완료 시 refetch만 수행 (upload-complete는 CourseBannerUploadBox에서 처리)
+  // 배너 이미지 업로드 완료 시 refetch만 수행
   const handleBannerUploadComplete = async () => {
     await refetch();
   };
@@ -75,27 +72,12 @@ function AdminCourseDetailPage() {
         <p>Club ID: {clubId}</p>
         <p>Course Slug: {courseSlug}</p>
       </div>
-      <Box mb={3} maxWidth={400}>
-        <CourseBannerUploadBox
-          targetId={courseData?.id || ""}
-          targetType="course-banner"
+      <Box mb={3} width="100%">
+        <CourseBannerSection
+          pictureUrl={courseData?.pictureUrl}
+          courseId={courseData?.id || ""}
           onComplete={handleBannerUploadComplete}
         />
-        {courseData?.pictureUrl && (
-          <Box mt={2}>
-            <img
-              src={courseData.pictureUrl}
-              alt="배너 이미지"
-              style={{
-                width: "100%",
-                maxHeight: 120,
-                objectFit: "cover",
-                borderRadius: 8,
-                border: "1px solid #ccc",
-              }}
-            />
-          </Box>
-        )}
       </Box>
       <div>
         <Box ml={2}>
@@ -106,5 +88,67 @@ function AdminCourseDetailPage() {
     </div>
   );
 }
+
+// 강의 배너 이미지 full width & 수정 버튼 UX 분리 컴포넌트
+interface CourseBannerSectionProps {
+  pictureUrl?: string;
+  courseId: string;
+  onComplete: () => void;
+}
+const CourseBannerSection: React.FC<CourseBannerSectionProps> = ({
+  pictureUrl,
+  courseId,
+  onComplete,
+}) => {
+  const [showBannerUpload, setShowBannerUpload] = useState(false);
+  return (
+    <Box width="100%" mx="auto">
+      {pictureUrl ? (
+        <>
+          <Box position="relative" width="100%">
+            <img
+              src={pictureUrl}
+              alt="배너 이미지"
+              style={{
+                width: "100%",
+                height: 240,
+                objectFit: "cover",
+                borderRadius: 8,
+                border: "1px solid #ccc",
+                background: "#eee",
+              }}
+            />
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
+              onClick={() => setShowBannerUpload(true)}
+            >
+              수정
+            </Button>
+          </Box>
+          {showBannerUpload && (
+            <Box mt={2}>
+              <CourseBannerUploadBox
+                targetId={courseId}
+                targetType="course-banner"
+                onComplete={async () => {
+                  setShowBannerUpload(false);
+                  onComplete();
+                }}
+              />
+            </Box>
+          )}
+        </>
+      ) : (
+        <CourseBannerUploadBox
+          targetId={courseId}
+          targetType="course-banner"
+          onComplete={onComplete}
+        />
+      )}
+    </Box>
+  );
+};
 
 export default AdminCourseDetailPage;

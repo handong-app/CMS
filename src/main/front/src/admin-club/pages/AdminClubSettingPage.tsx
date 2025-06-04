@@ -8,6 +8,8 @@ import { useFetchBe } from "../../tools/api";
 const isValidSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
 
 function AdminClubSettingPage() {
+  // 배너 업로드 UI 노출 상태
+  const [showBannerUpload, setShowBannerUpload] = useState(false);
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -143,30 +145,54 @@ function AdminClubSettingPage() {
               flexDirection="column"
               alignItems="center"
               gap={1}
+              width="100%"
             >
-              <CourseBannerUploadBox
-                targetId={clubData.id || ""}
-                targetType="club-banner"
-                onComplete={async () => {
-                  // 업로드 완료 후 clubData refetch
-                  refetch();
-                }}
-              />
-              {form.bannerUrl && (
-                <Box mt={2}>
-                  <img
-                    src={form.bannerUrl}
-                    alt="배너 이미지"
-                    style={{
-                      width: 320,
-                      height: 80,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                      border: "1px solid #ccc",
-                      background: "#eee",
-                    }}
-                  />
-                </Box>
+              {/* 이미지가 있으면 full width로 보여주고, 수정 버튼 클릭 시 업로드 UI 노출 */}
+              {clubData.bannerUrl ? (
+                <>
+                  <Box position="relative" width="100%" maxWidth={480}>
+                    <img
+                      src={clubData.bannerUrl}
+                      alt="배너 이미지"
+                      style={{
+                        width: "100%",
+                        height: 120,
+                        objectFit: "cover",
+                        borderRadius: 8,
+                        border: "1px solid #ccc",
+                        background: "#eee",
+                      }}
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
+                      onClick={() => setShowBannerUpload(true)}
+                    >
+                      수정
+                    </Button>
+                  </Box>
+                  {showBannerUpload && (
+                    <Box mt={2}>
+                      <CourseBannerUploadBox
+                        targetId={clubData.id || ""}
+                        targetType="club-banner"
+                        onComplete={async () => {
+                          setShowBannerUpload(false);
+                          refetch();
+                        }}
+                      />
+                    </Box>
+                  )}
+                </>
+              ) : (
+                <CourseBannerUploadBox
+                  targetId={clubData.id || ""}
+                  targetType="club-banner"
+                  onComplete={async () => {
+                    refetch();
+                  }}
+                />
               )}
             </Box>
           </Box>
