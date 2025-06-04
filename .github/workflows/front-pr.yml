@@ -32,6 +32,6 @@ jobs:
           npx vitest run
 
       - name: Run Compile Test (TSC Dry Run)
-        id: tsc:dry
+        id: "tsc_dry"
         run: |
           npm run tsc:dry
