@@ -109,10 +109,15 @@ public class CommentServiceImpl implements CommentService {
 
         return commentsWithCategories.stream()
                 .<CommentDto.Response>map(result -> {
+                    if (result == null || result.length == 0) {
+                        return null;
+                    }
                     TbComment comment = (TbComment) result[0];
-                    TbCommentOfCategory category = result.length > 1 ? (TbCommentOfCategory) result[1] : null;
+                    TbCommentOfCategory category = (result.length > 1 && result[1] != null) ? 
+                        (TbCommentOfCategory) result[1] : null;
                     return CommentDto.Response.from(comment, category);
                 })
+                .filter(response -> response != null)
                 .collect(Collectors.toList());
     }
 
