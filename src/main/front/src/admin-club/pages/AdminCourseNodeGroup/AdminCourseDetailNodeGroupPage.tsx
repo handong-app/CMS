@@ -19,7 +19,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import NodeRenderer from "./NodeRenderer";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const NODE_TYPES = [
   { value: "TEXT", label: "텍스트" },
@@ -164,11 +164,76 @@ function AdminCourseNodeGroupPage() {
   if (error) return <div>노드 그룹 정보를 불러올 수 없습니다.</div>;
   if (!data) return <div>노드 그룹 정보 없음</div>;
 
+  // 노드 그룹 제목 수정 상태
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [title, setTitle] = useState(data.title || "");
+  const [savingTitle, setSavingTitle] = useState(false);
+
+  useEffect(() => {
+    setTitle(data.title || "");
+  }, [data.title]);
+
+  const handleTitleSave = async () => {
+    setSavingTitle(true);
+    try {
+      await fetchBe(`/v1/node-group/${nodeGroupId}`, {
+        method: "PATCH",
+        body: { title, order: data.order },
+      });
+      setEditingTitle(false);
+      refetch && (await refetch());
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "제목 저장 실패");
+    } finally {
+      setSavingTitle(false);
+    }
+  };
+
   return (
     <Box maxWidth={800} mx="auto" mt={4}>
-      <Typography variant="h5" fontWeight={700} mb={2}>
-        노드 그룹: {data.title}
-      </Typography>
+      <Box display="flex" alignItems="center" mb={2}>
+        {editingTitle ? (
+          <>
+            <TextField
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              size="small"
+              sx={{ mr: 1 }}
+              autoFocus
+              disabled={savingTitle}
+            />
+            <Button
+              onClick={handleTitleSave}
+              disabled={savingTitle}
+              variant="contained"
+              size="small"
+            >
+              저장
+            </Button>
+            <Button
+              onClick={() => setEditingTitle(false)}
+              disabled={savingTitle}
+              size="small"
+              sx={{ ml: 1 }}
+            >
+              취소
+            </Button>
+          </>
+        ) : (
+          <>
+            <Typography variant="h5" fontWeight={700} mr={2}>
+              노드 그룹: {data.title}
+            </Typography>
+            <Button
+              onClick={() => setEditingTitle(true)}
+              size="small"
+              variant="outlined"
+            >
+              제목 수정
+            </Button>
+          </>
+        )}
+      </Box>
       <Typography variant="body2" color="text.secondary" mb={2}>
         ID: {data.id}
       </Typography>

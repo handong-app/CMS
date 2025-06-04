@@ -43,12 +43,12 @@ public class NodeGroupController {
         return new ResponseEntity<>(nodeGroupJson, httpHeaders, HttpStatus.OK);
     }
 
-    // @PatchMapping("/{nodeGroupId}")
-    // public ResponseEntity<NodeGroupDto.Response> update(
-    //         @PathVariable String nodeGroupId,
-    //         @RequestBody @Valid NodeGroupDto.UpdateRequest req) {
-    //     return ResponseEntity.ok(nodeGroupService.update(nodeGroupId, req));
-    // }
+     @PatchMapping("/{nodeGroupId}")
+     public ResponseEntity<NodeGroupDto.Response> update(
+             @PathVariable String nodeGroupId,
+             @RequestBody @Valid NodeGroupDto.UpdateRequest req) {
+         return ResponseEntity.ok(nodeGroupService.update(nodeGroupId, req));
+     }
 
      @DeleteMapping("/{nodeGroupId}")
      public ResponseEntity<Void> delete(@PathVariable String nodeGroupId) {

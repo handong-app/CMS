@@ -1,0 +1,22 @@
+meta {
+  name: Update NodeGroup
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{BASE_URL_LOCAL}}/api/v1/node-group/{{NODEGROUP_ID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "{{$randomWords}}",
+    "order": 1
+  }
+}
+
+vars:pre-request {
+  NODEGROUP_ID: 42eaf7a895424af0aa40611a42c41b8c
+}

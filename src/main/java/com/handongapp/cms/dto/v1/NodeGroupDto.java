@@ -78,9 +78,10 @@ public class NodeGroupDto {
 
     // UpdateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class UpdateRequest {
-        private final String title;
-        private final Integer order;
+        private String title;
+        private Integer order;
 
         public UpdateRequest(String title, Integer order) {
             this.title = title;
