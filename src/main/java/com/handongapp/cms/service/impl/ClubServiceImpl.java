@@ -55,6 +55,7 @@ public class ClubServiceImpl implements ClubService {
                     }
 
                     return new ClubDto.ClubProfileResDto(
+                            club.getId(),
                             club.getName(),
                             club.getSlug(),
                             club.getDescription(),
@@ -141,6 +142,7 @@ public class ClubServiceImpl implements ClubService {
         TbClub savedClub = clubRepository.save(newClub);
 
         return new ClubDto.ClubProfileResDto(
+                savedClub.getId(),
                 savedClub.getName(),
                 savedClub.getSlug(),
                 savedClub.getDescription(),

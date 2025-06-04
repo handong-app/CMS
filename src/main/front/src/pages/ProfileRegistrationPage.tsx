@@ -12,6 +12,10 @@ import {
 import useAuthStore from "../store/authStore";
 import { useFetchBe } from "../tools/api";
 import { useTheme } from "@mui/material/styles";
+import UserProfileImageUploadBox from "../components/UserProfileImageUploadBox";
+import useUserData from "../hooks/userData";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 // 전화번호 자동 하이픈 함수
 const formatPhoneNumber = (value: string): string => {
@@ -21,26 +25,35 @@ const formatPhoneNumber = (value: string): string => {
 
   if (phoneNumberLength < 4) return phoneNumber;
   if (phoneNumberLength < 7) {
-    return phoneNumber.replace(/^(\d{2,3})(\d{1,3})/, '$1-$2');
+    return phoneNumber.replace(/^(\d{2,3})(\d{1,3})/, "$1-$2");
   }
   if (phoneNumberLength < 10) {
     if (phoneNumber.startsWith("02")) {
-        return phoneNumber.replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (match, p1, p2, p3) => {
-            return `${p1}-${p2}${p3 ? '-' + p3 : ''}`;
-        }).substring(0, 12);
+      return phoneNumber
+        .replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (match, p1, p2, p3) => {
+          return `${p1}-${p2}${p3 ? "-" + p3 : ""}`;
+        })
+        .substring(0, 12);
     }
-    return phoneNumber.replace(/^(\d{3})(\d{3})(\d{0,4})/, (match, p1, p2, p3) => {
-        return `${p1}-${p2}${p3 ? '-' + p3 : ''}`;
-    }).substring(0, 13);
+    return phoneNumber
+      .replace(/^(\d{3})(\d{3})(\d{0,4})/, (match, p1, p2, p3) => {
+        return `${p1}-${p2}${p3 ? "-" + p3 : ""}`;
+      })
+      .substring(0, 13);
   }
-  return phoneNumber.replace(/^(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3').substring(0, 13);
+  return phoneNumber
+    .replace(/^(\d{2,3})(\d{3,4})(\d{4})/, "$1-$2-$3")
+    .substring(0, 13);
 };
 
 const ProfileRegistrationPage: React.FC = () => {
-  const theme = useTheme(); 
+  const theme = useTheme();
 
   const user = useAuthStore((state) => state.user);
   const fetchBe = useFetchBe();
+  const navigate = useNavigate();
+
+  const userData = useUserData();
 
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
@@ -53,14 +66,29 @@ const ProfileRegistrationPage: React.FC = () => {
     if (user?.name) setName(user.name);
   }, [user]);
 
+  const { data: myData, refetch } = useQuery({
+    queryKey: ["myData"],
+    queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
+  });
+
+  useEffect(() => {
+    if (myData) {
+      setName((prev) => prev || myData.name || "");
+      setStudentId((prev) => prev || myData.studentId || "");
+      setPhoneNumber((prev) => prev || myData.phone || "");
+      setTermsAgreed(!!myData.studentId);
+      setPrivacyAgreed(!!myData.studentId);
+    }
+  }, [myData]);
+
   const validateStudentId = (id: string): string => {
     if (!id) {
       return "학번을 입력해주세요.";
     }
     if (!/^\d+$/.test(id)) {
-        return "숫자만 입력해주세요.";
+      return "숫자만 입력해주세요.";
     }
-    if (id[0] !== '2') {
+    if (id[0] !== "2") {
       return "학번은 '2'로 시작해야 합니다.";
     }
     if (id.length !== 8) {
@@ -71,7 +99,7 @@ const ProfileRegistrationPage: React.FC = () => {
 
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, "");
-    const slicedValue = value.slice(0, 8); 
+    const slicedValue = value.slice(0, 8);
 
     setStudentId(slicedValue);
 
@@ -92,8 +120,8 @@ const ProfileRegistrationPage: React.FC = () => {
       return;
     }
     if (studentIdError) {
-        alert(`학번 형식을 확인해주세요. (${studentIdError})`);
-        return;
+      alert(`학번 형식을 확인해주세요. (${studentIdError})`);
+      return;
     }
 
     if (!termsAgreed || !privacyAgreed) {
@@ -134,7 +162,6 @@ const ProfileRegistrationPage: React.FC = () => {
       studentId: studentId,
       email: email,
       phone: rawPhoneNumber,
-      profileImage: null,
     };
     console.log("최종 제출 payload:", payload);
     try {
@@ -145,6 +172,7 @@ const ProfileRegistrationPage: React.FC = () => {
 
       alert("프로필이 성공적으로 등록되었습니다.");
       // TODO: 성공 후 페이지 이동 또는 상태 변경 로직 (예: router.push('/profile'))
+      navigate("/club/callein");
     } catch (err: any) {
       alert("프로필 등록에 실패했습니다: " + (err.message || "서버 오류"));
       console.error(err);
@@ -156,11 +184,11 @@ const ProfileRegistrationPage: React.FC = () => {
       display="flex"
       justifyContent="center"
       alignItems="flex-start" // 변경: 상단에 붙이고 paddingTop으로 여백 조절
-      height="calc(110vh - 64px)" 
+      height="calc(110vh - 64px)"
       sx={{
         background: theme.palette.background.default || "#1A1A1A",
         px: 2,
-        paddingTop: theme.spacing(10), 
+        paddingTop: theme.spacing(10),
       }}
     >
       <Paper
@@ -174,10 +202,14 @@ const ProfileRegistrationPage: React.FC = () => {
         }}
       >
         <Box textAlign="center" mb={3}>
-          <Avatar
-            alt={user?.name || "사용자"}
-            src={user?.photoURL || "https://lh3.googleusercontent.com/a/default-user"}
-            sx={{ width: 80, height: 80, mx: "auto", mb: 2 }}
+          <UserProfileImageUploadBox
+            key={myData?.profileImage}
+            userId={userData?.userId || ""}
+            photoURL={myData?.profileImage}
+            size={80}
+            onUploaded={async (url) => {
+              refetch();
+            }}
           />
           <Typography variant="h6" fontWeight="bold">
             프로필 등록
@@ -208,7 +240,10 @@ const ProfileRegistrationPage: React.FC = () => {
             value={studentId}
             onChange={handleStudentIdChange}
             error={!!studentIdError}
-            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"}
+            helperText={
+              studentIdError ||
+              "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"
+            }
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{
               style: { color: "white" },

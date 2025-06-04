@@ -1,14 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Paper,
-  Avatar,
-  IconButton,
-} from "@mui/material";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import { Box, TextField, Button, Typography, Paper } from "@mui/material";
+import CourseBannerUploadBox from "../components/CourseBannerUploadBox";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchBe } from "../../tools/api";
@@ -16,21 +8,25 @@ import { useFetchBe } from "../../tools/api";
 const isValidSlug = (slug: string) => /^[a-z0-9-]+$/.test(slug);
 
 function AdminClubSettingPage() {
+  // 배너 업로드 UI 노출 상태
+  const [showBannerUpload, setShowBannerUpload] = useState(false);
   const [form, setForm] = useState({
     name: "",
     slug: "",
     description: "",
     bannerUrl: "",
   });
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [bannerPreview, setBannerPreview] = useState<string>(form.bannerUrl);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // 기존 배너 업로드 상태 제거
 
   const fetchBe = useFetchBe();
 
   const { club } = useParams<{ club: string }>();
 
-  const { data: clubData, isLoading: clubLoading } = useQuery({
+  const {
+    data: clubData,
+    isLoading: clubLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["clubData", club],
     queryFn: () => fetchBe(`/v1/clubs/${club}`),
     enabled: !!club,
@@ -47,12 +43,10 @@ function AdminClubSettingPage() {
           bannerUrl: prev.bannerUrl || clubData.bannerUrl || "",
         };
       });
-      setBannerPreview(clubData.bannerUrl || "");
     }
   }, [
     clubData,
     setForm,
-    setBannerPreview,
     clubLoading,
     clubData?.name,
     clubData?.slug,
@@ -65,22 +59,6 @@ function AdminClubSettingPage() {
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setBannerFile(file);
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setBannerPreview(ev.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleBannerClick = () => {
-    fileInputRef.current?.click();
   };
 
   const [saving, setSaving] = useState(false);
@@ -105,6 +83,8 @@ function AdminClubSettingPage() {
       setSaving(false);
     }
   };
+
+  if (clubLoading) return <Typography>로딩 중...</Typography>;
 
   return (
     <Box maxWidth={480} mx="auto" mt={6}>
@@ -157,13 +137,6 @@ function AdminClubSettingPage() {
             slotProps={{ inputLabel: { shrink: true } }}
           />
           <Box mt={2} mb={2} textAlign="center">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleBannerChange}
-            />
             <Typography variant="subtitle1" mb={1}>
               배너 이미지
             </Typography>
@@ -172,36 +145,54 @@ function AdminClubSettingPage() {
               flexDirection="column"
               alignItems="center"
               gap={1}
+              width="100%"
             >
-              <Avatar
-                variant="rounded"
-                src={bannerPreview}
-                alt="배너 미리보기"
-                sx={{
-                  width: 320,
-                  height: 80,
-                  borderRadius: 2,
-                  border: "1px solid #ccc",
-                  bgcolor: "#eee",
-                }}
-              >
-                {!bannerPreview && "No Image"}
-              </Avatar>
-              <IconButton
-                color="primary"
-                component="span"
-                onClick={handleBannerClick}
-                sx={{ mt: 1 }}
-              >
-                <PhotoCamera />
-                <Typography variant="body2" ml={1}>
-                  이미지 업로드
-                </Typography>
-              </IconButton>
-              {bannerFile && (
-                <Typography variant="caption" color="text.secondary">
-                  {bannerFile.name}
-                </Typography>
+              {/* 이미지가 있으면 full width로 보여주고, 수정 버튼 클릭 시 업로드 UI 노출 */}
+              {clubData.bannerUrl ? (
+                <>
+                  <Box position="relative" width="100%" maxWidth={480}>
+                    <img
+                      src={clubData.bannerUrl}
+                      alt="배너 이미지"
+                      style={{
+                        width: "100%",
+                        height: 120,
+                        objectFit: "cover",
+                        borderRadius: 8,
+                        border: "1px solid #ccc",
+                        background: "#eee",
+                      }}
+                    />
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      sx={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}
+                      onClick={() => setShowBannerUpload(true)}
+                    >
+                      수정
+                    </Button>
+                  </Box>
+                  {showBannerUpload && (
+                    <Box mt={2}>
+                      <CourseBannerUploadBox
+                        targetId={clubData.id || ""}
+                        targetType="club-banner"
+                        onComplete={async () => {
+                          setShowBannerUpload(false);
+                          refetch();
+                        }}
+                      />
+                    </Box>
+                  )}
+                </>
+              ) : (
+                <CourseBannerUploadBox
+                  targetId={clubData.id || ""}
+                  targetType="club-banner"
+                  onComplete={async () => {
+                    refetch();
+                  }}
+                />
               )}
             </Box>
           </Box>

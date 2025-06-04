@@ -95,7 +95,6 @@ public class UserServiceImpl implements UserService {
             tbUser.setStudentId(reqDto.getStudentId());
             tbUser.setEmail(reqDto.getEmail());
             tbUser.setPhone(reqDto.getPhone());
-            tbUser.setFileKey(reqDto.getProfileImage());
         });
     }
 

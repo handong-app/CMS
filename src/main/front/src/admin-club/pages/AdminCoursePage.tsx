@@ -1,5 +1,5 @@
 import { Box, Paper, Typography, Button, Grid } from "@mui/material";
-import { Link, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import AddIcon from "@mui/icons-material/Add";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchBe } from "../../tools/api";
@@ -76,11 +76,6 @@ function AdminCoursePage() {
             sx={(theme) => ({
               fontWeight: 600,
               borderRadius: 2,
-              backgroundColor: theme.palette.primary.dark,
-              color: theme.palette.primary.contrastText,
-              "&:hover": {
-                backgroundColor: theme.palette.primary.main,
-              },
             })}
             onClick={() => setAddDialogOpen(true)}
           >

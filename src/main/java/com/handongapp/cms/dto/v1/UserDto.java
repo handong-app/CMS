@@ -39,7 +39,6 @@ public class UserDto {
         private String studentId;
         private String email;
         private String phone;
-        private String profileImage;
     }
 
     @AllArgsConstructor
