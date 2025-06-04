@@ -125,8 +125,8 @@ public class ProgressServiceImpl implements ProgressService {
             log.debug("코스 마지막 조회 정보 업데이트 완료: userId={}, courseId={}, nodeGroupId={}", 
                     userId, courseId, nodeGroupId);
         } catch (Exception e) {
-            // 진행 상태 업데이트에 영향을 주지 않도록 예외를 로깅만 하고 계속 진행
             log.error("코스 마지막 조회 정보 업데이트 중 오류 발생: {}", e.getMessage(), e);
+            throw e;
         }
     }
 }
