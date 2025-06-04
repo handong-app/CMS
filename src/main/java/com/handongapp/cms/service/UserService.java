@@ -15,4 +15,5 @@ public interface UserService {
     void updateUserProfileImage(UserDto.UserProfileImageReqDto reqDto, String userId);
     UserDto.UserProfileLastResDto getLastUserByNodeGroup(String userId);
     List<ProgramDto.ResponseDto> getUserPrograms(String userId);
+    void updateUserProfile(String userId, String fileKey);
 }

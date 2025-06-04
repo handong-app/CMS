@@ -26,7 +26,10 @@ public class TbFileList extends AuditingFields {
     @Column(name = "club_id", columnDefinition = "CHAR(32)")
     private String clubId;
 
-    @Column(name = "node_id", columnDefinition = "CHAR(32)", nullable = false)
+    @Column(name = "course_id", columnDefinition = "CHAR(32)")
+    private String courseId;
+
+    @Column(name = "node_id", columnDefinition = "CHAR(32)")
     private String nodeId;
 
     @Column(name = "file_key", length = 255, nullable = false)
