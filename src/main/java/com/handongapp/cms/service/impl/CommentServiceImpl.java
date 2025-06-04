@@ -2,7 +2,6 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.TbComment;
 import com.handongapp.cms.dto.v1.CommentDto;
-import com.handongapp.cms.dto.v1.CommentResponseDto;
 import com.handongapp.cms.repository.CommentRepository;
 import com.handongapp.cms.mapper.CustomQueryMapper;
 import com.handongapp.cms.service.CommentService;
@@ -67,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentResponseDto> searchComments(
+    public List<CommentDto.CommentResponseWithNameDto> searchComments(
             String courseId,
             String courseSlug,
             String courseName,

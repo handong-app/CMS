@@ -94,4 +94,17 @@ public class CommentDto {
             }
         }
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class CommentResponseWithNameDto {
+        private final String id;
+        private final String targetId;
+        private final String userId;
+        private final String userName;
+        private final String categoryId;
+        private final String content;
+        private final LocalDateTime createdAt;
+        private final LocalDateTime updatedAt;
+    }
 }

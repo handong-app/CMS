@@ -1,7 +1,6 @@
 package com.handongapp.cms.controller.v1;
 
 import com.handongapp.cms.dto.v1.CommentDto;
-import com.handongapp.cms.dto.v1.CommentResponseDto;
 import com.handongapp.cms.exception.auth.NoAuthenticatedException;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.CommentService;
@@ -50,7 +49,7 @@ public class CommentController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<CommentResponseDto>> searchComments(
+    public ResponseEntity<List<CommentDto.CommentResponseWithNameDto>> searchComments(
             @RequestParam(required = false) String courseId,
             @RequestParam(required = false) String courseSlug,
             @RequestParam(required = false) String courseName,
@@ -58,7 +57,7 @@ public class CommentController {
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String username
     ) {
-        List<CommentResponseDto> responses = commentService.searchComments(
+        List<CommentDto.CommentResponseWithNameDto> responses = commentService.searchComments(
                 courseId, courseSlug, courseName, nodeGroupId, userId, username
         );
         return ResponseEntity.ok(responses);
