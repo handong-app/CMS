@@ -1,9 +1,7 @@
 package com.handongapp.cms.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import com.handongapp.cms.domain.enums.FileStatus;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,6 +36,8 @@ public class TbCourse extends AuditingFields {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 
-    @Column(columnDefinition = "TEXT")
-    private String pictureUrl;
+    @Column(name = "file_key", length = 255, nullable = false)
+    private String fileKey;
+
+    @Enumerated(EnumType.STRING) private FileStatus fileStatus;
 }

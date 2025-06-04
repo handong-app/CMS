@@ -1,9 +1,7 @@
 package com.handongapp.cms.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
+import com.handongapp.cms.domain.enums.FileStatus;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,8 +27,9 @@ public class TbClub extends AuditingFields {
 
     @Column(length = 100, nullable = false, unique = true) @NotBlank private String slug;
 
-    @Column(columnDefinition = "TEXT") @URL private String bannerUrl;
-
     @Column(columnDefinition = "TEXT") private String description;
 
+    @Column(name = "file_key", length = 255, nullable = false) private String fileKey;
+
+    @Enumerated(EnumType.STRING) private FileStatus fileStatus;
 }
