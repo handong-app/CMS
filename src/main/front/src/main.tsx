@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import App from "./App.tsx";
 import "./index.css";
 import ProductView from "./pages/ProductView.tsx";
@@ -22,6 +22,7 @@ import NodeGroupTest from "./pages/NodeGroupTest.tsx";
 import { CLUB_ADMINMENU } from "./admin-club/pages/index.tsx";
 import AdminRoot from "./admin-club/components/AdminRoot.tsx";
 import ClubListPage from "./pages/ClubListPage.tsx";
+import MyAppBar from "./components/common/MyAppBar.tsx";
 
 const router = createBrowserRouter([
   {
@@ -43,28 +44,39 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/product/:id",
-    element: <ProductView />,
-  },
-  {
-    path: "/club",
-    element: <ClubListPage />,
-  },
-  {
-    path: "/club/:club",
-    element: <ClubPage />,
-  },
-  {
-    path: "/club/:club/program/:program_name",
-    element: <ProgramPage />,
-  },
-  {
-    path: "club/:club/course/:course_name/nodegroup/:nodeGroupUUID",
-    element: <NodeGroupPage />,
-  },
-  {
-    path: "/club/:clubSlug/course/:courseSlug",
-    element: <CoursePage />,
+    path: "/",
+    element: (
+      <>
+        <MyAppBar position="relative" transparent />
+        <Outlet />
+      </>
+    ),
+    children: [
+      {
+        path: "/product/:id",
+        element: <ProductView />,
+      },
+      {
+        path: "/club",
+        element: <ClubListPage />,
+      },
+      {
+        path: "/club/:club",
+        element: <ClubPage />,
+      },
+      {
+        path: "/club/:club/program/:program_name",
+        element: <ProgramPage />,
+      },
+      {
+        path: "club/:club/course/:course_name/nodegroup/:nodeGroupUUID",
+        element: <NodeGroupPage />,
+      },
+      {
+        path: "/club/:clubSlug/course/:courseSlug",
+        element: <CoursePage />,
+      },
+    ],
   },
   {
     path: "/auth-test",
