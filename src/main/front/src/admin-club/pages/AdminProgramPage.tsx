@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import AdminProgramEdit from "../components/AdminProgramEdit";
 import { useQuery } from "@tanstack/react-query";
 import { useFetchBe } from "../../tools/api";
@@ -9,6 +9,7 @@ function AdminProgramPage() {
     programSlug?: string;
   }>();
   const fetchBe = useFetchBe();
+  const navigate = useNavigate();
 
   // 수정 모드: programSlug가 있으면 해당 데이터, 없으면 추가 모드
   const { data: programs, isLoading: programsLoading } = useQuery({
@@ -25,6 +26,8 @@ function AdminProgramPage() {
 
   if (programSlug && (programsLoading || membersLoading))
     return <div>로딩 중...</div>;
+  const isCreateMode = !programSlug;
+
   return (
     <AdminProgramEdit
       allCourses={[]}
@@ -34,16 +37,35 @@ function AdminProgramPage() {
       enrolledMembers={members?.participants?.map((m: any) => ({
         userId: m.userId,
         name: m.participantName,
-        studentId: "", // studentId 정보가 없으므로 빈 문자열로 설정
+        studentId: "",
         email: m.participantEmail,
-        phone: "", // phone 정보가 없으므로 빈 문자열로 설정
+        phone: "",
         profileImageUrl: m.participantPictureUrl,
       }))}
-      onSave={(data) => {
+      initialSlug={programs?.slug}
+      initialStartDate={programs?.startDate}
+      initialEndDate={programs?.endDate}
+      isEditMode={!isCreateMode}
+      onSave={async (data) => {
         if (programSlug) {
           alert("수정 완료: " + JSON.stringify(data));
         } else {
-          alert("생성 완료: " + JSON.stringify(data));
+          try {
+            const output = await fetchBe(`/v1/clubs/${club}/programs`, {
+              method: "POST",
+              body: {
+                name: data.name,
+                slug: data.slug,
+                description: data.description,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                // 필요시 courses 등 추가
+              },
+            });
+            navigate(`/club/${club}/admin/program/edit/${output.slug}`);
+          } catch (e: any) {
+            alert("생성 실패: " + (e?.errorMsg || e?.message || e));
+          }
         }
       }}
     />
