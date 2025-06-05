@@ -78,6 +78,7 @@ export async function fetchBe(
       if (doc.status >= 400) throw json;
       return json;
     } catch {
+      if ((await doc.text()) === "") return null; // 빈 응답 처리
       if (doc.status === 204) return null;
       console.error("JSON 파싱 오류", doc);
       throw {
