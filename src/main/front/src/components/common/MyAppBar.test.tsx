@@ -3,14 +3,19 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import "@testing-library/jest-dom";
 import MyAppBar from "./MyAppBar";
+import { MemoryRouter } from "react-router-dom";
 
 vi.mock("../../assets/Logo.png", () => ({
-  default: "mock-logo.png"
+  default: "mock-logo.png",
 }));
 
 describe("MyAppBar Component", () => {
   it("renders Login button when user is null", () => {
-    render(<MyAppBar user={null} />);
+    render(
+      <MemoryRouter>
+        <MyAppBar user={null} />
+      </MemoryRouter>
+    );
     const loginButton = screen.getByRole("button", { name: /login/i });
     expect(loginButton).toBeInTheDocument();
   });
@@ -18,10 +23,14 @@ describe("MyAppBar Component", () => {
   it("renders welcome message and avatar when user is authenticated", () => {
     const user = {
       name: "Alice",
-      photoURL: "https://example.com/avatar.png"
+      photoURL: "https://example.com/avatar.png",
     };
 
-    render(<MyAppBar user={user} />);
+    render(
+      <MemoryRouter>
+        <MyAppBar user={user} />
+      </MemoryRouter>
+    );
 
     expect(screen.getByText(/Alice님 환영합니다!/)).toBeInTheDocument();
     const avatar = screen.getByRole("img", { name: "Alice" });
