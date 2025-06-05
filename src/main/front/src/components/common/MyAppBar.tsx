@@ -1,31 +1,46 @@
-import { AppBar, Toolbar, Box, Button, Avatar, Typography } from "@mui/material";
-import Logo from "../../assets/Logo.png";
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Button,
+  Avatar,
+  Typography,
+  AppBarOwnProps,
+} from "@mui/material";
+import Logo from "../../assets/Logo.png"; // 로고 이미지 경로 확인
 import { useTheme } from "@mui/material/styles";
-import { useNavigate } from "react-router";
-import useAuthStore from "../../store/authStore";
+import useUserData from "../../hooks/userData";
+import { Link } from "react-router";
 
-// 여기서 타입을 직접 정의
+import { useNavigate } from "react-router";
+
 type UserInfo = {
   name: string;
   email: string;
   photoURL: string;
 };
 
-type Props = {
+const MyAppBar = ({
+  position = "fixed",
+  transparent = false,
+  user,
+}: {
+  position?: AppBarOwnProps["position"];
+  transparent?: boolean;
   user: UserInfo | null;
-};
-
-const MyAppBar = ({ user }: Props) => {
+}) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/auth/google/client-id");
+      const res = await fetch("api/auth/google/client-id");
       if (!res.ok) throw new Error("Client ID fetch failed");
 
       const clientId = await res.text();
-      const redirectUri = encodeURIComponent(window.location.origin + "/google/callback");
+      const redirectUri = encodeURIComponent(
+        window.location.origin + "/google/callback"
+      );
       const scope = encodeURIComponent("openid email profile");
 
       const authUrl =
@@ -49,25 +64,42 @@ const MyAppBar = ({ user }: Props) => {
   };
 
   return (
+    // position을 "fixed"로 변경하여 앱 바를 화면 상단에 고정
+    // elevation을 0으로 설정하여 AppBar 자체의 그림자를 제거 (Toolbar에서 관리)
     <AppBar
-      position="fixed"
+      position={position}
       color="default"
       elevation={0}
-      sx={{ top: 0, left: 0, width: "100%", zIndex: theme.zIndex.appBar }}
+      sx={{
+        top: 8,
+        left: 0,
+        width: "100%",
+        zIndex: theme.zIndex.appBar,
+        backgroundColor: transparent
+          ? "transparent"
+          : theme.palette.background.default,
+        boxShadow: transparent ? "none" : "0px 1px 2px rgba(0, 0, 0, 0.1)",
+        pb: 1,
+      }}
     >
       <Toolbar
         sx={{
           boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
-          backdropFilter: "blur(10px)",
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.background.default,
+          backdropFilter: transparent ? "none" : "blur(10px)",
+          // 'textcolor'는 올바른 속성이 아닙니다. 'color'로 변경하여 텍스트 색상을 테마에서 가져오도록 합니다.
+          color: theme.palette.text.primary, // 툴바 내부의 기본 텍스트 색상
+          backgroundColor: transparent
+            ? "transparent"
+            : theme.palette.background.default, // 툴바의 배경색
           justifyContent: "space-between",
           px: 2,
         }}
       >
-        <Box display="flex" alignItems="center">
-          <img src={Logo} alt="Logo" style={{ height: 40 }} />
-        </Box>
+        <Link to="/club">
+          <Box display="flex" alignItems="center">
+            <img src={Logo} alt="Logo" style={{ height: 40 }} />
+          </Box>
+        </Link>
 
         {user?.name ? (
           <Box display="flex" alignItems="center" gap={1}>
@@ -86,7 +118,12 @@ const MyAppBar = ({ user }: Props) => {
             />
           </Box>
         ) : (
-          <Button variant="contained" color="primary" size="small" onClick={handleGoogleLogin}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handleGoogleLogin}
+          >
             Login
           </Button>
         )}

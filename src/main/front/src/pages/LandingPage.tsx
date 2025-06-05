@@ -2,12 +2,12 @@ import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { initiateGoogleLogin } from "../utils/auth";
-import LottieBackground from '../components/LandingPage/LottieBackground';
+import LottieBackground from "../components/LandingPage/LottieBackground";
 import useAuthStore from "../store/authStore";
 import { useNavigate } from "react-router";
 
 const LandingPage: React.FC = () => {
-  const theme = useTheme(); 
+  const theme = useTheme();
   const appBarHeight = `${theme.mixins.toolbar.minHeight}px`;
   const jwtToken = useAuthStore((state) => state.jwtToken);
   const navigate = useNavigate();
@@ -28,8 +28,13 @@ const LandingPage: React.FC = () => {
         backgroundColor: theme.palette.background.default || "#1A1A1A",
         minHeight: "100vh",
         color: theme.palette.text.primary || "#FFFFFF",
-        position: 'relative',
-        overflow: 'hidden'
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        p: 2,
+        overflow: "hidden",
       }}
     >
       <LottieBackground appBarHeight={appBarHeight} />
@@ -40,16 +45,16 @@ const LandingPage: React.FC = () => {
         alignItems="center"
         justifyContent="space-between"
         sx={{
-          paddingTop: appBarHeight, 
-          minHeight: `calc(100vh - ${appBarHeight})`, 
+          paddingTop: appBarHeight,
+          minHeight: `calc(100vh - ${appBarHeight})`,
           textAlign: { xs: "center", md: "left" },
           maxWidth: "1600px",
           mx: "auto",
           px: 1,
           gap: 4,
           pt: { xs: 4, md: 0 },
-          position: 'relative',
-          zIndex: 1, 
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <Box sx={{ flex: 1, maxWidth: { md: "50%" }, pr: { md: 4 } }}>
@@ -66,12 +71,33 @@ const LandingPage: React.FC = () => {
           </Typography>
         </Box>
 
-        <Box sx={{ flex: 1, maxWidth: { md: "50%" }, position: "relative", pl: { md: 4 } }}>
-          <Box sx={{ mt: 4, maxWidth: "500px", ml: { md: "auto" }, textAlign: { xs: "center", md: "right" } }}>
-            <Typography variant="body1" sx={{ color: theme.palette.grey[400] || "#AAAAAA", lineHeight: 1.6 }}>
-              Let's make club management a strength for your organization. We're here to help with everything from
-              member registration and event scheduling to communication and continuous monitoring, ensuring your
-              club's growth is always protected.
+        <Box
+          sx={{
+            flex: 1,
+            maxWidth: { md: "50%" },
+            position: "relative",
+            pl: { md: 4 },
+          }}
+        >
+          <Box
+            sx={{
+              mt: 4,
+              maxWidth: "500px",
+              ml: { md: "auto" },
+              textAlign: { xs: "center", md: "right" },
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{
+                color: theme.palette.grey[400] || "#AAAAAA",
+                lineHeight: 1.6,
+              }}
+            >
+              Let's make club management a strength for your organization. We're
+              here to help with everything from member registration and event
+              scheduling to communication and continuous monitoring, ensuring
+              your club's growth is always protected.
             </Typography>
             <Button
               variant="contained"

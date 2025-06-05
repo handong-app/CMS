@@ -42,7 +42,7 @@ export async function fetchBe(
         if (onUnauthorized) {
           onUnauthorized();
         } else {
-          window.location.href = "/land";
+          window.location.href = "/";
         }
         throw { errorMsg: "Access token 갱신 실패" };
       }
@@ -59,7 +59,7 @@ export async function fetchBe(
       if (onUnauthorized) {
         onUnauthorized();
       } else {
-        window.location.href = "/land";
+        window.location.href = "/";
       }
       throw { errorMsg: "로그인을 다시해주세요." };
     }
@@ -111,7 +111,7 @@ export const useFetchBe = () => {
           path,
           options?.method ?? "GET",
           options?.body,
-          options?.onUnauthorized ?? (() => navigate("/land"))
+          options?.onUnauthorized ?? (() => navigate("/"))
         ),
     [jwtToken, navigate]
   );

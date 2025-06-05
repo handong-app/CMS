@@ -1,13 +1,7 @@
 // src/pages/ProfilePage.tsx
 
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-} from "@mui/material";
+import { Box, Button, TextField, Typography, Paper } from "@mui/material";
 import useAuthStore from "../store/authStore";
 import { useFetchBe } from "../tools/api";
 import { useTheme } from "@mui/material/styles";
@@ -26,14 +20,16 @@ const formatPhoneNumber = (value: string): string => {
   if (len < 10) {
     if (phoneNumber.startsWith("02")) {
       return phoneNumber
-        .replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (_, p1, p2, p3) =>
-          `${p1}-${p2}${p3 ? "-" + p3 : ""}`
+        .replace(
+          /^(\d{2})(\d{3,4})(\d{0,4})/,
+          (_, p1, p2, p3) => `${p1}-${p2}${p3 ? "-" + p3 : ""}`
         )
         .substring(0, 12);
     }
     return phoneNumber
-      .replace(/^(\d{3})(\d{3})(\d{0,4})/, (_, p1, p2, p3) =>
-        `${p1}-${p2}${p3 ? "-" + p3 : ""}`
+      .replace(
+        /^(\d{3})(\d{3})(\d{0,4})/,
+        (_, p1, p2, p3) => `${p1}-${p2}${p3 ? "-" + p3 : ""}`
       )
       .substring(0, 13);
   }
@@ -60,7 +56,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (!jwtToken) {
       alert("로그인이 필요합니다.");
-      navigate("/land");
+      navigate("/");
     }
   }, [jwtToken, navigate]);
 
@@ -108,7 +104,7 @@ const ProfilePage: React.FC = () => {
 
     if (!uid || !email) {
       alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
-      navigate("/land");
+      navigate("/");
       return;
     }
 
@@ -166,8 +162,9 @@ const ProfilePage: React.FC = () => {
             userId={userData?.userId || ""}
             photoURL={myData?.profileImage}
             size={80}
-            onUploaded={() => {void refetch();}}
-
+            onUploaded={() => {
+              void refetch();
+            }}
           />
           <Typography variant="h6" fontWeight="bold">
             프로필 수정
@@ -178,7 +175,6 @@ const ProfilePage: React.FC = () => {
             </Typography>
           )}
         </Box>
-
 
         <Box mb={2}>
           <TextField
@@ -202,7 +198,9 @@ const ProfilePage: React.FC = () => {
             value={studentId}
             onChange={handleStudentIdChange}
             error={!!studentIdError}
-            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요."}
+            helperText={
+              studentIdError || "2로 시작하는 8자리 숫자를 입력하세요."
+            }
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
@@ -231,6 +229,18 @@ const ProfilePage: React.FC = () => {
           sx={{ mt: 1 }}
         >
           프로필 저장
+        </Button>
+
+        <Button
+          color="secondary"
+          fullWidth
+          sx={{ mt: 2 }}
+          onClick={() => {
+            useAuthStore.getState().clearAuth();
+            navigate("/");
+          }}
+        >
+          로그아웃
         </Button>
       </Paper>
     </Box>

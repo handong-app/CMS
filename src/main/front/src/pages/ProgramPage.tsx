@@ -7,10 +7,12 @@ import CourseProgress from "../components/course/CourseProgress";
 import CourseLeaderboard from "../components/course/CourseLeaderboard";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import calculateProgress from "../utils/calculateProcess";
 import useUserData from "../hooks/userData";
 import { courseListParser } from "../utils/courseListParser";
+
+import { getMostRecentNodeGroupForUser } from "../utils/getMostRecentNodeGroupForUser";
 
 function ProgramPage() {
   const { club, program_name } = useParams<{
@@ -19,6 +21,7 @@ function ProgramPage() {
   }>();
 
   const fetchBe = useFetchBe();
+  const navigate = useNavigate();
 
   const { userId } = useUserData();
 
@@ -42,6 +45,12 @@ function ProgramPage() {
 
   const myProgress = calculatedProgramProgress.find(
     (user) => user.userId === userId
+  );
+
+  // 가장 최근 노드그룹 정보 추출
+  const mostRecentNodeGroup = getMostRecentNodeGroupForUser(
+    userId || "",
+    programProcess?.participants || []
   );
 
   return (
@@ -129,15 +138,31 @@ function ProgramPage() {
               width="100%"
               justifyContent="center"
             >
-              <ContinueNodeGroup
-                theme="dark"
-                courseName="React Basics"
-                lessonName="Hooks and State"
-                onContinue={() => alert("Continue to last lesson!")}
-                thumbnail="https://images.unsplash.com/photo-1519125323398-675f0ddb6308"
-                lastViewedAt="2025-05-28 22:10"
-                background="rgba(255, 255, 255, 0.05)"
-              />
+              {mostRecentNodeGroup ? (
+                <ContinueNodeGroup
+                  theme="dark"
+                  courseName={mostRecentNodeGroup.courseTitle || "강의 없음"}
+                  lessonName={mostRecentNodeGroup.nodeGroupTitle}
+                  lastViewedAt={mostRecentNodeGroup.lastSeenAt}
+                  thumbnail={
+                    programInfo?.courses?.find?.(
+                      (course: any) =>
+                        course.id === mostRecentNodeGroup.courseId
+                    )?.pictureUrl
+                  }
+                  onContinue={() => {
+                    // 강의 이동
+                    navigate(
+                      `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
+                    );
+                  }}
+                  background="rgba(255, 255, 255, 0.05)"
+                />
+              ) : (
+                <Typography variant="h6" color="text.secondary">
+                  강의를 시작해보세요
+                </Typography>
+              )}
             </Box>
           </Box>
         </Box>
