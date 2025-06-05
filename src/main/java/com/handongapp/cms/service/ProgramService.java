@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication;
 
 public interface ProgramService {
 
+    void addCourseToProgram(String clubSlug, String programSlug, String courseSlug, Authentication authentication);
+
     String getProgramDetailsWithCoursesAsJson(String clubSlug, String programSlug);
 
     String getProgramsWithCoursesByClubSlugAsJson(String clubSlug);

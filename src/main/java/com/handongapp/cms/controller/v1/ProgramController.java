@@ -73,6 +73,16 @@ public class ProgramController {
         return ResponseEntity.status(HttpStatus.CREATED).build(); // 성공 시 201 CREATED 반환
     }
 
+    @PostMapping("/{programSlug}/add-course/{courseSlug}")
+    public ResponseEntity<Void> addCourseToProgram(
+            @PathVariable String clubSlug,
+            @PathVariable String programSlug,
+            @PathVariable String courseSlug,
+            Authentication authentication) {
+        programService.addCourseToProgram(clubSlug, programSlug, courseSlug, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
     private boolean isEmptyJsonResult(String json) {
         if (json == null || json.trim().isEmpty()) return true;
         String trimmed = json.trim();

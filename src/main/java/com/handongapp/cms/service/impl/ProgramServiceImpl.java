@@ -7,6 +7,7 @@ import com.handongapp.cms.domain.TbClub;
 import com.handongapp.cms.domain.TbCourse;
 import com.handongapp.cms.domain.TbProgram;
 import com.handongapp.cms.domain.TbProgramParticipant;
+import com.handongapp.cms.domain.TbProgramCourse;
 import com.handongapp.cms.dto.v1.ProgramDto;
 import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.exception.data.DuplicateEntityException;
@@ -14,6 +15,7 @@ import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.mapper.ProgramMapper;
 import com.handongapp.cms.repository.CourseRepository;
 import com.handongapp.cms.repository.ClubRepository;
+import com.handongapp.cms.repository.TbProgramCourseRepository;
 import com.handongapp.cms.repository.TbProgramParticipantRepository;
 import com.handongapp.cms.repository.TbProgramRepository;
 import com.handongapp.cms.service.PresignedUrlService;
@@ -41,6 +43,7 @@ public class ProgramServiceImpl implements ProgramService {
     private final ClubRepository clubRepository;
     private final TbProgramRepository tbProgramRepository;
     private final TbProgramParticipantRepository tbProgramParticipantRepository;
+    private final TbProgramCourseRepository tbProgramCourseRepository;
 
     // 상수 추가 (AuditingFields.deleted가 String "N" 타입이라고 가정)
     private static final String DELETED_FLAG_NO = "N";
@@ -176,5 +179,37 @@ public class ProgramServiceImpl implements ProgramService {
                 .startDate(savedProgram.getStartDate())
                 .endDate(savedProgram.getEndDate())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void addCourseToProgram(String clubSlug, String programSlug, String courseSlug, Authentication authentication) {
+        // 1. 클럽 조회
+        TbClub club = clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("클럽을 찾을 수 없습니다: " + clubSlug));
+        String clubId = club.getId();
+
+        // 2. 프로그램 조회
+        TbProgram program = tbProgramRepository.findByClubIdAndSlugAndDeleted(clubId, programSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("프로그램을 찾을 수 없습니다: " + programSlug + " (클럽: " + clubSlug + ")"));
+        String programId = program.getId();
+
+        // 3. 코스 조회
+        TbCourse course = courseRepository.findByClubIdAndSlugAndDeleted(clubId, courseSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("코스를 찾을 수 없습니다: " + courseSlug + " (클럽: " + clubSlug + ")"));
+        String courseId = course.getId();
+
+        // 4. 이미 프로그램에 코스가 추가되었는지 확인
+        if (tbProgramCourseRepository.existsByProgramIdAndCourseIdAndDeleted(programId, courseId, DELETED_FLAG_NO)) {
+            throw new DuplicateEntityException("이미 해당 프로그램에 추가된 코스입니다: " + courseSlug);
+        }
+
+        // 5. TbProgramCourse 엔티티 생성 및 저장
+        TbProgramCourse newProgramCourse = new TbProgramCourse();
+        newProgramCourse.setProgramId(programId);
+        newProgramCourse.setCourseId(courseId);
+        newProgramCourse.setUserId(authentication.getName());
+
+        tbProgramCourseRepository.save(newProgramCourse);
     }
 }
