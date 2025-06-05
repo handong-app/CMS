@@ -253,4 +253,56 @@ public class NodeServiceImpl implements NodeService {
             throw new DataUpdateException("노드 data 업데이트 실패", e);
         }
     }
+
+    /**
+     * 비디오 트랜스코딩 상태 및 진행률을 업데이트합니다.
+     *
+     * <p>
+     * 전달받은 videoId를 가진 노드를 찾아 {@code data.file.status}와
+     * {@code data.file.progress}를 업데이트합니다.
+     * </p>
+     *
+     * @param videoId  노드 ID (UUID와 동일)
+     * @param status   트랜스코딩 상태 (예: in_progress, success, failed)
+     * @param progress 트랜스코딩 진행률 (0~100), 없으면 null
+     */
+    @Override
+    @Transactional
+    public void updateVideoTranscodeStatus(String videoId, String status, Integer progress) {
+        // 1. 노드 조회
+        TbNode node = nodeRepository.findById(videoId)
+                .orElseThrow(() -> new NotFoundException("노드를 찾을 수 없습니다: " + videoId));
+
+        // 2. data JSON에서 file Map 꺼내기
+        Map<String, Object> dataMap = node.getData();
+        if (dataMap == null) {
+            throw new IllegalStateException("노드 data가 존재하지 않습니다. videoId=" + videoId);
+        }
+
+        Object fileObj = dataMap.get("file");
+        if (!(fileObj instanceof Map<?, ?>)) {
+            throw new IllegalStateException("노드 data의 file 정보가 없습니다. videoId=" + videoId);
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> fileMap = (Map<String, Object>) fileObj;
+
+        // 3. 새로운 status로 변환
+        String newStatus;
+        switch (status) {
+            case "in_progress" -> newStatus = VideoStatus.TRANSCODING.name();
+            case "success" -> newStatus = VideoStatus.TRANSCODE_COMPLETED.name();
+            case "failed" -> newStatus = VideoStatus.TRANSCODE_FAILED.name();
+            default -> throw new IllegalArgumentException("알 수 없는 status: " + status);
+        }
+
+        // 4. 업데이트
+        fileMap.put("status", newStatus);
+        fileMap.put("progress", progress);
+
+        log.info("🎥 videoId={} 트랜스코딩 상태={}, 진행률={}", videoId, newStatus, progress);
+
+        // 5. 저장
+        nodeRepository.save(node);
+    }
 }
