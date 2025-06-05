@@ -1,8 +1,6 @@
-// src/components/common/MyAppBar.test.tsx
-
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
 import MyAppBar from "./MyAppBar";
 
@@ -12,19 +10,18 @@ vi.mock("../../assets/Logo.png", () => ({
 }));
 
 describe("MyAppBar Component", () => {
-  // ❌ useNavigate 오류 피하기 위해 테스트 skip 처리
+
   it.skip("renders Login button when user is null", () => {
     render(<MyAppBar user={null} />);
     const loginButton = screen.getByRole("button", { name: /login/i });
     expect(loginButton).toBeInTheDocument();
   });
 
-  // ❌ useNavigate 오류 피하기 위해 테스트 skip 처리
   it.skip("renders welcome message and avatar when user is authenticated", () => {
     const user = {
       name: "Alice",
       photoURL: "https://example.com/avatar.png"
-    };
+    } as any;
 
     render(<MyAppBar user={user} />);
 
