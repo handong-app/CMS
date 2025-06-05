@@ -119,11 +119,8 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     @Transactional(readOnly = true)
     public String getProgramParticipantProgressAsJson(String clubSlug, String programSlug) {
-        // 존재 여부 검증
-        if (!clubRepository.existsBySlugAndDeleted(clubSlug, "N")) {
-            throw new NotFoundException("존재하지 않는 클럽입니다: " + clubSlug);
-        }
-        if (!tbProgramRepository.existsBySlugAndDeleted(programSlug, "N")) {
+        String clubId = clubRepository.findBySlug(clubSlug).orElseThrow(() -> new NotFoundException("존재하지 않는 클럽입니다: " + clubSlug)).getId();
+        if (!tbProgramRepository.existsByClubIdAndSlugAndDeleted(clubId ,programSlug, "N")) {
             throw new NotFoundException("존재하지 않는 프로그램입니다: " + programSlug);
         }
 
