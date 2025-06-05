@@ -10,12 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
-import jakarta.validation.constraints.NotNull;
 
 public class ClubDto {
 
     @Getter
-    @Setter // For isMember field modification
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
@@ -32,6 +30,7 @@ public class ClubDto {
         @Schema(description = "동아리 배너 이미지 URL (Presigned URL)")
         private String bannerUrl;
         @Schema(description = "현재 사용자의 해당 동아리 회원 여부 (인증 시에만 포함)")
+        @Setter
         @JsonProperty("isMember")
         private Boolean isMember;
     }
