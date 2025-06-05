@@ -1,0 +1,23 @@
+meta {
+  name: start checking progress
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/progress/start
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "nodeGroupId":"52e307449f054159a7878de55751d8a8"
+  }
+  
+  // 사용자가 참가자로 등록되어 있는 프로그램에 해당하는 nodeGroupId만 가능 (아니면 필터링됩니다.)
+  // db를 직접 조작해서 자신이 프로그램 참가자인 것으로 바꿔 두어야 테스트할 수 있습니다.
+  // 진행 중인 상태인 프로그램만 진행도를 체크할 수 있습니다.
+  // 같은 중복해서 요청을 보내도 최신 확인 날짜만 바뀔 뿐, 진도 상태가 추가되거나 변경되지 않습니다.
+  
+}

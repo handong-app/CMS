@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 
 // CourseData 타입을 기반으로 props 타입 정의
 export interface CourseProgressListProps {
@@ -59,11 +60,9 @@ const CourseProgressList: React.FC<CourseProgressListProps> = ({
                 />
               </ListItem>
               {(section.nodeGroups ?? []).map((nodeGroup) => {
-                const completed =
-                  "isCompleted" in nodeGroup &&
-                  typeof nodeGroup.isCompleted === "boolean"
-                    ? nodeGroup.isCompleted
-                    : false;
+                // 상태 분기: 완료, 진행중, 미시작
+                const completed = nodeGroup.isCompleted === true;
+                const inProgress = nodeGroup.isInProgress === true;
                 return (
                   <ListItem
                     key={nodeGroup.id}
@@ -75,6 +74,11 @@ const CourseProgressList: React.FC<CourseProgressListProps> = ({
                         <CheckCircleIcon
                           data-testid="CheckCircleIcon"
                           sx={{ color: "#4caf50" }}
+                        />
+                      ) : inProgress ? (
+                        <RadioButtonCheckedIcon
+                          data-testid="RadioButtonCheckedIcon"
+                          sx={{ color: "#ffb300", fontSize: 26 }}
                         />
                       ) : (
                         <RadioButtonUncheckedIcon

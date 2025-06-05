@@ -20,7 +20,7 @@ public class CorsFilterConfiguration {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(allowedOrigins);
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("Authorization", "Refresh-Token", "Content-Type", "Accept"));
         config.setExposedHeaders(List.of("Authorization","Refresh-Token"));
         config.setAllowCredentials(true);

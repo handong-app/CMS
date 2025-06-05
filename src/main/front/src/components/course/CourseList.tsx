@@ -45,8 +45,14 @@ function CourseList({ courses }: CourseListProps) {
           key={`course-${course?.id || idx}`}
           name={course.title}
           picture={course.pictureUrl}
-          progress={course.progress || 0}
-          url={course.slug ? `/club/${club}/course/${course.slug}` : course.url}
+          progress={course.progress}
+          url={
+            course.url
+              ? course.url
+              : course.slug
+              ? `/club/${club}/course/${course.slug}`
+              : ""
+          }
         />
       ))}
     </Box>

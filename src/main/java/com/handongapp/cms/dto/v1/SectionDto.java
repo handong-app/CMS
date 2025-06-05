@@ -53,11 +53,12 @@ public class SectionDto {
 
     // CreateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class CreateRequest {
         @NotBlank
-        private final String title;
-        private final String description;
-        private final Integer order;
+        private String title;
+        private String description;
+        private Integer order;
 
         public CreateRequest(String title, String description, Integer order) {
             this.title = title;
@@ -77,10 +78,11 @@ public class SectionDto {
 
     // UpdateRequest DTO
     @Data
+    @NoArgsConstructor
     public static class UpdateRequest {
-        private final String title;
-        private final String description;
-        private final Integer order;
+        private String title;
+        private String description;
+        private Integer order;
 
         public UpdateRequest(String title, String description, Integer order) {
             this.title = title;

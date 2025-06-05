@@ -1,0 +1,21 @@
+meta {
+  name: Club banner upload
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/s3/upload-url/club-banner?id=222db7ec3df511f08af90242ac140006&filename=flower.jpeg
+  body: none
+  auth: inherit
+}
+
+params:query {
+  id: 222db7ec3df511f08af90242ac140006
+  filename: flower.jpeg
+}
+
+vars:pre-request {
+  courseId: 1a0f230711f54f78a0c0a2d32d1ef972
+  filename: flower.jpeg
+}

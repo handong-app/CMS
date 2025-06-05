@@ -1,11 +1,14 @@
-import { AppBar, Toolbar, Box, Button, Avatar } from "@mui/material";
-import Logo from "../../assets/Logo.png"; // 경로는 위치에 따라 조정하세요
+import { AppBar, Toolbar, Box, Button, Avatar, Typography } from "@mui/material";
+import Logo from "../../assets/Logo.png"; // 로고 이미지 경로 확인
+import { useTheme } from "@mui/material/styles";
 
 type Props = {
   user: { name: string; photoURL: string } | null;
 };
 
 const MyAppBar = ({ user }: Props) => {
+  const theme = useTheme();
+
   const handleGoogleLogin = async () => {
     try {
       const res = await fetch("http://localhost:8080/api/auth/google/client-id");
@@ -32,14 +35,19 @@ const MyAppBar = ({ user }: Props) => {
   };
 
   return (
-    <AppBar position="static" color="default" elevation={1}>
+    // position을 "fixed"로 변경하여 앱 바를 화면 상단에 고정
+    // elevation을 0으로 설정하여 AppBar 자체의 그림자를 제거 (Toolbar에서 관리)
+    <AppBar position="fixed" color="default" elevation={0} sx={{ top: 0, left: 0, width: '100%', zIndex: theme.zIndex.appBar }}>
       <Toolbar
         sx={{
+          // 기존 boxShadow 유지 또는 제거 (선택 사항)
           boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
           backdropFilter: "blur(10px)",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          // 'textcolor'는 올바른 속성이 아닙니다. 'color'로 변경하여 텍스트 색상을 테마에서 가져오도록 합니다.
+          color: theme.palette.text.primary, // 툴바 내부의 기본 텍스트 색상
+          backgroundColor: theme.palette.background.default, // 툴바의 배경색
           justifyContent: "space-between",
-          px: 2,
+          px: 2, // 좌우 패딩
         }}
       >
         <Box display="flex" alignItems="center">
@@ -48,10 +56,10 @@ const MyAppBar = ({ user }: Props) => {
 
         {user?.name ? (
           <Box display="flex" alignItems="center" gap={1}>
-            {/* ✅ 테스트에서 사용할 수 있도록 data-testid 추가 */}
-            <span data-testid="welcome-msg" style={{ fontWeight: 500 }}>
+            {/* Typography 컴포넌트 사용 및 색상/폰트 설정 */}
+            <Typography variant="body1" data-testid="welcome-msg" sx={{ fontWeight: 500, color: theme.palette.text.primary }}>
               {user.name}님 환영합니다!
-            </span>
+            </Typography>
             <Avatar alt={user.name} src={user.photoURL} sx={{ width: 36, height: 36 }} />
           </Box>
         ) : (

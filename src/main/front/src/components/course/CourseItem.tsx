@@ -50,10 +50,10 @@ const CourseItem: React.FC<CourseItemProps> = ({
           left: 0,
           bottom: 0,
           width: "100%",
-          height: 100,
+          height: progress !== undefined ? 100 : 50,
           background: "rgba(0,0,0,0.5)",
           color: "#fff",
-          padding: "16px 16px 12px 16px",
+          padding: progress !== undefined ? "16px 16px 12px 16px" : "0 16px",
           boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
@@ -66,7 +66,7 @@ const CourseItem: React.FC<CourseItemProps> = ({
           component="div"
           sx={{
             color: "#fff",
-            mb: 1,
+            mb: progress !== undefined ? 1 : 0,
             fontSize: name.length > 15 ? "1rem" : undefined,
             whiteSpace: "nowrap",
             overflow: "hidden",
@@ -78,17 +78,19 @@ const CourseItem: React.FC<CourseItemProps> = ({
         >
           {name}
         </Typography>
-        <LinearProgress
-          variant="determinate"
-          aria-label={`${name} 코스 진행률 ${progress}%`}
-          value={progress}
-          sx={{
-            height: 10,
-            borderRadius: 5,
-            background: "rgba(255,255,255,0.2)",
-            mb: 1,
-          }}
-        />
+        {progress !== undefined && (
+          <LinearProgress
+            variant="determinate"
+            aria-label={`${name} 코스 진행률 ${progress}%`}
+            value={progress}
+            sx={{
+              height: 10,
+              borderRadius: 5,
+              background: "rgba(255,255,255,0.2)",
+              mb: 1,
+            }}
+          />
+        )}
         {/* <Typography
           variant="body2"
           sx={{ color: "#fff", textAlign: "right", fontWeight: 500 }}

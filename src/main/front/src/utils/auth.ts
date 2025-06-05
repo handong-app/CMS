@@ -4,13 +4,13 @@ import useAuthStore from "../store/authStore";
 // Google OAuth 로그인 창 오픈
 export const initiateGoogleLogin = async () => {
   try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"}/api/auth/google/client-id`
-    );
+    const res = await fetch(`/api/auth/google/client-id`);
     if (!res.ok) throw new Error(`Client ID 조회 실패: ${res.status}`);
     const clientId = await res.text();
 
-    const redirectUri = encodeURIComponent(window.location.origin + "/google/callback");
+    const redirectUri = encodeURIComponent(
+      window.location.origin + "/google/callback"
+    );
     const scope = encodeURIComponent("openid email profile");
     const authUrl =
       `https://accounts.google.com/o/oauth2/v2/auth?` +

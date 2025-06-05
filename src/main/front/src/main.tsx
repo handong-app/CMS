@@ -19,6 +19,8 @@ import AuthTestPage from "./pages/AuthTestPage.tsx";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NodeGroupTest from "./pages/NodeGroupTest.tsx";
+import { CLUB_ADMINMENU } from "./admin-club/pages/index.tsx";
+import AdminRoot from "./admin-club/components/AdminRoot.tsx";
 
 const router = createBrowserRouter([
   {
@@ -66,6 +68,30 @@ const router = createBrowserRouter([
   {
     path: "/nodegroup-test",
     element: <NodeGroupTest />,
+  },
+  {
+    path: "/club/:club/admin",
+    Component: AdminRoot,
+    children: [
+      {
+        index: true,
+        // index(기본) 접근 시 ADMINMENU 첫번째 id로 리다이렉트
+        loader: ({ params }) => {
+          const club = params.club;
+          return Response.redirect(
+            `/club/${club}/admin/${CLUB_ADMINMENU[0].id}`,
+            302
+          );
+        },
+      },
+      ...CLUB_ADMINMENU.map((menu) => ({
+        path: `${menu.id}`,
+        Component: menu.comp,
+        children: menu.children,
+        // 컴포넌트가 로그인 보호가 필요한 경우 아래와 같이 설정
+        // element: <LoginProtected comp={menu.comp} />,
+      })),
+    ],
   },
 ]);
 

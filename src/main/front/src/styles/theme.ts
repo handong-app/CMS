@@ -32,6 +32,19 @@ const theme = createTheme({
       900: "#222",
     },
   },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "rgb(56, 111, 173)", // 기본 색상
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "rgb(35, 91, 143)", // hover 색상
+          },
+        },
+      },
+    },
+  },
   typography: {
     fontFamily: [
       "Pretendard Variable",

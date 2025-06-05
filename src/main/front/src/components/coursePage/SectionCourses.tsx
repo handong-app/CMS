@@ -22,6 +22,8 @@ export interface SectionCoursesProps {
   title: string;
   description: string;
   nodes: Node[];
+  onTitleClick?: () => void;
+  onNodeClick?: (nodeId: string) => void;
 }
 
 const iconMap = {
@@ -37,6 +39,8 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
   title,
   description,
   nodes,
+  onTitleClick,
+  onNodeClick,
 }) => {
   return (
     <Paper
@@ -51,13 +55,18 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
         boxSizing: "border-box",
       }}
     >
-      <Typography variant="subtitle1" fontWeight={600} mb={0.2}>
+      <Typography
+        variant="subtitle1"
+        fontWeight={600}
+        mb={0.2}
+        sx={{ cursor: onTitleClick ? "pointer" : "default" }}
+        onClick={onTitleClick}
+      >
         {title}
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={1}>
         {description}
       </Typography>
-
       <List dense>
         {!nodes || nodes.length === 0 ? (
           <ListItem sx={{ pl: 0 }}>
@@ -72,12 +81,17 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
               key={node.id}
               sx={{
                 pl: 0,
-                cursor: "pointer",
-                "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                cursor: onNodeClick ? "pointer" : "default",
+                "&:hover": {
+                  backgroundColor: onNodeClick
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : undefined,
+                },
                 borderRadius: 2,
                 pb: 1,
                 pt: 1,
               }}
+              onClick={onNodeClick ? () => onNodeClick(node.id) : undefined}
             >
               <ListItemIcon sx={{ minWidth: 32 }}>
                 {iconMap[node.type] ?? <DescriptionIcon />}

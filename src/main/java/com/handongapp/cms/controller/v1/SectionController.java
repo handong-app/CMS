@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/clubs/{clubId}/courses/{courseSlug}/sections")
+@RequestMapping("/api/v1/clubs/{clubSlug}/courses/{courseSlug}/sections")
 @RequiredArgsConstructor
 public class SectionController {
 
@@ -20,7 +20,7 @@ public class SectionController {
 
     @PostMapping
     public ResponseEntity<SectionDto.Response> create(
-            @PathVariable String clubId,
+            @PathVariable String clubSlug,
             @PathVariable String courseSlug,
             @RequestBody @Valid SectionDto.CreateRequest req) {
         String courseId = getCourseIdFromSlug(courseSlug);
@@ -29,7 +29,7 @@ public class SectionController {
 
     @GetMapping
     public ResponseEntity<List<SectionDto.Response>> list(
-            @PathVariable String clubId,
+            @PathVariable String clubSlug,
             @PathVariable String courseSlug) {
         String courseId = getCourseIdFromSlug(courseSlug);
         return ResponseEntity.ok(sectionService.listByCourse(courseId));
@@ -37,7 +37,7 @@ public class SectionController {
 
     @GetMapping("/{sectionId}")
     public ResponseEntity<SectionDto.Response> get(
-            @PathVariable String clubId,
+            @PathVariable String clubSlug,
             @PathVariable String courseSlug,
             @PathVariable String sectionId) {
         return ResponseEntity.ok(sectionService.get(sectionId));
@@ -45,7 +45,7 @@ public class SectionController {
 
     @PatchMapping("/{sectionId}")
     public ResponseEntity<SectionDto.Response> update(
-            @PathVariable String clubId,
+            @PathVariable String clubSlug,
             @PathVariable String courseSlug,
             @PathVariable String sectionId,
             @RequestBody @Valid SectionDto.UpdateRequest req) {
@@ -54,7 +54,7 @@ public class SectionController {
 
     @DeleteMapping("/{sectionId}")
     public ResponseEntity<Void> delete(
-            @PathVariable String clubId,
+            @PathVariable String clubSlug,
             @PathVariable String courseSlug,
             @PathVariable String sectionId) {
         sectionService.deleteSoft(sectionId);

@@ -1,19 +1,17 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.domain.TbClubRole;
-import com.handongapp.cms.domain.TbFileList;
-import com.handongapp.cms.domain.TbNode;
-import com.handongapp.cms.domain.TbUserClubRole;
+import com.handongapp.cms.domain.*;
 import com.handongapp.cms.domain.enums.ClubUserRole;
+import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.S3Dto;
+import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.exception.file.PresignedUrlCreationException;
 import com.handongapp.cms.mapper.NodeMapper;
-import com.handongapp.cms.repository.ClubRoleRepository;
-import com.handongapp.cms.repository.FileListRepository;
-import com.handongapp.cms.repository.UserClubRoleRepository;
-import com.handongapp.cms.service.PresignedUrlService;
+import com.handongapp.cms.repository.*;
+import com.handongapp.cms.service.*;
 import com.handongapp.cms.util.FileUtil;
 import jakarta.annotation.PreDestroy;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -64,13 +62,17 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
     @Value("${cloud.aws.s3.presigned-url-duration}")
     private Duration signatureDuration;
 
-    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[\\p{L}\\p{N}._\\- ]+$");
+    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("^[\\p{L}\\p{N}._!()-\\- ]+$");
 
     private final NodeMapper nodeMapper;
     private final UserClubRoleRepository userClubRoleRepository;
+    private final ClubRepository clubRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+
     private final ClubRoleRepository clubRoleRepository;
     private final FileListRepository fileListRepository;
-    private final NodeServiceImpl nodeService;
+    private final NodeService nodeService;
 
 
     /**
@@ -129,6 +131,81 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
         response.setFileListId(savedFileList.getId());
 
         return response;
+    }
+
+    /**
+     * 대상별(코스, 클럽, 사용자) Presigned Upload URL을 생성합니다.
+     * <p>
+     * 업로드 대상의 타입({@code targetType})에 따라 S3 경로 및 {@code fileKey}를 생성하며,
+     * {@link TbFileList} 엔티티를 생성 및 저장합니다.
+     * <p>
+     * 업로드 URL 생성 후, 각 대상 테이블(course/club/user)의 {@code fileKey}도 함께 업데이트됩니다.
+     *
+     * @param targetType      업로드 대상의 타입 (예: {@code course-banner}, {@code club-banner}, {@code user-profile})
+     * @param targetId        업로드 대상의 ID (코스 ID, 클럽 ID, 사용자 ID)
+     * @param originalFilename 원본 파일명
+     * @param userId          업로더의 사용자 ID
+     * @return Presigned Upload URL 및 파일 정보 DTO
+     * @throws IllegalArgumentException         지원하지 않는 {@code targetType}일 경우 발생
+     * @throws PresignedUrlCreationException    Presigned URL 생성 또는 DB 처리 중 오류가 발생할 경우 발생
+     */
+    @Override
+    @Transactional
+    public S3Dto.UploadUrlResponse generateBannerUploadUrl(String targetType, String targetId, String originalFilename, String userId) {
+        String path;
+        switch (targetType) {
+            case "course-banner" -> path = "course-banner/";
+            case "club-banner" -> path = "club-banner/";
+            case "user-profile" -> path = "user-profile/";
+            default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
+        }
+
+        String extension = FilenameUtils.getExtension(originalFilename);
+        String mimeType = FileUtil.detectMimeTypeByFilename(originalFilename);
+        String fileKey = path + targetId + "." + extension;
+
+        try {
+            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileKey)
+                    .contentType(mimeType)
+                    .build();
+
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(signatureDuration)
+                    .putObjectRequest(objectRequest)
+                    .build();
+
+            TbFileList.TbFileListBuilder fileListBuilder = TbFileList.builder()
+                    .userId(userId)
+                    .fileKey(fileKey)
+                    .originalFileName(originalFilename)
+                    .contentType(mimeType)
+                    .isUploadComplete(false)
+                    .requestedAt(LocalDateTime.now());
+
+            switch (targetType) {
+                case "course-banner" -> fileListBuilder.courseId(targetId);
+                case "club-banner" -> fileListBuilder.clubId(targetId);
+            }
+            TbFileList savedFileList = fileListRepository.save(fileListBuilder.build());
+
+            switch (targetType) {
+                case "course-banner" -> updateCourseBanner(targetId, fileKey);
+                case "club-banner" -> updateClubBanner(targetId, fileKey);
+                case "user-profile" -> updateUserProfile(targetId, fileKey);
+            }
+
+            return S3Dto.UploadUrlResponse.builder()
+                    .presignedUrl(presigner.presignPutObject(presignRequest).url().toString())
+                    .fileKey(fileKey)
+                    .originalFilename(originalFilename)
+                    .fileListId(savedFileList.getId())
+                    .build();
+
+        } catch (Exception e) {
+            throw new PresignedUrlCreationException("Presigned URL 생성 실패: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -350,5 +427,29 @@ public class PresignedUrlServiceImpl implements PresignedUrlService {
             case FILE -> true;  // FILE 타입에서는 모든 mimeType 허용
             default ->  false;  // TEXT, QUIZ 등은 업로드 허용하지 않음
         };
+    }
+
+    private void updateUserProfile(String userId, String fileKey) {
+        TbUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
+        user.setFileKey(fileKey);
+        user.setFileStatus(FileStatus.UPLOADING);
+        userRepository.save(user);
+    }
+
+    private void updateClubBanner(String clubId, String fileKey) {
+        TbClub club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new NotFoundException("Club not found with id: " + clubId));
+        club.setFileKey(fileKey);
+        club.setFileStatus(FileStatus.UPLOADING);
+        clubRepository.save(club);
+    }
+
+    private void updateCourseBanner(String courseId, String fileKey) {
+        TbCourse course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found with id: " + courseId));
+        course.setFileKey(fileKey);
+        course.setFileStatus(FileStatus.UPLOADING);
+        courseRepository.save(course);
     }
 }

@@ -1,11 +1,11 @@
 package com.handongapp.cms.service.impl;
 
-import com.handongapp.cms.domain.TbFileList;
-import com.handongapp.cms.domain.TbNode;
+import com.handongapp.cms.domain.*;
+import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.dto.v1.S3Dto;
 import com.handongapp.cms.exception.file.UploadNotificationException;
 import com.handongapp.cms.mapper.NodeMapper;
-import com.handongapp.cms.repository.FileListRepository;
+import com.handongapp.cms.repository.*;
 import com.handongapp.cms.service.UploadNotifyService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +42,9 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
     private final AmqpTemplate amqpTemplate;
     private final S3Client s3Client;
     private final FileListRepository fileListRepository;
+    private final UserRepository userRepository;
+    private final ClubRepository clubRepository;
+    private final CourseRepository courseRepository;
     private final NodeMapper nodeMapper;
     private final NodeServiceImpl nodeService;
 
@@ -50,6 +53,63 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
 
     @Value("${rabbitmq.queue.transcode-request}")
     private String transcodeRequestQueue;
+
+    /**
+     * 업로드 완료 알림 처리 메소드.
+     * <p>
+     * - 요청된 fileKey가 DB의 fileKey와 일치하는지 검증 후, {@link TbFileList}의 상태를 '업로드 완료'로 업데이트합니다.
+     * - 업로드가 완료된 파일의 fileKey를 연관된 엔티티(코스, 클럽, 사용자)에 반영합니다.
+     *
+     * @param request 업로드 완료 요청 DTO
+     * @throws IllegalArgumentException fileKey 불일치 또는 파일 리스트가 없을 경우 발생
+     */
+    @Override
+    public void completeUpload(S3Dto.UploadCompleteRequest request) {
+        TbFileList fileList = fileListRepository.findById(request.getFileListId())
+                .orElseThrow(() -> new IllegalArgumentException("파일 리스트를 찾을 수 없습니다."));
+
+        if (!request.getFileKey().equals(fileList.getFileKey())) {
+            throw new IllegalArgumentException("파일키 불일치: 요청과 저장된 파일키가 다릅니다.");
+        }
+
+        fileList.setIsUploadComplete(true);
+        fileList.setCompletedAt(LocalDateTime.now());
+        fileListRepository.save(fileList);
+
+        updateRelatedEntityFileKey(request.getId(), fileList.getFileKey());
+    }
+
+    /**
+     * 업로드 완료 후, 연관 엔티티의 fileKey 및 상태를 업데이트합니다.
+     * <p>
+     * {@code course-banner/}, {@code club-banner/}, {@code user-profile/} 경로에 따라
+     * 각각 {@link TbCourse}, {@link TbClub}, {@link TbUser}의 fileKey와 fileStatus를 갱신합니다.
+     *
+     * @param id       엔티티 ID
+     * @param fileKey  S3에 업로드된 파일 키
+     * @throws IllegalStateException 엔티티를 찾을 수 없는 경우 발생
+     */
+    private void updateRelatedEntityFileKey(String id, String fileKey) {
+        if (fileKey.startsWith("course-banner/")) {
+            TbCourse course = courseRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("Course not found"));
+            course.setFileKey(fileKey);
+            course.setFileStatus(FileStatus.UPLOADED);
+            courseRepository.save(course);
+        } else if (fileKey.startsWith("club-banner/")) {
+            TbClub club = clubRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("Club not found"));
+            club.setFileKey(fileKey);
+            club.setFileStatus(FileStatus.UPLOADED);
+            clubRepository.save(club);
+        } else if (fileKey.startsWith("user-profile/")) {
+            TbUser user = userRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("User not found"));
+            user.setFileKey(fileKey);
+            user.setFileStatus(FileStatus.UPLOADED);
+            userRepository.save(user);
+        }
+    }
 
 
     /**
@@ -74,21 +134,22 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
         log.info("🔍 노드 타입 확인: {}", nodeType);
 
         // 같은 노드ID를 가지지만 fileListId는 제외한 다른 파일들을 삭제
-        deleteOtherFilesByNodeIdExcept(dto.getId(), dto.getFileListId());
+        // 같은 확장자를 가졌다면, 이미 MinIO 에 upsert 되었으므로 이미 파일이 1개일 것임
+        deleteOtherFilesByNodeIdExcept(dto.getId(), dto.getFileListId(), dto.getFileKey());
 
         nodeService.updateNodeFileData(dto.getId(), dto.getFileListId());
 
         log.info("📁 TbNode fileKey 업데이트 완료: {}", dto.getFileKey());
 
         if (nodeType == TbNode.NodeType.VIDEO) {
-//            TODO: 트랜스코딩 기능 임시 비활성화 - 개발 완료 후 활성화 필요
+//            TODO: 트랜스코딩 현황 업데이트 기능 추가 요망
             log.info("트랜스코딩 기능이 임시 비활성화되었습니다.");
-//            triggerTranscode(
-//                    S3Dto.TransCodeRequest.builder()
-//                    .fileKey(dto.getFileKey())
-//                    .filetype("video")
-//                    .build()
-//            );
+            triggerTranscode(
+                    S3Dto.TransCodeRequest.builder()
+                    .fileKey(dto.getFileKey())
+                    .filetype("video")
+                    .build()
+            );
         }
     }
 
@@ -107,14 +168,14 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
                 .orElseThrow(() -> new IllegalArgumentException("요청된 파일 정보가 유효하지 않습니다. fileListId=" + fileListId));
     }
 
-     /**
+    /**
      * 업로드 완료 상태를 DB에 반영합니다.
      * <p>
      * 주어진 fileListId의 파일을 조회하고, 업로드 완료로 상태를 변경합니다.
      *
      * @param dto 업로드 완료 요청 DTO
      */
-     private void markFileAsUploaded(S3Dto.UploadCompleteRequest dto) {
+    private void markFileAsUploaded(S3Dto.UploadCompleteRequest dto) {
         TbFileList fileList = fileListRepository.findById(dto.getFileListId())
                 .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + dto.getFileListId()));
 
@@ -148,11 +209,12 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      * @param nodeId         노드 ID
      * @param fileListIdToKeep 유지할 파일 리스트 ID
      */
-    private void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep) {
+    private void deleteOtherFilesByNodeIdExcept(String nodeId, String fileListIdToKeep, String fileKeyToKeep) {
         List<TbFileList> otherFiles = fileListRepository.findByNodeIdForUpdate(nodeId);
         for (TbFileList file : otherFiles) {
             if (!file.getId().equals(fileListIdToKeep)) {
-                deleteFileFromS3(file.getFileKey());
+                if(!file.getFileKey().equals(fileKeyToKeep))
+                    deleteFileFromS3(file.getFileKey());
                 fileListRepository.delete(file);
                 log.info("🗑️ 같은 노드ID 다른 파일 삭제됨: {}", file.getFileKey());
             }

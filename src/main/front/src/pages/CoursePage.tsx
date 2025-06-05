@@ -3,19 +3,48 @@ import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import InfoCard from "../components/coursePage/InfoCard";
 import CourseProgressList from "../components/coursePage/CourseProgressList";
-import { courseDummyData } from "../components/coursePage/CourseDummyData";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
 import CourseProgress from "../components/course/CourseProgress";
+import { useQuery } from "@tanstack/react-query";
+import useUserData from "../hooks/userData";
+import type { ProgramData, UserProgress } from "../types/process.types";
+import calculateProgress from "../utils/calculateProcess";
 import { useFetchBe } from "../tools/api";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useEffect, useState, useMemo } from "react";
+import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
+import { LatestComment } from "../types/latestComment.types";
 
 function CoursePage() {
+  const { userId } = useUserData();
   const fetchBe = useFetchBe();
-  const [courseData, setCourseData] = useState<CourseData | null>(null);
   const { clubSlug, courseSlug } = useParams();
+  const navigate = useNavigate();
+
+  // 내 프로그램 리스트
+  const { data: myPrograms } = useQuery<
+    { programId: string; clubSlug: string; slug: string }[]
+  >({
+    queryKey: ["myPrograms"],
+    queryFn: () => fetchBe("/v1/user/programs"),
+  });
+
+  // 현재 club에 해당하는 programSlug 찾기
+  const myProgram = (myPrograms ?? []).find((p) => p.clubSlug === clubSlug);
+  const programSlug = myProgram?.slug;
+
+  // 프로그램별 유저 진도 데이터
+  const { data: programProcess } = useQuery<ProgramData>({
+    queryKey: ["programProcess", programSlug],
+    queryFn: () =>
+      fetchBe(`/v1/clubs/${clubSlug}/programs/${programSlug}/users`),
+    enabled: !!programSlug,
+  });
+
+  const [courseData, setCourseData] = useState<CourseData | null>(null);
+
+  const [latestComments, setLatestComments] = useState<LatestComment[]>([]);
 
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
@@ -26,6 +55,63 @@ function CoursePage() {
       setCourseData(data);
     });
   }, [clubSlug, courseSlug, fetchBe]);
+
+  // 최신 댓글 불러오기 (코스 전체에 해당하는 댓글만 추출)
+  useEffect(() => {
+    if (!courseData?.id) return;
+    fetchBe(`/v1/comments/search?courseId=${courseData.id}`)
+      .then((comments: LatestComment[]) => {
+        const nodeGroupIds = (courseData.sections ?? []).flatMap((s) =>
+          (s.nodeGroups ?? []).map((g) => g.id)
+        );
+        const nodeIds = (courseData.sections ?? []).flatMap((s) =>
+          (s.nodeGroups ?? []).flatMap((g) => (g.nodes ?? []).map((n) => n.id))
+        );
+        const validTargetIds = [courseData.id, ...nodeGroupIds, ...nodeIds];
+        const filtered = Array.isArray(comments)
+          ? comments.filter(
+              (c) => validTargetIds.includes(c.targetId) && c.content
+            )
+          : [];
+        filtered.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        const top10 = filtered.slice(0, 10);
+        setLatestComments(top10);
+
+        // console.log("[최신 반응 디버깅]", {
+        //   courseId: courseData.id,
+        //   nodeGroupIds,
+        //   nodeIds,
+        //   totalComments: comments.length,
+        //   filteredCount: filtered.length,
+        //   latestComments: top10,
+        // });
+      })
+      .catch(() => setLatestComments([]));
+  }, [courseData?.id, fetchBe, courseData]);
+
+  // 진도율 계산 및 내 진도 정보 useMemo로 최적화
+  const myProgress = useMemo(() => {
+    if (!courseData || !programProcess) return null;
+    const calculatedProgress: UserProgress[] =
+      calculateProgress(programProcess);
+    return calculatedProgress.find((u) => u.userId === userId);
+  }, [courseData, programProcess, userId]);
+
+  // 진도율 계산
+  let percent = 0,
+    completed = 0,
+    total = 0;
+  if (courseData && myProgress) {
+    const courseId = courseData.id;
+    const courseProgress = myProgress.courseProgress[courseId];
+    completed = courseProgress?.completed ?? 0;
+    total = courseProgress?.total ?? 0;
+    percent = total > 0 ? Math.round((completed / total) * 1000) / 10 / 100 : 0;
+    // console.log("[진도율 디버깅]", { courseId, myProgress, courseProgress, completed, total, percent });
+  }
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
@@ -42,10 +128,25 @@ function CoursePage() {
           courseTitle={courseData?.title ?? ""}
           sections={(courseData?.sections ?? []).map((section) => ({
             ...section,
-            nodeGroups: section.nodeGroups.map((group) => ({
-              ...group,
-              isCompleted: true, // 추가 필드
-            })),
+            nodeGroups: (section.nodeGroups ?? []).map((group) => {
+              // nodeGroup 완료 여부 및 진행중 여부 계산
+              let isCompleted = false;
+              let isInProgress = false;
+              if (courseData && myProgress) {
+                const courseId = courseData.id;
+                const courseProgress = myProgress.courseProgress[courseId];
+                if (courseProgress?.map) {
+                  const state = courseProgress.map?.[group.id];
+                  isCompleted = state === "DONE";
+                  isInProgress = state === "IN_PROGRESS";
+                }
+              }
+              return {
+                ...group,
+                isCompleted,
+                isInProgress,
+              };
+            }),
           }))}
           width={260}
         />
@@ -61,15 +162,19 @@ function CoursePage() {
                   </Typography>
                   <Box display="flex" alignItems="center" mt={2}>
                     <Box width={86}>
-                      <CourseProgress value={0.5} />
+                      <CourseProgress value={percent} />
                     </Box>
                     <Box ml={2} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
                       <Typography variant="body2">진도율</Typography>
-                      <Typography variant="body2">3/6</Typography>
+                      <Typography variant="body2">
+                        {completed}/{total}
+                      </Typography>
                     </Box>
                     <Box ml={1} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
                       <Typography variant="body2">남은 강의</Typography>
-                      <Typography variant="body2">3개</Typography>
+                      <Typography variant="body2">
+                        {total - completed}개
+                      </Typography>
                     </Box>
                   </Box>
                 </>
@@ -114,9 +219,9 @@ function CoursePage() {
                     scrollbarColor: "rgba(255,255,255,0.08) transparent",
                   }}
                 >
-                  {courseDummyData.latestComments.map((comment, index) => (
+                  {(latestComments ?? []).map((comment, index) => (
                     <Box
-                      key={index}
+                      key={comment.id || index}
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
@@ -131,7 +236,7 @@ function CoursePage() {
                       }}
                     >
                       <Typography variant="body2">
-                        {comment.studentId} {comment.author} {comment.content}
+                        {comment.userId?.slice(0, 5) || "-"} {comment.content}
                       </Typography>
                       <Typography
                         component="span"
@@ -143,7 +248,7 @@ function CoursePage() {
                           textAlign: "right",
                         }}
                       >
-                        {comment.time}
+                        {comment.createdAt?.slice(0, 10) || ""}
                       </Typography>
                     </Box>
                   ))}
@@ -159,14 +264,14 @@ function CoursePage() {
               {(courseData?.sections ?? []).map((section) => (
                 <Box key={section.id} mt={1}>
                   <Section text={section.title} />
-                  {section.nodeGroups.map((group) => (
+                  {(section.nodeGroups ?? []).map((group) => (
                     <Box mt={1.6} key={group.id}>
                       <SectionCourses
                         title={group.title}
                         description={section.description}
                         nodes={
                           Array.isArray(group.nodes)
-                            ? group.nodes.map((node) => {
+                            ? group.nodes?.map((node) => {
                                 let title = "";
                                 switch (node.type) {
                                   case "VIDEO":
@@ -198,6 +303,25 @@ function CoursePage() {
                               })
                             : []
                         }
+                        onTitleClick={() => {
+                          // console.log("group title", group.title);
+                          if (clubSlug && courseSlug && group.title) {
+                            navigate(
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
+                                group.title
+                              )}`
+                            );
+                          }
+                        }}
+                        onNodeClick={() => {
+                          if (clubSlug && courseSlug && group.title) {
+                            navigate(
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
+                                group.title
+                              )}`
+                            );
+                          }
+                        }}
                       />
                     </Box>
                   ))}

@@ -20,12 +20,12 @@ public class UserDto {
         private String name;
         private String email;
         private String phone;
-        private String pictureUrl;
+        private String fileKey;
         private String studentId;
         private Boolean isAdmin;
 
         public static TbUserBasicDto of(TbUser user) {
-            return new TbUserBasicDto(user.getGoogleSub(), user.getName(), user.getEmail(), user.getPhone(), user.getPictureUrl(), user.getStudentId(), user.getIsAdmin());
+            return new TbUserBasicDto(user.getGoogleSub(), user.getName(), user.getEmail(), user.getPhone(), user.getFileKey(), user.getStudentId(), user.getIsAdmin());
         }
     }
 
@@ -39,7 +39,6 @@ public class UserDto {
         private String studentId;
         private String email;
         private String phone;
-        private String profileImage;
     }
 
     @AllArgsConstructor
@@ -55,7 +54,7 @@ public class UserDto {
         private String profileImage;
 
         public static UserProfileResDto of(TbUser user) {
-            return new UserProfileResDto(user.getId(), user.getName(), user.getStudentId(), user.getEmail(), user.getPhone(), user.getPictureUrl());
+            return new UserProfileResDto(user.getId(), user.getName(), user.getStudentId(), user.getEmail(), user.getPhone(), user.getFileKey());
         }
     }
 
@@ -64,7 +63,7 @@ public class UserDto {
     @Getter
     @Setter
     public class UserProfileImageReqDto {
-        private String pictureUrl;
+        private String fileKey;
     }
 
     @AllArgsConstructor
