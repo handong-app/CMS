@@ -1,0 +1,17 @@
+name: Add issues and PRs to project
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add issue or PR to project
+        uses: actions/add-to-project@v1
+        with:
+          project-url: https://github.com/orgs/handong-app/projects/5
+          github-token: ${{ secrets.GITHUB_TOKEN }}
