@@ -1,12 +1,40 @@
 package com.handongapp.cms.dto.v1;
 
 import com.querydsl.core.annotations.QueryProjection;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
 
 public class ClubDto {
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    @Schema(description = "동아리 목록 조회 응답 DTO")
+    public static class ClubListInfoResponseDto {
+        @Schema(description = "동아리 ID")
+        private String id;
+        @Schema(description = "동아리 이름")
+        private String clubName;
+        @Schema(description = "동아리 고유 식별자 (slug)")
+        private String slug;
+        @Schema(description = "동아리 설명")
+        private String description;
+        @Schema(description = "동아리 배너 이미지 URL (Presigned URL)")
+        private String bannerUrl;
+        @Schema(description = "현재 사용자의 해당 동아리 회원 여부 (인증 시에만 포함)")
+        @Setter
+        @JsonProperty("isMember")
+        private Boolean isMember;
+    }
+
 
     @Getter
     @AllArgsConstructor
@@ -73,4 +101,14 @@ public class ClubDto {
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "동아리 가입 요청 DTO")
+    public static class ClubJoinRequestDto {
+        @NotNull(message = "가입 기수를 입력해주세요.")
+        @Schema(description = "가입 기수", example = "20")
+        private Integer generation;
+    }
 }
