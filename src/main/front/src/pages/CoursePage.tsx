@@ -109,7 +109,7 @@ function CoursePage() {
     const courseProgress = myProgress.courseProgress[courseId];
     completed = courseProgress?.completed ?? 0;
     total = courseProgress?.total ?? 0;
-    percent = total > 0 ? completed / total : 0;
+    percent = total > 0 ? Math.round((completed / total) * 1000) / 10 / 100 : 0;
     // console.log("[진도율 디버깅]", { courseId, myProgress, courseProgress, completed, total, percent });
   }
 
