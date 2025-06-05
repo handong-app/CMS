@@ -128,6 +128,62 @@ const SectionList: React.FC<SectionListProps> = ({
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
+  // 섹션 순서 업데이트 함수 (fromIdx, toIdx 지원)
+  const updateSectionOrder = (
+    sections: any[],
+    fromIdx?: number,
+    toIdx?: number
+  ) => {
+    let newSections = sections;
+    if (typeof fromIdx === "number" && typeof toIdx === "number") {
+      newSections = arrayMove(sections, fromIdx, toIdx).map((section, idx) => ({
+        ...section,
+        order: idx + 1,
+      }));
+    }
+    setLocalSections(newSections);
+    newSections.forEach((section) => {
+      console.log("section", section.id, section.order);
+      fetchBe(`/v1/clubs/_/courses/_/sections/${section.id}`, {
+        method: "PATCH",
+        body: {
+          order: section.order,
+        },
+      });
+    });
+  };
+
+  // 노드 그룹 순서 업데이트 함수 (특정 섹션 내, fromIdx, toIdx 지원)
+  const updateNodeGroupOrder = (
+    sectionIdx: number,
+    nodeGroups: any[],
+    fromIdx?: number,
+    toIdx?: number
+  ) => {
+    let newNodeGroups = nodeGroups;
+    if (typeof fromIdx === "number" && typeof toIdx === "number") {
+      newNodeGroups = arrayMove(nodeGroups, fromIdx, toIdx).map(
+        (g: any, idx: number) => ({
+          ...g,
+          order: idx + 1,
+        })
+      );
+    }
+    const newSections = localSections.map((s, idx) =>
+      idx === sectionIdx ? { ...s, nodeGroups: newNodeGroups } : s
+    );
+    setLocalSections(newSections);
+    newNodeGroups.forEach((g: any) => {
+      console.log("nodeGroup", g.id, g.order);
+      fetchBe(`/v1/node-group/${g.id}`, {
+        method: "PATCH",
+        body: {
+          order: g.order,
+        },
+      });
+    });
+  };
+
   // 섹션 드래그 종료 핸들러
   const handleSectionDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -135,17 +191,7 @@ const SectionList: React.FC<SectionListProps> = ({
     const oldIndex = localSections.findIndex((s) => s.id === active.id);
     const newIndex = localSections.findIndex((s) => s.id === over.id);
     if (oldIndex !== -1 && newIndex !== -1) {
-      const newSections = arrayMove(localSections, oldIndex, newIndex).map(
-        (section, idx) => ({
-          ...section,
-          order: idx + 1,
-        })
-      );
-      setLocalSections(newSections);
-      // 이동 완료 후 id, order 콘솔 출력
-      newSections.forEach((section) => {
-        console.log("section", section.id, section.order);
-      });
+      updateSectionOrder(localSections, oldIndex, newIndex);
     }
   };
 
@@ -183,24 +229,12 @@ const SectionList: React.FC<SectionListProps> = ({
     ) {
       return;
     }
-    const nodeGroups = arrayMove(
+    updateNodeGroupOrder(
+      fromSectionIdx,
       localSections[fromSectionIdx].nodeGroups,
       fromGroupIdx,
       toGroupIdx
-    ).map((group: any, idx: number) => ({
-      ...(typeof group === "object" && group !== null ? group : {}),
-      order: idx + 1,
-    }));
-    const newSections = [...localSections];
-    newSections[fromSectionIdx] = {
-      ...newSections[fromSectionIdx],
-      nodeGroups,
-    };
-    setLocalSections(newSections);
-    // 이동 완료 후 id, order 콘솔 출력
-    nodeGroups.forEach((group) => {
-      console.log("nodeGroup", group.id, group.order);
-    });
+    );
   };
 
   return (
@@ -225,32 +259,22 @@ const SectionList: React.FC<SectionListProps> = ({
                     onAddPage={() => openAddNodeGroupDialog(section)}
                     onMoveUp={
                       sectionIdx > 0
-                        ? () => {
-                            const newSections = arrayMove(
+                        ? () =>
+                            updateSectionOrder(
                               localSections,
                               sectionIdx,
                               sectionIdx - 1
-                            ).map((s, idx) => ({ ...s, order: idx + 1 }));
-                            setLocalSections(newSections);
-                            newSections.forEach((s) =>
-                              console.log("section", s.id, s.order)
-                            );
-                          }
+                            )
                         : undefined
                     }
                     onMoveDown={
                       sectionIdx < localSections.length - 1
-                        ? () => {
-                            const newSections = arrayMove(
+                        ? () =>
+                            updateSectionOrder(
                               localSections,
                               sectionIdx,
                               sectionIdx + 1
-                            ).map((s, idx) => ({ ...s, order: idx + 1 }));
-                            setLocalSections(newSections);
-                            newSections.forEach((s) =>
-                              console.log("section", s.id, s.order)
-                            );
-                          }
+                            )
                         : undefined
                     }
                     disableMoveUp={sectionIdx === 0}
@@ -374,58 +398,24 @@ const SectionList: React.FC<SectionListProps> = ({
                                   }}
                                   onMoveUp={
                                     groupIdx > 0
-                                      ? () => {
-                                          const nodeGroups = arrayMove(
+                                      ? () =>
+                                          updateNodeGroupOrder(
+                                            sectionIdx,
                                             section.nodeGroups,
                                             groupIdx,
                                             groupIdx - 1
-                                          ).map((g: any, idx: number) => ({
-                                            ...g,
-                                            order: idx + 1,
-                                          }));
-                                          const newSections = localSections.map(
-                                            (s, idx) =>
-                                              idx === sectionIdx
-                                                ? { ...s, nodeGroups }
-                                                : s
-                                          );
-                                          setLocalSections(newSections);
-                                          nodeGroups.forEach((g: any) =>
-                                            console.log(
-                                              "nodeGroup",
-                                              g.id,
-                                              g.order
-                                            )
-                                          );
-                                        }
+                                          )
                                       : undefined
                                   }
                                   onMoveDown={
                                     groupIdx < section.nodeGroups.length - 1
-                                      ? () => {
-                                          const nodeGroups = arrayMove(
+                                      ? () =>
+                                          updateNodeGroupOrder(
+                                            sectionIdx,
                                             section.nodeGroups,
                                             groupIdx,
                                             groupIdx + 1
-                                          ).map((g: any, idx: number) => ({
-                                            ...g,
-                                            order: idx + 1,
-                                          }));
-                                          const newSections = localSections.map(
-                                            (s, idx) =>
-                                              idx === sectionIdx
-                                                ? { ...s, nodeGroups }
-                                                : s
-                                          );
-                                          setLocalSections(newSections);
-                                          nodeGroups.forEach((g: any) =>
-                                            console.log(
-                                              "nodeGroup",
-                                              g.id,
-                                              g.order
-                                            )
-                                          );
-                                        }
+                                          )
                                       : undefined
                                   }
                                   disableMoveUp={groupIdx === 0}
