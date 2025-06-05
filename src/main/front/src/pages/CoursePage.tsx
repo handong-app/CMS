@@ -293,9 +293,19 @@ function CoursePage() {
                         },
                       }}
                     >
-                      <Typography variant="body2">
-                        {comment.userId?.slice(0, 5) || "-"} {comment.content}
-                      </Typography>
+                      <Box display="flex">
+                        <Typography
+                          variant="body2"
+                          mr={1}
+                          sx={{ color: "#d7e2ffdb" }}
+                        >
+                          {comment.userName || "-"}
+                        </Typography>
+                        <Typography variant="body2">
+                          {comment.content}
+                        </Typography>
+                      </Box>
+
                       <Typography
                         component="span"
                         variant="caption"
