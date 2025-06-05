@@ -39,12 +39,12 @@ const App = () => {
           } else {
             console.warn("❌ Refresh token invalid.");
             useAuthStore.getState().clearAuth();
-            navigate("/land");
+            navigate("/");
           }
         } catch (err) {
           console.error("🚨 Token refresh failed:", err);
           useAuthStore.getState().clearAuth();
-          navigate("/land");
+          navigate("/");
         }
       })();
     }

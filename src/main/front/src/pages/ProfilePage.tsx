@@ -56,7 +56,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (!jwtToken) {
       alert("로그인이 필요합니다.");
-      navigate("/land");
+      navigate("/");
     }
   }, [jwtToken, navigate]);
 
@@ -104,7 +104,7 @@ const ProfilePage: React.FC = () => {
 
     if (!uid || !email) {
       alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
-      navigate("/land");
+      navigate("/");
       return;
     }
 
