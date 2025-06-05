@@ -2,7 +2,9 @@ package com.handongapp.cms.service.impl;
 
 import com.handongapp.cms.domain.*;
 import com.handongapp.cms.domain.enums.FileStatus;
+import com.handongapp.cms.domain.enums.VideoStatus;
 import com.handongapp.cms.dto.v1.S3Dto;
+import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.exception.file.UploadNotificationException;
 import com.handongapp.cms.mapper.NodeMapper;
 import com.handongapp.cms.repository.*;
@@ -18,6 +20,8 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 
 /**
  * 파일 업로드 완료 후 처리 로직을 담당하는 서비스 구현체.
@@ -45,6 +49,7 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final CourseRepository courseRepository;
+    private final NodeRepository nodeRepository;
     private final NodeMapper nodeMapper;
     private final NodeServiceImpl nodeService;
 
@@ -142,12 +147,11 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
         log.info("📁 TbNode fileKey 업데이트 완료: {}", dto.getFileKey());
 
         if (nodeType == TbNode.NodeType.VIDEO) {
-//            TODO: 트랜스코딩 현황 업데이트 기능 추가 요망
-            log.info("트랜스코딩 기능이 임시 비활성화되었습니다.");
             triggerTranscode(
                     S3Dto.TransCodeRequest.builder()
                     .fileKey(dto.getFileKey())
                     .filetype("video")
+                    .nodeId(dto.getId())
                     .build()
             );
         }
@@ -190,10 +194,23 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
      * 비디오 노드의 경우, 트랜스코딩 요청을 RabbitMQ로 전송합니다.
      * <p>
      * 전송 중 오류가 발생하면 UploadNotificationException을 던집니다.
+     * 트랜스코딩 전송 전, 해당 노드의 data.status를 TRANSCODING으로 업데이트합니다.
      *
      * @param dto 업로드 완료 요청 DTO
      */
     private void triggerTranscode(S3Dto.TransCodeRequest dto) {
+        TbNode node = nodeRepository.findById(dto.getNodeId())
+                .orElseThrow(() -> new NotFoundException("노드를 찾을 수 없습니다: " + dto.getNodeId()));
+
+        Map<String, Object> data = node.getData();
+        if (data != null && data.containsKey("file")) {
+            Map<String, Object> fileMap = (Map<String, Object>) data.get("file");
+            fileMap.put("status", VideoStatus.TRANSCODING.name());
+            node.setData(data);
+
+            nodeRepository.save(node);
+        }
+
         try {
             amqpTemplate.convertAndSend(transcodeRequestQueue, dto);
             log.info("🚀 트랜스코딩 요청 전송 완료: {}", transcodeRequestQueue);
