@@ -1,6 +1,5 @@
 package com.handongapp.cms.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,12 +12,10 @@ import com.handongapp.cms.repository.*;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.ProgramService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime; // 현재 시간 비교를 위해 추가
@@ -155,7 +152,7 @@ public class ProgramServiceImpl implements ProgramService {
             }
 
             return objectMapper.writeValueAsString(root);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("프로그램 JSON 파싱/직렬화에 실패했습니다.", e);
         }
     }
