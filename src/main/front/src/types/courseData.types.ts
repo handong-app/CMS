@@ -32,7 +32,6 @@ export interface CourseNode {
 export interface CourseNodeGroup {
   id: string;
   title: string;
-  slug?: string;
   order: number;
   nodes: CourseNode[] | null;
   // 진도 상태 표시용(프론트 계산 결과)

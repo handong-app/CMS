@@ -266,7 +266,6 @@ function CoursePage() {
                   <Section text={section.title} />
                   {(section.nodeGroups ?? []).map((group) => (
                     <Box mt={1.6} key={group.id}>
-                      {" "}
                       <SectionCourses
                         title={group.title}
                         description={section.description}
@@ -305,7 +304,7 @@ function CoursePage() {
                             : []
                         }
                         onTitleClick={() => {
-                          // console.log("group slug", group.title);
+                          // console.log("group title", group.title);
                           if (clubSlug && courseSlug && group.title) {
                             navigate(
                               `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
