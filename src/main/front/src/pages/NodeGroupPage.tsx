@@ -19,6 +19,8 @@ import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { NodeGroup } from "../types/nodeGroupData.types";
 import NextNodeGroupButton from "../components/NodeGroupPage/NextButton";
+import { usePostComment } from "../utils/usePostComment";
+import MarkdownViewer from "../components/NodeGroupPage/MarkdownViwer";
 // 노드 타입별로 크기 매칭
 const nodeHeightMap: Record<string, number | string> = {
   video: 600,
@@ -26,14 +28,6 @@ const nodeHeightMap: Record<string, number | string> = {
   image: 500,
   quiz: "auto",
   text: "auto",
-};
-// 이모지 매핑
-const categoryEmojiMap: Record<string, string> = {
-  질문: "❓",
-  피드백: "😁",
-  열정: "🔥",
-  감사: "☺️",
-  칭찬: "🌟",
 };
 
 const iconMap = {
@@ -51,6 +45,8 @@ function NodeGroupPage() {
   const toggleComments = (nodeId: string) => {
     setOpenNodeId((prev) => (prev === nodeId ? null : nodeId));
   };
+
+  // const postComment = usePostComment(); //댓글 업로드
 
   const fetchBe = useFetchBe();
 
@@ -91,12 +87,6 @@ function NodeGroupPage() {
       <Box>
         {nodeGroupData.nodes.map((node, index) => {
           const emojiCountMap: Record<string, number> = {};
-          node.comments.forEach((comment) => {
-            // const emoji = categoryEmojiMap[comment.category];
-            // if (emoji) {
-            //   emojiCountMap[emoji] = (emojiCountMap[emoji] || 0) + 1;
-            // }
-          });
 
           const emojiSummary = Object.entries(emojiCountMap)
             .map(([emoji]) => `${emoji}`)
@@ -193,10 +183,8 @@ function NodeGroupPage() {
                       borderRadius={2}
                     >
                       <CommentSection
-                        comments={node.comments}
-                        onSubmit={() => {
-                          alert("message submitted!");
-                        }}
+                        nodeId={node.id}
+                        // onSubmit={() => alert("submit")}
                       />
                     </Box>
                   )}
@@ -273,7 +261,6 @@ function NodeGroupPage() {
                         />
                       )
                     ) : (
-                      // 👉 콘텐츠가 없을 때 표시되는 fallback 메시지
                       <Box
                         display="flex"
                         justifyContent="center"
