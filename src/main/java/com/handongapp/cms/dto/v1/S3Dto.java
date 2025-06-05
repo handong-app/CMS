@@ -62,6 +62,7 @@ public class S3Dto {
         private String fileKey;
         @NotBlank(message = "filetype 는 필수입니다")
         private String filetype;
+        private String nodeId;
     }
 
     @Data
