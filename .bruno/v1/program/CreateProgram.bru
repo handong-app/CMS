@@ -1,0 +1,98 @@
+meta {
+  name: Create Program
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/programs
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{ACCESS_TOKEN}}
+}
+
+body:json {
+  {
+    "name": "새로운 테스트 프로그램",
+    "slug": "new-test-program-{{$timestamp}}", // 유니크한 슬러그 생성을 위해 timestamp 사용
+    "description": "이것은 Bruno 테스트를 통해 생성된 프로그램입니다.",
+    "startDate": "{{$localDatetime 'yyyy-MM-ddTHH:mm:ss'}}", // 현재 시간
+    "endDate": "{{$localDatetime 'yyyy-MM-ddTHH:mm:ss' 1 'd'}}" // 현재 시간 + 1일
+  }
+}
+
+vars:pre-request {
+  clubSlug: callein
+}
+
+assert {
+  res.status: eq 201
+  res.body.name: eq "새로운 테스트 프로그램"
+  res.body.slug: contains "new-test-program-"
+  res.body.clubSlug: eq "test-club"
+}
+
+script:pre-request {
+  // 필요한 경우 사전 요청 스크립트 작성
+  // 예: 특정 클럽이 존재하는지 확인하거나, 테스트용 클럽을 미리 생성
+}
+
+script:post-response {
+  // 필요한 경우 사후 응답 스크립트 작성
+  // 예: 생성된 프로그램 ID를 환경 변수로 저장하여 다른 테스트에서 사용
+  // if (res.getStatus() === 201) {
+  //   bru.setEnvVar("newProgramId", res.getBody().programId);
+  //   bru.setEnvVar("newProgramSlug", res.getBody().slug);
+  // }
+}
+
+docs {
+  ## 프로그램 생성 API (POST /api/v1/clubs/{clubSlug}/programs)
+  
+  **인증**: Bearer Token 필요
+  
+  **경로 변수**:
+  - `clubSlug` (string, required): 프로그램이 속할 클럽의 슬러그
+  
+  **요청 본문 (JSON)**:
+  ```json
+  {
+    "name": "string (required, max 120)",
+    "slug": "string (required, max 100, pattern: ^[a-z0-9-]+$)",
+    "description": "string (optional)",
+    "startDate": "datetime (required, ISO 8601 format, e.g., 2024-01-01T10:00:00)",
+    "endDate": "datetime (required, ISO 8601 format, e.g., 2024-01-31T18:00:00)"
+  }
+  ```
+  
+  **성공 응답 (201 Created)**:
+  ```json
+  {
+    "programId": "string",
+    "clubId": "string",
+    "clubSlug": "string",
+    "userId": "string",
+    "name": "string",
+    "slug": "string",
+    "description": "string",
+    "startDate": "datetime",
+    "endDate": "datetime"
+  }
+  ```
+  
+  **오류 응답**:
+  - `400 Bad Request`: 요청 본문 유효성 검사 실패 (예: 필수 필드 누락, 형식 오류)
+  - `401 Unauthorized`: 인증 토큰 누락 또는 유효하지 않음
+  - `403 Forbidden`: 해당 클럽에 프로그램을 생성할 권한 없음 (향후 권한 관리 추가 시)
+  - `404 Not Found`: `clubSlug`에 해당하는 클럽을 찾을 수 없음
+  - `409 Conflict`: 동일한 `clubId` 내에 이미 사용 중인 `slug`인 경우
+  
+  **참고**:
+  - `slug`는 클럽 내에서 유일해야 합니다.
+  - `startDate`는 `endDate`보다 이전이어야 합니다.
+  - `{{$timestamp}}`와 `{{$localDatetime}}`은 Bruno의 내장 변수로, 테스트 실행 시 동적인 값을 생성합니다.
+  - `vars:pre-request`의 `clubSlug`는 실제 테스트 환경에 존재하는 클럽 슬러그로 설정해야 합니다.
+}
