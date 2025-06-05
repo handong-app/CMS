@@ -304,21 +304,17 @@ function CoursePage() {
                             : []
                         }
                         onTitleClick={() => {
-                          // console.log("group title", group.title);
-                          if (clubSlug && courseSlug && group.title) {
+                          console.log("group id", group.id);
+                          if (clubSlug && courseSlug && group.id) {
                             navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
-                                group.title
-                              )}`
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
                             );
                           }
                         }}
                         onNodeClick={() => {
-                          if (clubSlug && courseSlug && group.title) {
+                          if (clubSlug && courseSlug && group.id) {
                             navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
-                                group.title
-                              )}`
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
                             );
                           }
                         }}
