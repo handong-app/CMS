@@ -31,7 +31,6 @@ function NextNodeGroupButton({ currentNodeGroupId }: NextNodeGroupButtonProps) {
   const handleClick = async () => {
     try {
       const next = await fetchNextNodeGroup(currentNodeGroupId);
-      console.log("NEXT: ", next);
       if (next?.nodeGroupId) {
         navigate(
           `/club/${club}/course/${course_name}/nodegroup/${next.nodeGroupId}`
@@ -39,7 +38,8 @@ function NextNodeGroupButton({ currentNodeGroupId }: NextNodeGroupButtonProps) {
       } else {
         alert("마지막 노드 그룹입니다.");
       }
-    } catch {
+    } catch (error) {
+      console.error("노드 그룹 이동 중 오류:", error);
       alert("이동 중 오류가 발생했습니다.");
     }
   };
