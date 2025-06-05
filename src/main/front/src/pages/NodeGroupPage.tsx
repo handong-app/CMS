@@ -64,6 +64,16 @@ function NodeGroupPage() {
     enabled: !!nodeGroupUUID, // UUID 있을 때만 실행
   });
 
+  useEffect(() => {
+    if (!nodeGroupData?.id) return;
+    fetchBe("/v1/progress/start", {
+      method: "POST",
+      body: {
+        nodeGroupId: nodeGroupData?.id,
+      },
+    });
+  }, [nodeGroupData?.id]);
+
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러 발생: {(error as any).message}</div>;
   if (!nodeGroupData) return <div>데이터 없음</div>;
@@ -301,6 +311,9 @@ function NodeGroupPage() {
             </Box>
           );
         })}
+      </Box>
+      <Box display="flex" justifyContent="flex-end">
+        <NextNodeGroupButton currentNodeGroupId={nodeGroupData.id} />
       </Box>
     </Box>
   );
