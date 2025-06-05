@@ -23,9 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.lang.Nullable;
 
 
 @Slf4j
@@ -43,9 +45,9 @@ public class NodeServiceImpl implements NodeService {
     @Transactional
     public NodeDto.Response create(NodeDto.CreateRequest req) {
 //        NodeDataValidator.validate(req.getType(), req.getData());
-        TbNode entity = req.toEntity(); 
-        TbNode savedNode = nodeRepository.save(entity);
-        return NodeDto.Response.from(savedNode); 
+        TbNode newNode = req.toEntity(); // Assumes toEntity sets nodeGroupId and order from req
+        TbNode persistedNode = reorderAndPersistNodes(newNode.getNodeGroupId(), newNode, newNode.getOrder());
+        return NodeDto.Response.from(persistedNode); 
     }
 
     @Override
@@ -68,13 +70,20 @@ public class NodeServiceImpl implements NodeService {
     @Override
     @Transactional
     public NodeDto.Response update(String nodeId, NodeDto.UpdateRequest req) {
-        TbNode entity = nodeRepository.findByIdAndDeleted(nodeId, "N")
+        TbNode entityToUpdate = nodeRepository.findByIdAndDeleted(nodeId, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Node not found with id: " + nodeId));
+        
         if (req.getData() != null) {
-//            NodeDataValidator.validate(entity.getType(), req.getData());
+//            NodeDataValidator.validate(entityToUpdate.getType(), req.getData());
         }
-        req.applyTo(entity); 
-        return NodeDto.Response.from(entity); 
+        String nodeGroupId = entityToUpdate.getNodeGroupId();
+        
+        // Apply changes from DTO. Assumes req.applyTo updates entityToUpdate.order if req.getOrder() is not null.
+        req.applyTo(entityToUpdate);
+        
+        // entityToUpdate.getOrder() will be the requested new order if specified in DTO, or original order if not.
+        TbNode updatedEntity = reorderAndPersistNodes(nodeGroupId, entityToUpdate, entityToUpdate.getOrder());
+        return NodeDto.Response.from(updatedEntity); 
     }
 
     @Override
@@ -82,7 +91,59 @@ public class NodeServiceImpl implements NodeService {
     public void deleteSoft(String nodeId) {
         TbNode entity = nodeRepository.findByIdAndDeleted(nodeId, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Node not found with id: " + nodeId));
+        
+        String nodeGroupId = entity.getNodeGroupId();
         entity.setDeleted("Y");
+        entity.setOrder(null); // Mark order as irrelevant for soft-deleted items
+        nodeRepository.save(entity); // Persist the soft deletion
+
+        // Reorder remaining active nodes
+        reorderAndPersistNodes(nodeGroupId, null, null);
+    }
+
+    private TbNode reorderAndPersistNodes(String nodeGroupId, @Nullable TbNode targetNode, @Nullable Integer requestedOrderForTarget) {
+        List<TbNode> currentNodesInDb = nodeRepository.findByNodeGroupIdAndDeletedOrderByOrderAsc(nodeGroupId, "N");
+
+        List<TbNode> nodesToProcess = new ArrayList<>();
+        boolean isTargetNew = (targetNode != null && targetNode.getId() == null);
+
+        for (TbNode n : currentNodesInDb) {
+            if (targetNode != null && n.getId() != null && n.getId().equals(targetNode.getId()) && !isTargetNew) {
+                continue;
+            }
+            nodesToProcess.add(n);
+        }
+
+        TbNode nodeToReturn = targetNode;
+
+        if (targetNode != null) {
+            int insertionIndex;
+            Integer effectiveOrder = requestedOrderForTarget;
+
+            if (effectiveOrder == null) {
+                if (!isTargetNew) { 
+                    effectiveOrder = targetNode.getOrder(); 
+                }
+            }
+
+            if (effectiveOrder == null) {
+                 insertionIndex = nodesToProcess.size();
+            } else {
+                insertionIndex = Math.max(0, Math.min(effectiveOrder, nodesToProcess.size()));
+            }
+            nodesToProcess.add(insertionIndex, targetNode);
+        }
+
+        for (int i = 0; i < nodesToProcess.size(); i++) {
+            TbNode node = nodesToProcess.get(i);
+            node.setOrder(i);
+        }
+
+        if (!nodesToProcess.isEmpty()) {
+            nodeRepository.saveAll(nodesToProcess);
+        }
+        
+        return nodeToReturn;
     }
 
     /**
