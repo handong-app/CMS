@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,6 +51,15 @@ public class ProgramController {
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(progressJson, httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("/{programSlug}/join")
+    public ResponseEntity<Void> joinProgram(
+            @PathVariable String clubSlug,
+            @PathVariable String programSlug,
+            Authentication authentication) { // ProgramJoinRequestDto는 현재 비어있으므로 @RequestBody 생략
+        programService.joinProgram(clubSlug, programSlug, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).build(); // 성공 시 201 CREATED 반환
     }
 
     private boolean isEmptyJsonResult(String json) {
