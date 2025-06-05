@@ -14,17 +14,6 @@ import { Link } from "react-router";
 
 import { useNavigate } from "react-router";
 
-// 여기서 타입을 직접 정의
-type UserInfo = {
-  name: string;
-  email: string;
-  photoURL: string;
-};
-
-type Props = {
-  user: UserInfo | null;
-};
-
 const MyAppBar = ({
   position = "fixed",
   transparent = false,
@@ -113,12 +102,12 @@ const MyAppBar = ({
             >
               {user.name}님 환영합니다!
             </Typography>
-            <Avatar
+            {/* <Avatar
               alt={user.name}
               src={user.photoURL}
               sx={{ width: 36, height: 36, cursor: "pointer" }}
               onClick={handleAvatarClick}
-            />
+            /> */}
           </Box>
         ) : (
           <Button
