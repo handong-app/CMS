@@ -10,6 +10,7 @@ const dummyCourse: CourseData = {
   pictureUrl: "",
   isVisible: 1,
   creatorUserId: "user1",
+  creatorName: "Test Creator",
   sections: [
     {
       id: "section1",
