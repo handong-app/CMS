@@ -166,9 +166,7 @@ const ProfilePage: React.FC = () => {
             userId={userData?.userId || ""}
             photoURL={myData?.profileImage}
             size={80}
-            onUploaded={() => {
-              void refetch();
-            }}
+            onUploaded={() => {void refetch();}}
 
           />
           <Typography variant="h6" fontWeight="bold">
