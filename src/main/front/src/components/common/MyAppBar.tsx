@@ -2,7 +2,14 @@ import { AppBar, Toolbar, Box, Button, Avatar, Typography } from "@mui/material"
 import Logo from "../../assets/Logo.png";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
-import useAuthStore, { UserInfo } from "../../store/authStore";
+import useAuthStore from "../../store/authStore";
+
+// 여기서 타입을 직접 정의
+type UserInfo = {
+  name: string;
+  email: string;
+  photoURL: string;
+};
 
 type Props = {
   user: UserInfo | null;
