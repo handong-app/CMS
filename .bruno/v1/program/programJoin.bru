@@ -1,0 +1,16 @@
+meta {
+  name: programJoin
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/programs/{{programSlug}}/join
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  clubSlug: callein
+  programSlug: data-science-bootcamp-slug
+}

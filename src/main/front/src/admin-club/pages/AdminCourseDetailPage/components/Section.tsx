@@ -1,14 +1,28 @@
 import { Typography, Paper, IconButton, Box, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 export interface SectionProps {
   text: string;
   onEdit?: () => void;
   onAddPage?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  disableMoveUp?: boolean;
+  disableMoveDown?: boolean;
 }
 
-const Section: React.FC<SectionProps> = ({ text, onEdit, onAddPage }) => {
+const Section: React.FC<SectionProps> = ({
+  text,
+  onEdit,
+  onAddPage,
+  onMoveUp,
+  onMoveDown,
+  disableMoveUp,
+  disableMoveDown,
+}) => {
   return (
     <Paper
       elevation={2}
@@ -37,6 +51,34 @@ const Section: React.FC<SectionProps> = ({ text, onEdit, onAddPage }) => {
         {text}
       </Typography>
       <Box display="flex" alignItems="center" gap={0.5}>
+        {onMoveUp && (
+          <Tooltip title="위로 이동">
+            <span>
+              <IconButton
+                size="small"
+                onClick={onMoveUp}
+                disabled={disableMoveUp}
+                sx={{ color: "#fff" }}
+              >
+                <ArrowUpwardIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+        {onMoveDown && (
+          <Tooltip title="아래로 이동">
+            <span>
+              <IconButton
+                size="small"
+                onClick={onMoveDown}
+                disabled={disableMoveDown}
+                sx={{ color: "#fff" }}
+              >
+                <ArrowDownwardIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
         {onAddPage && (
           <Tooltip title="새 페이지 추가">
             <IconButton size="small" onClick={onAddPage} sx={{ color: "#fff" }}>
