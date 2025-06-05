@@ -4,9 +4,11 @@ import com.handongapp.cms.dto.v1.ClubDto;
 import com.handongapp.cms.service.ClubService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List; // Added
 import java.util.Map;
 
 @RestController
@@ -18,6 +20,7 @@ public class ClubController {
     public ClubController(ClubService clubService) {
         this.clubService = clubService;
     }
+
 
     @PostMapping
     public ResponseEntity<ClubDto.ClubProfileResDto> createClub(@RequestBody ClubDto.ClubProfileReqDto clubProfileReqDto) {
@@ -41,6 +44,13 @@ public class ClubController {
     public ResponseEntity<Map<String, String>> deleteClub(@PathVariable String clubSlug) {
         clubService.deleteClub(clubSlug);
         return ResponseEntity.ok().body(Collections.singletonMap("message", "클럽 '" + clubSlug + "'이(가) 성공적으로 삭제되었습니다."));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ClubDto.ClubListInfoResponseDto>> getAllClubs(Authentication authentication) {
+        // 'authentication' will be null if the user is not authenticated and the endpoint is permitAll
+        List<ClubDto.ClubListInfoResponseDto> clubs = clubService.getAllClubs(authentication);
+        return ResponseEntity.ok(clubs);
     }
 }
 

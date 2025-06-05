@@ -11,6 +11,9 @@ import com.handongapp.cms.dto.v1.ClubDto;
 import com.handongapp.cms.mapper.ClubMapper;
 import com.handongapp.cms.repository.ClubRepository;
 import com.handongapp.cms.repository.CourseRepository;
+import com.handongapp.cms.repository.TbUserClubRoleRepository;
+import org.springframework.security.core.Authentication;
+
 import com.handongapp.cms.service.ClubService;
 import com.handongapp.cms.service.PresignedUrlService;
 import jakarta.transaction.Transactional;
@@ -38,6 +41,7 @@ public class ClubServiceImpl implements ClubService {
     private final ObjectMapper objectMapper;
 
     private final PresignedUrlService presignedUrlService;
+    private final TbUserClubRoleRepository tbUserClubRoleRepository;
 
     private static final String DELETED_FLAG_YES = "Y";
     private static final String DELETED_FLAG_NO = "N";
@@ -210,5 +214,44 @@ public class ClubServiceImpl implements ClubService {
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "코스 JSON 파싱/직렬화에 실패했습니다.", e);
         }
+    }
+
+    @Override
+    public List<ClubDto.ClubListInfoResponseDto> getAllClubs(Authentication authentication) {
+        List<TbClub> clubs = clubRepository.findAllByDeleted(DELETED_FLAG_NO);
+        String currentUserId = null;
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            currentUserId = authentication.getName(); // Assumes getName() returns the String userId
+        }
+
+        final String finalCurrentUserId = currentUserId;
+
+        return clubs.stream()
+                .map(club -> {
+                    String presignedBannerUrl = null;
+                    if (StringUtils.hasText(club.getFileKey()) && FileStatus.UPLOADED.equals(club.getFileStatus())) {
+                        presignedBannerUrl = presignedUrlService
+                                .generateDownloadUrl(club.getFileKey(), Duration.ofMinutes(60))
+                                .toString();
+                    }
+
+                    Boolean isMember = null;
+                    if (finalCurrentUserId != null) {
+                        // Only set to true or false if the user is authenticated
+                        isMember = tbUserClubRoleRepository.existsByUserIdAndClubIdAndDeleted(
+                                finalCurrentUserId, club.getId(), DELETED_FLAG_NO);
+                    }
+
+                    return ClubDto.ClubListInfoResponseDto.builder()
+                            .id(club.getId())
+                            .clubName(club.getName())
+                            .slug(club.getSlug())
+                            .description(club.getDescription())
+                            .bannerUrl(presignedBannerUrl)
+                            .isMember(isMember)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }
