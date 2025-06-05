@@ -79,6 +79,7 @@ const MyAppBar = ({
           ? "transparent"
           : theme.palette.background.default,
         boxShadow: transparent ? "none" : "0px 1px 2px rgba(0, 0, 0, 0.1)",
+        pb: 1,
       }}
     >
       <Toolbar
