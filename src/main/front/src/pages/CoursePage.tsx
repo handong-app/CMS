@@ -117,7 +117,7 @@ function CoursePage() {
     <Box maxWidth={980} margin="auto" mb={10}>
       <TopCourseBanner
         title={courseData?.title ?? ""}
-        producer={courseData?.creatorUserId ?? ""}
+        producer={courseData?.creatorName ?? ""}
         courseDescription={courseData?.description ?? ""}
         image={courseData?.pictureUrl ?? ""}
         onContinue={() => {
