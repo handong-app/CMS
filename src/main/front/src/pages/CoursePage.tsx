@@ -6,12 +6,13 @@ import CourseProgressList from "../components/coursePage/CourseProgressList";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
 import CourseProgress from "../components/course/CourseProgress";
+import CoursePageSkeleton from "../components/coursePage/CoursePageSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import useUserData from "../hooks/userData";
 import type { ProgramData, UserProgress } from "../types/process.types";
 import calculateProgress from "../utils/calculateProcess";
 import { useFetchBe } from "../tools/api";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
@@ -23,7 +24,7 @@ function CoursePage() {
   const navigate = useNavigate();
 
   // 내 프로그램 리스트
-  const { data: myPrograms } = useQuery<
+  const { data: myPrograms, isLoading: isMyProgramsLoading } = useQuery<
     { programId: string; clubSlug: string; slug: string }[]
   >({
     queryKey: ["myPrograms"],
@@ -35,30 +36,38 @@ function CoursePage() {
   const programSlug = myProgram?.slug;
 
   // 프로그램별 유저 진도 데이터
-  const { data: programProcess } = useQuery<ProgramData>({
-    queryKey: ["programProcess", programSlug],
-    queryFn: () =>
-      fetchBe(`/v1/clubs/${clubSlug}/programs/${programSlug}/users`),
-    enabled: !!programSlug,
-  });
+  const { data: programProcess, isLoading: isProgramProcessLoading } =
+    useQuery<ProgramData>({
+      queryKey: ["programProcess", programSlug],
+      queryFn: () =>
+        fetchBe(`/v1/clubs/${clubSlug}/programs/${programSlug}/users`),
+      enabled: !!programSlug,
+    });
 
   const [courseData, setCourseData] = useState<CourseData | null>(null);
-
+  const [isLoadingCourse, setIsLoadingCourse] = useState(false);
   const [latestComments, setLatestComments] = useState<LatestComment[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
       return;
     }
 
-    fetchBe(`/v1/clubs/${clubSlug}/courses/${courseSlug}`).then((data) => {
-      setCourseData(data);
-    });
+    setIsLoadingCourse(true);
+    fetchBe(`/v1/clubs/${clubSlug}/courses/${courseSlug}`)
+      .then((data) => {
+        setCourseData(data);
+      })
+      .finally(() => {
+        setIsLoadingCourse(false);
+      });
   }, [clubSlug, courseSlug, fetchBe]);
 
-  // 최신 댓글 불러오기 (코스 전체에 해당하는 댓글만 추출)
+  // 최신 댓글 불러오기
   useEffect(() => {
     if (!courseData?.id) return;
+    setIsLoadingComments(true);
     fetchBe(`/v1/comments/search?courseId=${courseData.id}`)
       .then((comments: LatestComment[]) => {
         const nodeGroupIds = (courseData.sections ?? []).flatMap((s) =>
@@ -79,26 +88,30 @@ function CoursePage() {
         );
         const top10 = filtered.slice(0, 10);
         setLatestComments(top10);
-
-        // console.log("[최신 반응 디버깅]", {
-        //   courseId: courseData.id,
-        //   nodeGroupIds,
-        //   nodeIds,
-        //   totalComments: comments.length,
-        //   filteredCount: filtered.length,
-        //   latestComments: top10,
-        // });
       })
-      .catch(() => setLatestComments([]));
+      .catch(() => setLatestComments([]))
+      .finally(() => {
+        setIsLoadingComments(false);
+      });
   }, [courseData?.id, fetchBe, courseData]);
 
-  // 진도율 계산 및 내 진도 정보 useMemo로 최적화
-  const myProgress = useMemo(() => {
-    if (!courseData || !programProcess) return null;
+  const isLoading =
+    isMyProgramsLoading ||
+    isProgramProcessLoading ||
+    isLoadingCourse ||
+    isLoadingComments;
+
+  if (isLoading) {
+    return <CoursePageSkeleton />;
+  }
+
+  // 진도율 계산 및 내 진도 정보
+  let myProgress = null;
+  if (courseData && programProcess) {
     const calculatedProgress: UserProgress[] =
       calculateProgress(programProcess);
-    return calculatedProgress.find((u) => u.userId === userId);
-  }, [courseData, programProcess, userId]);
+    myProgress = calculatedProgress.find((u) => u.userId === userId);
+  }
 
   // 진도율 계산
   let percent = 0,
@@ -110,7 +123,6 @@ function CoursePage() {
     completed = courseProgress?.completed ?? 0;
     total = courseProgress?.total ?? 0;
     percent = total > 0 ? Math.round((completed / total) * 1000) / 10 / 100 : 0;
-    // console.log("[진도율 디버깅]", { courseId, myProgress, courseProgress, completed, total, percent });
   }
 
   return (
