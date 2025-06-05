@@ -7,7 +7,7 @@ import CourseProgress from "../components/course/CourseProgress";
 import CourseLeaderboard from "../components/course/CourseLeaderboard";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import calculateProgress from "../utils/calculateProcess";
 import useUserData from "../hooks/userData";
 import { courseListParser } from "../utils/courseListParser";
@@ -21,6 +21,7 @@ function ProgramPage() {
   }>();
 
   const fetchBe = useFetchBe();
+  const navigate = useNavigate();
 
   const { userId } = useUserData();
 
@@ -151,7 +152,9 @@ function ProgramPage() {
                   }
                   onContinue={() => {
                     // 강의 이동
-                    window.location.href = `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`;
+                    navigate(
+                      `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
+                    );
                   }}
                   background="rgba(255, 255, 255, 0.05)"
                 />
