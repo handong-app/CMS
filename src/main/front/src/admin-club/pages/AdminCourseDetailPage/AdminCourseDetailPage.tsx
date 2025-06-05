@@ -38,7 +38,29 @@ function AdminCourseDetailPage() {
       typeof courseData === "object" &&
       "sections" in courseData
     ) {
-      setSections((courseData as any).sections ?? []);
+      // 섹션 order 정렬 및 nodeGroups도 order 정렬
+      const sortedSections = ((courseData as any).sections ?? [])
+        .slice()
+        .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+        .map((section: any) => ({
+          ...section,
+          nodeGroups: Array.isArray(section.nodeGroups)
+            ? section.nodeGroups
+                .slice()
+                .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+                .map((group: any) => ({
+                  ...group,
+                  nodes: Array.isArray(group.nodes)
+                    ? group.nodes
+                        .slice()
+                        .sort(
+                          (a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)
+                        )
+                    : [],
+                }))
+            : [],
+        }));
+      setSections(sortedSections);
     }
   }, [courseData]);
 

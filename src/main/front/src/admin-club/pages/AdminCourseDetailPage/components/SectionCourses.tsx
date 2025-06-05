@@ -24,6 +24,10 @@ export interface SectionCoursesProps {
   nodes: Node[];
   onMove?: () => void;
   onDelete?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  disableMoveUp?: boolean;
+  disableMoveDown?: boolean;
 }
 
 const iconMap = {
@@ -36,7 +40,10 @@ const iconMap = {
 };
 
 import { Box, IconButton, Tooltip } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 const SectionCourses: React.FC<SectionCoursesProps> = ({
   title,
@@ -44,6 +51,10 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
   nodes,
   onMove,
   onDelete,
+  onMoveUp,
+  onMoveDown,
+  disableMoveUp,
+  disableMoveDown,
 }) => {
   return (
     <Paper
@@ -67,15 +78,39 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
         <Typography variant="subtitle1" fontWeight={600}>
           {title}
         </Typography>
-        <Box>
+        <Box display="flex" alignItems="center" gap={0.5}>
+          {onMoveUp && (
+            <Tooltip title="위로 이동">
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={onMoveUp}
+                  disabled={disableMoveUp}
+                  sx={{ color: "#fff" }}
+                >
+                  <ArrowUpwardIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
+          {onMoveDown && (
+            <Tooltip title="아래로 이동">
+              <span>
+                <IconButton
+                  size="small"
+                  onClick={onMoveDown}
+                  disabled={disableMoveDown}
+                  sx={{ color: "#fff" }}
+                >
+                  <ArrowDownwardIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
           {onMove && (
             <Tooltip title="노드 그룹 이동">
-              <IconButton
-                size="small"
-                sx={{ color: "#1976d2" }}
-                onClick={onMove}
-              >
-                <AddIcon fontSize="small" />
+              <IconButton size="small" sx={{ color: "#fff" }} onClick={onMove}>
+                <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           )}
