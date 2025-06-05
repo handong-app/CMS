@@ -14,6 +14,7 @@ import NodeGroupPage from "./pages/NodeGroupPage.tsx";
 // 페이지 컴포넌트
 import LandingPage from "./pages/LandingPage.tsx";
 import GoogleCallback from "./pages/GoogleCallback.tsx";
+import ProfilePage from "./pages/ProfilePage";
 import ProfileRegistrationPage from "./pages/ProfileRegistrationPage.tsx";
 import AuthTestPage from "./pages/AuthTestPage.tsx";
 
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "register",
         element: <ProfileRegistrationPage />,
+      },
+      {
+        path: "profile",
+        element: <ProfilePage />,
       },
     ],
   },
@@ -77,6 +82,10 @@ const router = createBrowserRouter([
         element: <CoursePage />,
       },
     ],
+  },
+  {
+    path: "/land",
+    element: <LandingPage />,
   },
   {
     path: "/auth-test",

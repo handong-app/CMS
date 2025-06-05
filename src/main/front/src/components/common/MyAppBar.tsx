@@ -12,6 +12,19 @@ import { useTheme } from "@mui/material/styles";
 import useUserData from "../../hooks/userData";
 import { Link } from "react-router";
 
+import { useNavigate } from "react-router";
+
+// 여기서 타입을 직접 정의
+type UserInfo = {
+  name: string;
+  email: string;
+  photoURL: string;
+};
+
+type Props = {
+  user: UserInfo | null;
+};
+
 const MyAppBar = ({
   position = "fixed",
   transparent = false,
@@ -21,6 +34,7 @@ const MyAppBar = ({
 }) => {
   const user = useUserData();
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const handleGoogleLogin = async () => {
     try {
@@ -49,6 +63,10 @@ const MyAppBar = ({
     }
   };
 
+  const handleAvatarClick = () => {
+    navigate("/profile");
+  };
+
   return (
     // position을 "fixed"로 변경하여 앱 바를 화면 상단에 고정
     // elevation을 0으로 설정하여 AppBar 자체의 그림자를 제거 (Toolbar에서 관리)
@@ -69,7 +87,6 @@ const MyAppBar = ({
     >
       <Toolbar
         sx={{
-          // 기존 boxShadow 유지 또는 제거 (선택 사항)
           boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
           backdropFilter: transparent ? "none" : "blur(10px)",
           // 'textcolor'는 올바른 속성이 아닙니다. 'color'로 변경하여 텍스트 색상을 테마에서 가져오도록 합니다.
@@ -78,7 +95,7 @@ const MyAppBar = ({
             ? "transparent"
             : theme.palette.background.default, // 툴바의 배경색
           justifyContent: "space-between",
-          px: 2, // 좌우 패딩
+          px: 2,
         }}
       >
         <Link to="/club">
@@ -89,7 +106,6 @@ const MyAppBar = ({
 
         {user?.name ? (
           <Box display="flex" alignItems="center" gap={1}>
-            {/* Typography 컴포넌트 사용 및 색상/폰트 설정 */}
             <Typography
               variant="body1"
               data-testid="welcome-msg"
@@ -97,11 +113,12 @@ const MyAppBar = ({
             >
               {user.name}님 환영합니다!
             </Typography>
-            {/* <Avatar
+            <Avatar
               alt={user.name}
               src={user.photoURL}
-              sx={{ width: 36, height: 36 }}
-            /> */}
+              sx={{ width: 36, height: 36, cursor: "pointer" }}
+              onClick={handleAvatarClick}
+            />
           </Box>
         ) : (
           <Button
