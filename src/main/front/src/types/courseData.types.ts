@@ -55,5 +55,6 @@ export interface CourseData {
   pictureUrl: string;
   isVisible: number;
   creatorUserId: string;
+  creatorName: string;
   sections: CourseSection[];
 }
