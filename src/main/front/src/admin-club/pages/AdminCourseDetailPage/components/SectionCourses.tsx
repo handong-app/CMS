@@ -22,6 +22,8 @@ export interface SectionCoursesProps {
   title: string;
   description: string;
   nodes: Node[];
+  onMove?: () => void;
+  onDelete?: () => void;
 }
 
 const iconMap = {
@@ -33,10 +35,15 @@ const iconMap = {
   image: <ImageIcon />,
 };
 
+import { Box, IconButton, Tooltip } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+
 const SectionCourses: React.FC<SectionCoursesProps> = ({
   title,
   description,
   nodes,
+  onMove,
+  onDelete,
 }) => {
   return (
     <Paper
@@ -51,9 +58,40 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
         boxSizing: "border-box",
       }}
     >
-      <Typography variant="subtitle1" fontWeight={600} mb={0.2}>
-        {title}
-      </Typography>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        mb={0.2}
+      >
+        <Typography variant="subtitle1" fontWeight={600}>
+          {title}
+        </Typography>
+        <Box>
+          {onMove && (
+            <Tooltip title="노드 그룹 이동">
+              <IconButton
+                size="small"
+                sx={{ color: "#1976d2" }}
+                onClick={onMove}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {onDelete && (
+            <Tooltip title="노드 그룹 삭제">
+              <IconButton
+                size="small"
+                sx={{ color: "#e53935" }}
+                onClick={onDelete}
+              >
+                <AddIcon fontSize="small" sx={{ transform: "rotate(45deg)" }} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+      </Box>
       <Typography variant="body2" color="text.secondary" mb={1}>
         {description}
       </Typography>

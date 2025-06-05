@@ -147,16 +147,7 @@ const SectionList: React.FC<SectionListProps> = ({
               </Dialog>
               {section.nodeGroups?.map((group: any) => (
                 <Box mt={1.6} key={group.id} display="flex" alignItems="center">
-                  <Box
-                    sx={{ flex: 1, cursor: "pointer" }}
-                    onClick={() => {
-                      if (club && courseSlug && group.id) {
-                        navigate(
-                          `/club/${club}/admin/course/${courseSlug}/node-groups/${group.id}`
-                        );
-                      }
-                    }}
-                  >
+                  <Box sx={{ flex: 1 }}>
                     <SectionCourses
                       title={group.title}
                       description={section.description}
@@ -194,14 +185,14 @@ const SectionList: React.FC<SectionListProps> = ({
                             })
                           : []
                       }
-                    />
-                  </Box>
-                  <Tooltip title="노드 그룹 삭제">
-                    <IconButton
-                      size="small"
-                      sx={{ ml: 1, color: "#e53935" }}
-                      onClick={async (e) => {
-                        e.stopPropagation();
+                      onMove={() => {
+                        if (club && courseSlug && group.id) {
+                          navigate(
+                            `/club/${club}/admin/course/${courseSlug}/node-groups/${group.id}`
+                          );
+                        }
+                      }}
+                      onDelete={async () => {
                         if (!window.confirm("정말 삭제하시겠습니까?")) return;
                         try {
                           await fetchBe(`/v1/node-group/${group.id}`, {
@@ -212,13 +203,8 @@ const SectionList: React.FC<SectionListProps> = ({
                           alert("노드 그룹 삭제 실패: " + (e as any)?.message);
                         }
                       }}
-                    >
-                      <AddIcon
-                        fontSize="small"
-                        sx={{ transform: "rotate(45deg)" }}
-                      />
-                    </IconButton>
-                  </Tooltip>
+                    />
+                  </Box>
                 </Box>
               ))}
             </Box>
