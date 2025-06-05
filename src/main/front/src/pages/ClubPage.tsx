@@ -20,6 +20,7 @@ import { formatTimestamp } from "../tools/tools";
 import calculateProgress from "../utils/calculateProcess";
 import useUserData from "../hooks/userData";
 import { courseListParser } from "../utils/courseListParser";
+import { getMostRecentNodeGroupForUser } from "../utils/getMostRecentNodeGroupForUser";
 
 function ClubPage() {
   const { club } = useParams<{ club: string }>();
@@ -75,6 +76,13 @@ function ClubPage() {
     (user) => user.userId === userId
   );
 
+  const mostRecentNodeGroup = getMostRecentNodeGroupForUser(
+    userId || "",
+    clubProgramProcess?.participants || []
+  );
+  console.log({ calculatedProgramProgress });
+  console.log("mostRecentNodeGroup", mostRecentNodeGroup);
+
   return (
     <>
       <Box
@@ -120,19 +128,30 @@ function ClubPage() {
               );
             })}
           </Box>
-          <Box mt={4}>
-            <Typography variant="h5" fontWeight={700} mb={2}>
-              마지막으로 본 강의
-            </Typography>
-            <ContinueNodeGroup
-              theme="dark"
-              courseName="React Basics"
-              lessonName="Hooks and State"
-              onContinue={() => alert("Continue to last lesson!")}
-              thumbnail="https://images.unsplash.com/photo-1519125323398-675f0ddb6308"
-              lastViewedAt="2025-05-28 22:10"
-            />
-          </Box>
+          {mostRecentNodeGroup && (
+            <Box mt={4}>
+              <Typography variant="h5" fontWeight={700} mb={2}>
+                마지막으로 본 강의
+              </Typography>
+              <ContinueNodeGroup
+                courseName={mostRecentNodeGroup?.courseTitle || "강의 없음"}
+                lessonName={mostRecentNodeGroup?.nodeGroupTitle}
+                lastViewedAt={mostRecentNodeGroup?.lastSeenAt}
+                thumbnail={
+                  clubCourses?.find(
+                    (course: { id: string; pictureUrl: string }) =>
+                      course.id === mostRecentNodeGroup.courseId
+                  )?.pictureUrl
+                }
+                onContinue={() => {
+                  navigate(
+                    `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
+                  );
+                }}
+                theme={"dark"}
+              />
+            </Box>
+          )}
           <Box my={4}>
             <Typography variant="h5" fontWeight={700} mb={2}>
               전체 강의
