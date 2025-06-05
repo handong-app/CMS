@@ -51,18 +51,19 @@ const ProfilePage: React.FC = () => {
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [studentIdError, setStudentIdError] = useState<string>("");
 
   useEffect(() => {
     if (!jwtToken) {
       alert("로그인이 필요합니다.");
-      navigate("/");
+      navigate("/land");
     }
   }, [jwtToken, navigate]);
 
   const { data: myData, refetch } = useQuery({
     queryKey: ["myData"],
     queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
-    enabled: !!jwtToken, // 토큰이 있을 때만 fetch 실행
+    enabled: !!jwtToken,
   });
 
   useEffect(() => {
@@ -72,6 +73,20 @@ const ProfilePage: React.FC = () => {
       setPhoneNumber(formatPhoneNumber(myData.phone || ""));
     }
   }, [myData]);
+
+  const validateStudentId = (id: string): string => {
+    if (!id) return "";
+    if (!/^\d+$/.test(id)) return "숫자만 입력해주세요.";
+    if (id[0] !== "2") return "학번은 '2'로 시작해야 합니다.";
+    if (id.length !== 8) return "학번은 8자리여야 합니다.";
+    return "";
+  };
+
+  const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, "").slice(0, 8);
+    setStudentId(value);
+    setStudentIdError(value.length > 0 ? validateStudentId(value) : "");
+  };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoneNumber(formatPhoneNumber(e.target.value));
@@ -83,7 +98,7 @@ const ProfilePage: React.FC = () => {
 
     if (!uid || !email) {
       alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
-      navigate("/login");
+      navigate("/land");
       return;
     }
 
@@ -165,10 +180,14 @@ const ProfilePage: React.FC = () => {
             fullWidth
             label="학번"
             value={studentId}
-            onChange={(e) => setStudentId(e.target.value)}
+            onChange={handleStudentIdChange}
+            error={!!studentIdError}
+            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요."}
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
+            type="text"
+            inputMode="numeric"
           />
         </Box>
 
