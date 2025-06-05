@@ -12,4 +12,5 @@ public class VideoMetaData {
     private String originalFileName;
     private VideoStatus status;
     private String contentType;
+    private Integer progress;
 }
