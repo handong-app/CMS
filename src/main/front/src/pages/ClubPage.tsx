@@ -101,10 +101,8 @@ function ClubPage() {
         <Box maxWidth={1012} width="100%" margin="auto" px={2}>
           <Box mt={0.5}>
             {currentProgram(clubPrograms).map((program) => {
-              // program.participants에 내가 없으면 가입 모달 띄우기
-              const isParticipant = program.participants?.some(
-                (p: any) => p.userId === userId
-              );
+              // program.isParticipant가 "1"이 아니면 가입 모달 띄우기
+              const isParticipant = program.isParticipant === "1";
               const handleProgramClick = (e: React.MouseEvent) => {
                 if (!isParticipant) {
                   e.preventDefault();
