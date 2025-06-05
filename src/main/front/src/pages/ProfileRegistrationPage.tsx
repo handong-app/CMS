@@ -5,7 +5,6 @@ import {
   Checkbox,
   FormControlLabel,
   TextField,
-  Avatar,
   Typography,
   Paper,
 } from "@mui/material";
@@ -48,11 +47,9 @@ const formatPhoneNumber = (value: string): string => {
 
 const ProfileRegistrationPage: React.FC = () => {
   const theme = useTheme();
-
   const user = useAuthStore((state) => state.user);
   const fetchBe = useFetchBe();
   const navigate = useNavigate();
-
   const userData = useUserData();
 
   const [name, setName] = useState("");
@@ -61,15 +58,22 @@ const ProfileRegistrationPage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
-
-  useEffect(() => {
-    if (user?.name) setName(user.name);
-  }, [user]);
-
+  const jwtToken = useAuthStore.getState().jwtToken;
   const { data: myData, refetch } = useQuery({
     queryKey: ["myData"],
     queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
   });
+
+  useEffect(() => {
+    if (jwtToken) {
+      alert("이미 로그인된 사용자입니다.");
+      navigate("/profile"); // 또는 "/"로 변경 가능
+    }
+  }, [jwtToken, navigate]);
+
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+  }, [user]);
 
   useEffect(() => {
     if (myData) {
@@ -82,34 +86,21 @@ const ProfileRegistrationPage: React.FC = () => {
   }, [myData]);
 
   const validateStudentId = (id: string): string => {
-    if (!id) {
-      return "학번을 입력해주세요.";
-    }
-    if (!/^\d+$/.test(id)) {
-      return "숫자만 입력해주세요.";
-    }
-    if (id[0] !== "2") {
-      return "학번은 '2'로 시작해야 합니다.";
-    }
-    if (id.length !== 8) {
-      return "학번은 8자리여야 합니다.";
-    }
+    if (!id) return "학번을 입력해주세요.";
+    if (!/^\d+$/.test(id)) return "숫자만 입력해주세요.";
+    if (id[0] !== "2") return "학번은 '2'로 시작해야 합니다.";
+    if (id.length !== 8) return "학번은 8자리여야 합니다.";
     return "";
   };
 
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d]/g, "");
-    const slicedValue = value.slice(0, 8);
-
-    setStudentId(slicedValue);
-
-    const error = slicedValue.length > 0 ? validateStudentId(slicedValue) : "";
-    setStudentIdError(error);
+    const value = e.target.value.replace(/[^\d]/g, "").slice(0, 8);
+    setStudentId(value);
+    setStudentIdError(value.length > 0 ? validateStudentId(value) : "");
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedPhoneNumber = formatPhoneNumber(e.target.value);
-    setPhoneNumber(formattedPhoneNumber);
+    setPhoneNumber(formatPhoneNumber(e.target.value));
   };
 
   const handleSubmit = async () => {
@@ -129,40 +120,28 @@ const ProfileRegistrationPage: React.FC = () => {
       return;
     }
 
-    const jwtToken = useAuthStore.getState().jwtToken;
-    let uid: string | null = null;
-    let email: string | null = null;
-
-    if (jwtToken) {
-      try {
-        const decodedPayload = JSON.parse(atob(jwtToken.split(".")[1]));
-        uid = decodedPayload.sub;
-        email = decodedPayload.email;
-      } catch (e) {
-        console.error("JWT 디코딩 실패:", e);
-        alert("사용자 정보를 가져오는데 실패했습니다. 다시 로그인해주세요.");
-        return;
-      }
-    } else {
-      console.warn("jwtToken 없음");
+    
+    if (!jwtToken) {
       alert("로그인이 필요합니다.");
       return;
     }
+
+    const uid = userData?.userId;
+    const email = user?.email;
 
     if (!uid || !email) {
       alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
       return;
     }
 
-    const rawPhoneNumber = phoneNumber.replace(/-/g, "");
-
     const payload = {
       userId: uid,
-      name: name,
-      studentId: studentId,
-      email: email,
-      phone: rawPhoneNumber,
+      name,
+      studentId,
+      email,
+      phone: phoneNumber.replace(/-/g, ""),
     };
+
     console.log("최종 제출 payload:", payload);
     try {
       await fetchBe("/v1/user/profile", {
@@ -171,7 +150,6 @@ const ProfileRegistrationPage: React.FC = () => {
       });
 
       alert("프로필이 성공적으로 등록되었습니다.");
-      // TODO: 성공 후 페이지 이동 또는 상태 변경 로직 (예: router.push('/profile'))
       navigate("/club/callein");
     } catch (err: any) {
       alert("프로필 등록에 실패했습니다: " + (err.message || "서버 오류"));
@@ -183,7 +161,7 @@ const ProfileRegistrationPage: React.FC = () => {
     <Box
       display="flex"
       justifyContent="center"
-      alignItems="flex-start" // 변경: 상단에 붙이고 paddingTop으로 여백 조절
+      alignItems="flex-start"
       height="calc(110vh - 64px)"
       sx={{
         background: theme.palette.background.default || "#1A1A1A",
@@ -207,9 +185,7 @@ const ProfileRegistrationPage: React.FC = () => {
             userId={userData?.userId || ""}
             photoURL={myData?.profileImage}
             size={80}
-            onUploaded={async (url) => {
-              refetch();
-            }}
+            onUploaded={refetch}
           />
           <Typography variant="h6" fontWeight="bold">
             프로필 등록
@@ -245,14 +221,13 @@ const ProfileRegistrationPage: React.FC = () => {
               "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"
             }
             InputLabelProps={{ style: { color: "#ccc" } }}
-            InputProps={{
-              style: { color: "white" },
-            }}
+            InputProps={{ style: { color: "white" } }}
             variant="outlined"
             type="text"
             inputMode="numeric"
           />
         </Box>
+
         <Box mb={2}>
           <TextField
             fullWidth
@@ -260,9 +235,7 @@ const ProfileRegistrationPage: React.FC = () => {
             value={phoneNumber}
             onChange={handlePhoneNumberChange}
             InputLabelProps={{ style: { color: "#ccc" } }}
-            InputProps={{
-              style: { color: "white" },
-            }}
+            InputProps={{ style: { color: "white" } }}
             variant="outlined"
             type="tel"
           />

@@ -3,10 +3,24 @@ import { Box, Typography, Button } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { initiateGoogleLogin } from "../utils/auth";
 import LottieBackground from '../components/LandingPage/LottieBackground';
+import useAuthStore from "../store/authStore";
+import { useNavigate } from "react-router";
 
 const LandingPage: React.FC = () => {
   const theme = useTheme(); 
   const appBarHeight = `${theme.mixins.toolbar.minHeight}px`;
+  const jwtToken = useAuthStore((state) => state.jwtToken);
+  const navigate = useNavigate();
+
+  const handleButtonClick = () => {
+    if (jwtToken) {
+      navigate("/club/callein"); // 로그인된 경우 클럽 페이지로 이동
+    } else {
+      initiateGoogleLogin(); // 로그인 안 된 경우 구글 로그인 시작
+    }
+  };
+
+  const buttonText = jwtToken ? "클럽 페이지로 이동" : "Google 계정으로 로그인";
 
   return (
     <Box
@@ -53,7 +67,6 @@ const LandingPage: React.FC = () => {
         </Box>
 
         <Box sx={{ flex: 1, maxWidth: { md: "50%" }, position: "relative", pl: { md: 4 } }}>
-          
           <Box sx={{ mt: 4, maxWidth: "500px", ml: { md: "auto" }, textAlign: { xs: "center", md: "right" } }}>
             <Typography variant="body1" sx={{ color: theme.palette.grey[400] || "#AAAAAA", lineHeight: 1.6 }}>
               Let's make club management a strength for your organization. We're here to help with everything from
@@ -62,7 +75,7 @@ const LandingPage: React.FC = () => {
             </Typography>
             <Button
               variant="contained"
-              onClick={initiateGoogleLogin}
+              onClick={handleButtonClick}
               sx={{
                 mt: 4,
                 backgroundColor: theme.palette.primary.main || "#7B68EE",
@@ -76,7 +89,7 @@ const LandingPage: React.FC = () => {
                 borderRadius: "8px",
               }}
             >
-              Google 계정으로 로그인
+              {buttonText}
             </Button>
           </Box>
         </Box>

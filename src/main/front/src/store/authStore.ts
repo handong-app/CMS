@@ -33,7 +33,13 @@ const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         jwtToken: state.jwtToken,
         refreshToken: state.refreshToken,
-        user: state.user ? { name: state.user.name } : null, // ❗ 최소 정보만
+        user: state.user
+          ? {
+              name: state.user.name,
+              email: state.user.email,
+              photoURL: state.user.photoURL,
+            }
+          : null,
       }),
     }
   )
