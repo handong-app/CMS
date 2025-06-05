@@ -31,8 +31,8 @@ describe("CoursePage", () => {
     ).toBeGreaterThanOrEqual(0);
   });
 
-  it("renders the info card title if present", () => {
+  it("does not render the info card title during loading", () => {
     renderComponent();
-    expect(screen.queryByText("학습 현황")).not.toBeNull();
+    expect(screen.queryByText("학습 현황")).toBeNull();
   });
 });
