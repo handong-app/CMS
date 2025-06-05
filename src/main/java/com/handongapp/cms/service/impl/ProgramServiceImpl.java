@@ -79,8 +79,8 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     @Transactional(readOnly = true)
-    public String getProgramsWithCoursesByClubSlugAsJson(String clubSlug) {
-        String rawJson = programMapper.getProgramsWithCoursesByClubSlugAsJson(clubSlug);
+    public String getProgramsWithCoursesByClubSlugAsJson(String clubSlug, String currentUserId) {
+        String rawJson = programMapper.getProgramsWithCoursesByClubSlugAsJson(clubSlug, currentUserId);
 
         try {
             JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동

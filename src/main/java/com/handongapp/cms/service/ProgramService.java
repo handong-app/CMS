@@ -6,7 +6,7 @@ public interface ProgramService {
 
     String getProgramDetailsWithCoursesAsJson(String clubSlug, String programSlug);
 
-    String getProgramsWithCoursesByClubSlugAsJson(String clubSlug);
+    String getProgramsWithCoursesByClubSlugAsJson(String clubSlug, String currentUserId);
 
     String getProgramParticipantProgressAsJson(String clubSlug, String programSlug);
 

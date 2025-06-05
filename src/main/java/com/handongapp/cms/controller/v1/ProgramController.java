@@ -17,8 +17,9 @@ public class ProgramController {
     private final ProgramService programService;
 
     @GetMapping
-    public ResponseEntity<String> getProgramsByClubSlug(@PathVariable String clubSlug) {
-        String programsJson = programService.getProgramsWithCoursesByClubSlugAsJson(clubSlug);
+    public ResponseEntity<String> getProgramsByClubSlug(@PathVariable String clubSlug, Authentication authentication) {
+                String currentUserId = (authentication != null) ? authentication.getName() : null;
+        String programsJson = programService.getProgramsWithCoursesByClubSlugAsJson(clubSlug, currentUserId);
         if (isEmptyJsonResult(programsJson)) { // 결과가 없거나 빈 배열일 경우
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"No programs found for this club.\"}");
         }
