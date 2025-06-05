@@ -6,10 +6,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.Collections;
 import java.util.List; // Added
 import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("api/v1/clubs")
@@ -52,5 +61,14 @@ public class ClubController {
         List<ClubDto.ClubListInfoResponseDto> clubs = clubService.getAllClubs(authentication);
         return ResponseEntity.ok(clubs);
     }
-}
 
+    @PostMapping("/{clubSlug}/join")
+    @Operation(summary = "동아리 가입", description = "인증된 사용자가 특정 동아리에 가입하고 기수를 등록합니다.")
+    public ResponseEntity<Void> joinClub(
+            @Parameter(description = "가입할 동아리의 slug") @PathVariable String clubSlug,
+            @RequestBody @Valid ClubDto.ClubJoinRequestDto joinRequestDto,
+            Authentication authentication) {
+        clubService.joinClub(clubSlug, joinRequestDto, authentication);
+        return ResponseEntity.ok().build();
+    }
+}

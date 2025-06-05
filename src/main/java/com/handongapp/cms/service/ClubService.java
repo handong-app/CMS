@@ -18,4 +18,13 @@ public interface ClubService {
     void deleteClub(String clubSlug);
 
     List<ClubDto.ClubListInfoResponseDto> getAllClubs(Authentication authentication);
+
+    /**
+     * 사용자를 특정 동아리에 가입시키고 기수 정보를 등록합니다.
+     *
+     * @param clubSlug 가입할 동아리의 slug
+     * @param joinRequestDto 가입 요청 정보 (기수 포함)
+     * @param authentication 인증 정보
+     */
+    void joinClub(String clubSlug, ClubDto.ClubJoinRequestDto joinRequestDto, Authentication authentication);
 }

@@ -30,6 +30,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import com.handongapp.cms.domain.enums.ClubUserRole;
+import com.handongapp.cms.domain.TbUserClubRole;
+import com.handongapp.cms.domain.TbClubRole;
+import com.handongapp.cms.repository.TbClubRoleRepository;
+import com.handongapp.cms.exception.data.DuplicateEntityException;
+import com.handongapp.cms.exception.data.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +48,7 @@ public class ClubServiceImpl implements ClubService {
 
     private final PresignedUrlService presignedUrlService;
     private final TbUserClubRoleRepository tbUserClubRoleRepository;
+    private final TbClubRoleRepository tbClubRoleRepository;
 
     private static final String DELETED_FLAG_YES = "Y";
     private static final String DELETED_FLAG_NO = "N";
@@ -253,5 +260,38 @@ public class ClubServiceImpl implements ClubService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void joinClub(String clubSlug, ClubDto.ClubJoinRequestDto joinRequestDto, Authentication authentication) {
+        String currentUserId = authentication.getName(); // 인증된 사용자 ID 가져오기
+
+        // 1. 동아리 유효성 검사 (존재 여부 및 삭제 여부)
+        TbClub club = clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("가입할 동아리를 찾을 수 없습니다: " + clubSlug));
+
+        // 2. 이미 가입되어 있는지 확인 (어떤 역할이든 관계없이)
+        boolean alreadyMember = tbUserClubRoleRepository.existsByUserIdAndClubIdAndDeleted(
+                currentUserId, club.getId(), DELETED_FLAG_NO
+        );
+
+        if (alreadyMember) {
+            throw new DuplicateEntityException("이미 해당 동아리에 가입되어 있습니다.");
+        }
+
+        // 3. TbUserClubRole에 레코드 추가
+        // CLUB_MEMBER 역할 ID 조회
+        TbClubRole clubMemberRole = tbClubRoleRepository.findByTypeAndDeleted(ClubUserRole.CLUB_MEMBER, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("기본 동아리원 역할(CLUB_MEMBER)을 찾을 수 없습니다. 시스템 설정을 확인해주세요."));
+
+        TbUserClubRole newUserClubRole = TbUserClubRole.of(
+                currentUserId,
+                club.getId(),
+                clubMemberRole.getId(), // 조회한 roleId 사용
+                joinRequestDto.getGeneration() // DTO에서 generation 값 사용
+        );
+        // TbUserClubRole이 AuditingFields를 상속하므로 deleted, createdAt, updatedAt은 자동 관리됨
+        tbUserClubRoleRepository.save(newUserClubRole);
     }
 }

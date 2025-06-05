@@ -2,10 +2,15 @@ package com.handongapp.cms.dto.v1;
 
 import com.querydsl.core.annotations.QueryProjection;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.List;
+import jakarta.validation.constraints.NotNull;
 
 public class ClubDto {
 
@@ -97,4 +102,14 @@ public class ClubDto {
         }
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "동아리 가입 요청 DTO")
+    public static class ClubJoinRequestDto {
+        @NotNull(message = "가입 기수를 입력해주세요.")
+        @Schema(description = "가입 기수", example = "20")
+        private Integer generation;
+    }
 }
