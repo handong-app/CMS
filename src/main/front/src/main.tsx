@@ -21,6 +21,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NodeGroupTest from "./pages/NodeGroupTest.tsx";
 import { CLUB_ADMINMENU } from "./admin-club/pages/index.tsx";
 import AdminRoot from "./admin-club/components/AdminRoot.tsx";
+import ClubListPage from "./pages/ClubListPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path: "/product/:id",
     element: <ProductView />,
+  },
+  {
+    path: "/club",
+    element: <ClubListPage />,
   },
   {
     path: "/club/:club",

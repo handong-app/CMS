@@ -3,9 +3,11 @@
 // 반환: Program[]
 export function currentProgram(programs: any[]): any[] {
   const now = new Date();
-  return programs.filter((program) => {
-    const start = new Date(program.startDate);
-    const end = new Date(program.endDate);
-    return start <= now && now <= end;
-  });
+  return programs
+    ? programs.filter((program) => {
+        const start = new Date(program.startDate);
+        const end = new Date(program.endDate);
+        return start <= now && now <= end;
+      })
+    : [];
 }

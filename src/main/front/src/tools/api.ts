@@ -65,7 +65,12 @@ export async function fetchBe(
     }
 
     try {
-      const json = await doc.json();
+      const text = await doc.text();
+      if (!text || doc.status === 204) {
+        return null; // 빈 응답이거나 No Content
+      }
+
+      const json = JSON.parse(text);
 
       if (path === "/user/get" && !json?.email) {
         alert("유저가 존재하지 않습니다. 로그인을 다시해주세요.");
@@ -78,7 +83,6 @@ export async function fetchBe(
       if (doc.status >= 400) throw json;
       return json;
     } catch {
-      if (doc.status === 204) return null;
       console.error("JSON 파싱 오류", doc);
       throw {
         errorMsg: "JSON 파싱 오류. Status: " + doc.status,
