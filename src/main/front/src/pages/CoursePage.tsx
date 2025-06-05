@@ -305,17 +305,21 @@ function CoursePage() {
                             : []
                         }
                         onTitleClick={() => {
-                          console.log("group slug", group.title);
+                          // console.log("group slug", group.title);
                           if (clubSlug && courseSlug && group.title) {
                             navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.title}`
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
+                                group.title
+                              )}`
                             );
                           }
                         }}
                         onNodeClick={() => {
                           if (clubSlug && courseSlug && group.title) {
                             navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.title}`
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
+                                group.title
+                              )}`
                             );
                           }
                         }}
