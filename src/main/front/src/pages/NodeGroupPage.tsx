@@ -110,7 +110,7 @@ function NodeGroupPage() {
                     mt={0.5}
                     sx={{ lineHeight: 1.4 }}
                   >
-                    {node.data.description}
+                    {!(node.type === "TEXT") && node.data.description}
                   </Typography>
                 </Box>
 
@@ -260,7 +260,10 @@ function NodeGroupPage() {
                           answer={node.data.answer}
                         />
                       )
+                    ) : node.type === "TEXT" && node.data?.description ? (
+                      <MarkdownViewer content={node.data.description} />
                     ) : (
+                      // 👉 콘텐츠가 없을 때 표시되는 fallback 메시지
                       <Box
                         display="flex"
                         justifyContent="center"
