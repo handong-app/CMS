@@ -1,3 +1,5 @@
+// src/pages/ProfilePage.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -49,6 +51,8 @@ const ProfilePage: React.FC = () => {
   const userData = useUserData();
 
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState<string>("");
+
   const [studentId, setStudentId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [studentIdError, setStudentIdError] = useState<string>("");
@@ -82,6 +86,12 @@ const ProfilePage: React.FC = () => {
     return "";
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+    setName(value);
+    setNameError(value.length === 0 ? "이름을 입력해주세요." : "");
+  };
+
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, "").slice(0, 8);
     setStudentId(value);
@@ -99,6 +109,11 @@ const ProfilePage: React.FC = () => {
     if (!uid || !email) {
       alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
       navigate("/land");
+      return;
+    }
+
+    if (name.trim().length === 0) {
+      setNameError("이름을 입력해주세요.");
       return;
     }
 
@@ -168,10 +183,13 @@ const ProfilePage: React.FC = () => {
             fullWidth
             label="이름"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
+            error={!!nameError}
+            helperText={nameError}
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
+            required
           />
         </Box>
 
