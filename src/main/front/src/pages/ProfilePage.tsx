@@ -166,7 +166,10 @@ const ProfilePage: React.FC = () => {
             userId={userData?.userId || ""}
             photoURL={myData?.profileImage}
             size={80}
-            onUploaded={() => refetch()}
+            onUploaded={() => {
+              void refetch();
+            }}
+
           />
           <Typography variant="h6" fontWeight="bold">
             프로필 수정
