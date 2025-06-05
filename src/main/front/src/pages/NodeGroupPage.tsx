@@ -19,6 +19,7 @@ import { useParams } from "react-router";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { NodeGroup } from "../types/nodeGroupData.types";
+import NextNodeGroupButton from "../components/NodeGroupPage/NextButton";
 // 노드 타입별로 크기 매칭
 const nodeHeightMap = {
   video: 600,
@@ -43,8 +44,7 @@ const iconMap = {
 };
 
 function NodeGroupPage() {
-  const nodeGroupUUID = "088c56343a6f4d14b9920e7964c8869f"; //
-  // const { nodeGroupUUID } = useParams(); // URL 파라미터에서 UUID 가져오기
+  const { nodeGroupUUID } = useParams(); // URL 파라미터에서 UUID 가져오기
 
   const [openNodeId, setOpenNodeId] = useState<string | null>(null);
 
@@ -70,15 +70,26 @@ function NodeGroupPage() {
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
-      <Box top={0} zIndex={1000} mb={4}>
+      <Box
+        top={0}
+        zIndex={1000}
+        mb={4}
+        display="flex"
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="space-between"
+      >
         <Typography variant="h4" fontWeight={700} mt={6} mb={4}>
           {nodeGroupData.title}
         </Typography>
+        <Box>
+          <NextNodeGroupButton currentNodeGroupId={nodeGroupData.id} />
+        </Box>
       </Box>
 
       {/* 노드 목록 */}
       <Box>
-        {nodeGroupData.nodes.map((node, _index) => {
+        {nodeGroupData.nodes.map((node, index) => {
           const emojiCountMap: Record<string, number> = {};
           node.comments.forEach((comment) => {
             // const emoji = categoryEmojiMap[comment.category];
