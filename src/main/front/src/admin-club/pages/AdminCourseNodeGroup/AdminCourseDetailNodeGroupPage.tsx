@@ -20,6 +20,24 @@ import {
 } from "@mui/material";
 import NodeRenderer from "./NodeRenderer";
 import React, { useState, useEffect } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import NodeSortableItem from "./NodeSortableItem";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import EditIcon from "@mui/icons-material/Edit";
 
 const NODE_TYPES = [
   { value: "TEXT", label: "텍스트" },
@@ -185,6 +203,43 @@ function AdminCourseNodeGroupPage() {
     }
   };
 
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  // 노드 순서 상태 (로컬)
+  const [localNodes, setLocalNodes] = useState<any[]>([]);
+  useEffect(() => {
+    if (Array.isArray(data?.nodes)) {
+      setLocalNodes(
+        data.nodes
+          .slice()
+          .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+      );
+    }
+  }, [data?.nodes]);
+
+  // 드래그 종료 핸들러
+  const handleNodeDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = localNodes.findIndex((n) => n.id === active.id);
+    const newIndex = localNodes.findIndex((n) => n.id === over.id);
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newNodes = arrayMove(localNodes, oldIndex, newIndex).map(
+        (node, idx) => ({
+          ...node,
+          order: idx + 1,
+        })
+      );
+      setLocalNodes(newNodes);
+      newNodes.forEach((node) => {
+        console.log("node", node.id, node.order);
+      });
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>노드 그룹 정보를 불러올 수 없습니다.</div>;
   if (!data) return <div>노드 그룹 정보 없음</div>;
@@ -253,22 +308,93 @@ function AdminCourseNodeGroupPage() {
             노드 추가
           </Button>
         </Box>
-        {Array.isArray(data.nodes) && data.nodes.length > 0 ? (
-          data.nodes.map((node: any, idx: number) => (
-            <Box
-              key={node.id}
-              mb={2}
-              p={2}
-              borderRadius={2}
-              bgcolor="rgba(255,255,255,0.1)"
+        {Array.isArray(localNodes) && localNodes.length > 0 ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleNodeDragEnd}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <SortableContext
+              items={localNodes.map((n) => n.id)}
+              strategy={verticalListSortingStrategy}
             >
-              <Typography fontWeight={600} mb={1}>
-                {idx + 1}.{" "}
-                {node.data?.title || node.data?.question || node.type}
-              </Typography>
-              <NodeRenderer node={node} refetch={refetch} />
-            </Box>
-          ))
+              {localNodes.map((node: any, idx: number) => (
+                <NodeSortableItem key={node.id} id={node.id}>
+                  <Box
+                    mb={2}
+                    p={2}
+                    borderRadius={2}
+                    bgcolor="rgba(255,255,255,0.1)"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    <Box flex={1}>
+                      <Box display="flex" justifyContent="space-between">
+                        <Typography fontWeight={600} mb={1}>
+                          {idx + 1}.{" "}
+                          {node.data?.title || node.data?.question || node.type}
+                        </Typography>
+                        <Box display="flex" alignItems="center" ml={2} gap={1}>
+                          <Button
+                            size="small"
+                            sx={{ minWidth: 32, color: "#fff" }}
+                            onClick={
+                              idx > 0
+                                ? () => {
+                                    const newNodes = arrayMove(
+                                      localNodes,
+                                      idx,
+                                      idx - 1
+                                    ).map((n, i) => ({ ...n, order: i + 1 }));
+                                    setLocalNodes(newNodes);
+                                    newNodes.forEach((n) =>
+                                      console.log("node", n.id, n.order)
+                                    );
+                                  }
+                                : undefined
+                            }
+                            disabled={idx === 0}
+                          >
+                            <ArrowUpwardIcon fontSize="small" />
+                          </Button>
+                          <Button
+                            size="small"
+                            sx={{ minWidth: 32, color: "#fff" }}
+                            onClick={
+                              idx < localNodes.length - 1
+                                ? () => {
+                                    const newNodes = arrayMove(
+                                      localNodes,
+                                      idx,
+                                      idx + 1
+                                    ).map((n, i) => ({ ...n, order: i + 1 }));
+                                    setLocalNodes(newNodes);
+                                    newNodes.forEach((n) =>
+                                      console.log("node", n.id, n.order)
+                                    );
+                                  }
+                                : undefined
+                            }
+                            disabled={idx === localNodes.length - 1}
+                          >
+                            <ArrowDownwardIcon fontSize="small" />
+                          </Button>
+                          <Box mt={1}>
+                            <EditIcon
+                              fontSize="small"
+                              sx={{ color: "#fff", cursor: "grab" }}
+                            />
+                          </Box>
+                        </Box>
+                      </Box>
+                      <NodeRenderer node={node} refetch={refetch} />
+                    </Box>
+                  </Box>
+                </NodeSortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
         ) : (
           <Typography color="text.secondary">노드가 없습니다.</Typography>
         )}
