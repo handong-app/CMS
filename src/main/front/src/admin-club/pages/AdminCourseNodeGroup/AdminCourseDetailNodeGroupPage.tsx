@@ -210,6 +210,20 @@ function AdminCourseNodeGroupPage() {
 
   // 노드 순서 상태 (로컬)
   const [localNodes, setLocalNodes] = useState<any[]>([]);
+
+  const updateCurrentNodes = (nodes: any[]) => {
+    setLocalNodes(nodes);
+    nodes.forEach((n) => {
+      console.log("node", n.id, n.order);
+      fetchBe(`/v1/nodes/${n.id}`, {
+        method: "PATCH",
+        body: { order: n.order },
+      }).catch((e) => {
+        console.error("노드 순서 업데이트 실패:", e);
+      });
+    });
+  };
+
   useEffect(() => {
     if (Array.isArray(data?.nodes)) {
       setLocalNodes(
@@ -233,10 +247,7 @@ function AdminCourseNodeGroupPage() {
           order: idx + 1,
         })
       );
-      setLocalNodes(newNodes);
-      newNodes.forEach((node) => {
-        console.log("node", node.id, node.order);
-      });
+      updateCurrentNodes(newNodes);
     }
   };
 
@@ -347,10 +358,7 @@ function AdminCourseNodeGroupPage() {
                                       idx,
                                       idx - 1
                                     ).map((n, i) => ({ ...n, order: i + 1 }));
-                                    setLocalNodes(newNodes);
-                                    newNodes.forEach((n) =>
-                                      console.log("node", n.id, n.order)
-                                    );
+                                    updateCurrentNodes(newNodes);
                                   }
                                 : undefined
                             }
@@ -369,10 +377,7 @@ function AdminCourseNodeGroupPage() {
                                       idx,
                                       idx + 1
                                     ).map((n, i) => ({ ...n, order: i + 1 }));
-                                    setLocalNodes(newNodes);
-                                    newNodes.forEach((n) =>
-                                      console.log("node", n.id, n.order)
-                                    );
+                                    updateCurrentNodes(newNodes);
                                   }
                                 : undefined
                             }
