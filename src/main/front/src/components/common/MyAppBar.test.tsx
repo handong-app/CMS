@@ -2,11 +2,14 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import "@testing-library/jest-dom";
-import MyAppBar from "./MyAppBar";
 import { MemoryRouter } from "react-router-dom";
 
+import MyAppBar from "./MyAppBar";
+import { UserInfo } from "../../store/authStore";
+
+// 이미지 모킹 (이미지 import 시 에러 방지용)
 vi.mock("../../assets/Logo.png", () => ({
-  default: "mock-logo.png",
+  default: "mock-logo.png"
 }));
 
 describe("MyAppBar Component", () => {
@@ -21,9 +24,10 @@ describe("MyAppBar Component", () => {
   });
 
   it("renders welcome message and avatar when user is authenticated", () => {
-    const user = {
+    const user: UserInfo = {
       name: "Alice",
-      photoURL: "https://example.com/avatar.png",
+      email: "alice@example.com",
+      photoURL: "https://example.com/avatar.png"
     };
 
     render(

@@ -2,9 +2,10 @@ import { AppBar, Toolbar, Box, Button, Avatar, Typography } from "@mui/material"
 import Logo from "../../assets/Logo.png";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
+import useAuthStore, { UserInfo } from "../../store/authStore";
 
 type Props = {
-  user: { name: string; photoURL: string } | null;
+  user: UserInfo | null;
 };
 
 const MyAppBar = ({ user }: Props) => {
