@@ -94,7 +94,13 @@ const MyAppBar = ({
         </Link>
 
         {user?.name ? (
-          <Box display="flex" alignItems="center" gap={1}>
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={1}
+            onClick={handleAvatarClick}
+            sx={{ cursor: "pointer" }}
+          >
             <Typography
               variant="body1"
               data-testid="welcome-msg"
