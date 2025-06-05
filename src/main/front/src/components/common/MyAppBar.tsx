@@ -14,14 +14,21 @@ import { Link } from "react-router";
 
 import { useNavigate } from "react-router";
 
+type UserInfo = {
+  name: string;
+  email: string;
+  photoURL: string;
+};
+
 const MyAppBar = ({
   position = "fixed",
   transparent = false,
+  user,
 }: {
   position?: AppBarOwnProps["position"];
   transparent?: boolean;
+  user: UserInfo | null;
 }) => {
-  const user = useUserData();
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -64,7 +71,7 @@ const MyAppBar = ({
       color="default"
       elevation={0}
       sx={{
-        top: 0,
+        top: 8,
         left: 0,
         width: "100%",
         zIndex: theme.zIndex.appBar,
@@ -94,13 +101,7 @@ const MyAppBar = ({
         </Link>
 
         {user?.name ? (
-          <Box
-            display="flex"
-            alignItems="center"
-            gap={1}
-            onClick={handleAvatarClick}
-            sx={{ cursor: "pointer" }}
-          >
+          <Box display="flex" alignItems="center" gap={1}>
             <Typography
               variant="body1"
               data-testid="welcome-msg"
@@ -108,12 +109,12 @@ const MyAppBar = ({
             >
               {user.name}님 환영합니다!
             </Typography>
-            {/* <Avatar
+            <Avatar
               alt={user.name}
               src={user.photoURL}
               sx={{ width: 36, height: 36, cursor: "pointer" }}
               onClick={handleAvatarClick}
-            /> */}
+            />
           </Box>
         ) : (
           <Button

@@ -28,7 +28,12 @@ const LandingPage: React.FC = () => {
         backgroundColor: theme.palette.background.default || "#1A1A1A",
         minHeight: "100vh",
         color: theme.palette.text.primary || "#FFFFFF",
-        position: "relative",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        p: 2,
         overflow: "hidden",
       }}
     >

@@ -52,8 +52,8 @@ const App = () => {
 
   return (
     <>
-      <MyAppBar user={user} />
-      <Box component="main" mt={2}>
+      <MyAppBar user={user} position="relative" transparent />
+      <Box component="main">
         <Outlet />
       </Box>
     </>

@@ -23,7 +23,6 @@ import NodeGroupTest from "./pages/NodeGroupTest.tsx";
 import { CLUB_ADMINMENU } from "./admin-club/pages/index.tsx";
 import AdminRoot from "./admin-club/components/AdminRoot.tsx";
 import ClubListPage from "./pages/ClubListPage.tsx";
-import MyAppBar from "./components/common/MyAppBar.tsx";
 
 const router = createBrowserRouter([
   {
@@ -46,17 +45,6 @@ const router = createBrowserRouter([
         path: "profile",
         element: <ProfilePage />,
       },
-    ],
-  },
-  {
-    path: "/",
-    element: (
-      <>
-        <MyAppBar position="relative" transparent />
-        <Outlet />
-      </>
-    ),
-    children: [
       {
         path: "/product/:id",
         element: <ProductView />,
@@ -83,6 +71,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+
   {
     path: "/land",
     element: <LandingPage />,
