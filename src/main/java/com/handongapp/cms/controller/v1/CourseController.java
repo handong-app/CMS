@@ -4,6 +4,8 @@ import com.handongapp.cms.dto.v1.CourseDto;
 import com.handongapp.cms.security.PrincipalDetails;
 import com.handongapp.cms.service.CourseService;
 import com.handongapp.cms.service.ClubService;
+import com.handongapp.cms.service.CommentOfCategoryService;
+import com.handongapp.cms.dto.v1.CommentOfCategoryDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/clubs/{clubSlug}/courses")
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ public class CourseController {
 
     private final CourseService courseService;
     private final ClubService clubService;
+    private final CommentOfCategoryService commentOfCategoryService;
 
     @PostMapping
     public ResponseEntity<CourseDto.Response> create(
@@ -66,5 +71,16 @@ public class CourseController {
             @PathVariable String courseSlug) {
         courseService.deleteSoftBySlug(courseSlug);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{courseSlug}/comment-categories")
+    public ResponseEntity<List<CommentOfCategoryDto.Response>> getCommentCategoriesByCourseSlug(
+            @PathVariable String clubSlug, // clubSlug is part of the path but might not be used directly by the service if courseSlug is unique
+            @PathVariable String courseSlug) {
+        List<CommentOfCategoryDto.Response> categories = commentOfCategoryService.getCategoriesByCourseSlug(courseSlug);
+        if (categories.isEmpty()) {
+            return ResponseEntity.noContent().build(); // Or ResponseEntity.notFound().build(); depending on desired behavior
+        }
+        return ResponseEntity.ok(categories);
     }
 }
