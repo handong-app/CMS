@@ -33,9 +33,6 @@ public class CourseController {
     @GetMapping()
     public ResponseEntity<String> getClubCoursesBySlug(@PathVariable String clubSlug) {
         String coursesJson = clubService.getCoursesByClubSlugAsJson(clubSlug);
-        if (coursesJson == null || coursesJson.equals("[]")) { // 결과가 없거나 빈 배열일 경우
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"No courses found for this club or club does not exist.\"}");
-        }
         final HttpHeaders httpHeaders= new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(coursesJson, httpHeaders, HttpStatus.OK);
