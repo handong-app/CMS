@@ -71,6 +71,8 @@ function NodeGroupPage() {
       body: {
         nodeGroupId: nodeGroupData?.id,
       },
+    }).catch((err) => {
+      console.error("Progress start error:", err);
     });
   }, [nodeGroupData?.id]);
 
