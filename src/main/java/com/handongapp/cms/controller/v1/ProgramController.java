@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import com.handongapp.cms.dto.v1.ProgramDto;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class ProgramController {
 
     private final ProgramService programService;
+
+    @PostMapping
+    public ResponseEntity<ProgramDto.ResponseDto> createProgram(
+            @PathVariable String clubSlug,
+            @Valid @RequestBody ProgramDto.CreateRequest requestDto,
+            Authentication authentication) {
+        ProgramDto.ResponseDto createdProgram = programService.createProgram(clubSlug, requestDto, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProgram);
+    }
 
     @GetMapping
     public ResponseEntity<String> getProgramsByClubSlug(@PathVariable String clubSlug) {
