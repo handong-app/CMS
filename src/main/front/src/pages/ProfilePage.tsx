@@ -165,7 +165,7 @@ const ProfilePage: React.FC = () => {
             fullWidth
             label="학번"
             value={studentId}
-            disabled
+            onChange={(e) => setStudentId(e.target.value)}
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
