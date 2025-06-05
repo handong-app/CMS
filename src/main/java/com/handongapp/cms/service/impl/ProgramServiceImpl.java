@@ -40,6 +40,15 @@ public class ProgramServiceImpl implements ProgramService {
 
     private static final String DELETED_FLAG_NO = "N";
 
+    /**
+     * 클럽 슬러그와 프로그램 슬러그로 프로그램 상세 및 코스 정보를 JSON으로 반환합니다.
+     * 각 코스의 {@code pictureUrl}을 presigned URL로 채웁니다.
+     *
+     * @param clubSlug   클럽 슬러그
+     * @param programSlug 프로그램 슬러그
+     * @return JSON 문자열 (프로그램 상세 정보)
+     * @throws IllegalStateException JSON 파싱/직렬화 실패 시 발생
+     */
     @Override
     @Transactional(readOnly = true)
     public String getProgramDetailsWithCoursesAsJson(String clubSlug, String programSlug) {
@@ -73,6 +82,13 @@ public class ProgramServiceImpl implements ProgramService {
         }
     }
 
+    /**
+     * 클럽의 프로그램 및 코스 목록을 JSON으로 반환합니다.
+     *
+     * @param clubSlug 클럽 슬러그
+     * @return JSON 문자열 (프로그램 목록)
+     * @throws IllegalStateException JSON 파싱/직렬화 실패 시 발생
+     */
     @Override
     @Transactional(readOnly = true)
     public String getProgramsWithCoursesByClubSlugAsJson(String clubSlug) {
@@ -86,6 +102,20 @@ public class ProgramServiceImpl implements ProgramService {
         }
     }
 
+    /**
+     * 지정된 클럽과 프로그램의 참가자 진행 상태를 JSON 형식으로 반환합니다.
+     * <p>
+     * 반환되는 JSON의 각 참가자(participant)의 {@code participantPictureUrl} 필드가,
+     * 해당 유저의 {@code fileKey}와 {@code fileStatus}가 UPLOADED 상태일 경우
+     * Presigned URL로 치환됩니다.
+     * </p>
+     *
+     * @param clubSlug   클럽 식별자 (slug)
+     * @param programSlug 프로그램 식별자 (slug)
+     * @return 참가자 진행 상태를 포함하는 JSON 문자열
+     * @throws NotFoundException           클럽, 프로그램, 참가자 진행 정보가 없을 경우 발생
+     * @throws IllegalStateException       JSON 파싱/직렬화 실패 시 발생
+     */
     @Override
     @Transactional(readOnly = true)
     public String getProgramParticipantProgressAsJson(String clubSlug, String programSlug) {
@@ -133,6 +163,21 @@ public class ProgramServiceImpl implements ProgramService {
         }
     }
 
+    /**
+     * 인증 사용자가 프로그램에 참여 요청을 수행합니다.
+     * <ul>
+     *     <li>프로그램 기간 확인</li>
+     *     <li>이미 참여 여부 확인</li>
+     *     <li>참여자 등록</li>
+     * </ul>
+     *
+     * @param clubSlug       클럽 슬러그
+     * @param programSlug    프로그램 슬러그
+     * @param authentication 인증 정보
+     * @throws NotFoundException        클럽, 프로그램이 존재하지 않을 경우
+     * @throws IllegalStateException    프로그램 기간이 유효하지 않을 경우
+     * @throws DuplicateEntityException 이미 참여 중인 경우
+     */
     @Override
     @Transactional
     public void joinProgram(String clubSlug, String programSlug, Authentication authentication) {
