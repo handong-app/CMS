@@ -80,8 +80,6 @@ function ClubPage() {
     userId || "",
     clubProgramProcess?.participants || []
   );
-  console.log({ calculatedProgramProgress });
-  console.log("mostRecentNodeGroup", mostRecentNodeGroup);
 
   return (
     <>

@@ -60,25 +60,6 @@ export interface AdminProgramEditProps {
   enrolledMembers?: ClubMember[]; // 수강중인 회원 목록
 }
 
-export interface AdminProgramEditProps {
-  initialName?: string;
-  initialDescription?: string;
-  initialCourses?: (string | CourseItem)[];
-  initialSlug?: string;
-  initialStartDate?: string;
-  initialEndDate?: string;
-  isEditMode?: boolean;
-  onSave?: (data: {
-    name: string;
-    description: string;
-    courses: (string | CourseItem)[];
-    slug: string;
-    startDate: string;
-    endDate: string;
-  }) => void;
-  enrolledMembers?: ClubMember[]; // 수강중인 회원 목록
-}
-
 const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
   initialName = "",
   initialDescription = "",
@@ -114,7 +95,6 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
     queryFn: () => fetchBe(`/v1/clubs/${club}/courses`),
     enabled: !!programSlug, // programSlug가 있을 때만 호출
   });
-  console.log("courses", courseList);
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
