@@ -16,6 +16,7 @@ import {
   DialogActions,
   Autocomplete,
 } from "@mui/material";
+import CourseAddDialog from "./CourseAddDialog";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,15 +26,41 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 import AdminClubMemberTable from "./AdminClubMemberTable";
 import { ClubMember } from "../../types/clubmember.types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "react-router";
+import { useFetchBe } from "../../tools/api";
 
 export interface CourseItem {
   id: string;
   title: string;
-  [key: string]: any;
+  slug: string;
+  description: string;
+  pictureUrl: string | null;
+  isVisible: number;
+  creatorUserId: string;
+  sections: any[] | null;
 }
 
 export interface AdminProgramEditProps {
-  allCourses: CourseItem[]; // 전체 코스 목록 (id/slug/title 등 포함)
+  initialName?: string;
+  initialDescription?: string;
+  initialCourses?: (string | CourseItem)[];
+  initialSlug?: string;
+  initialStartDate?: string;
+  initialEndDate?: string;
+  isEditMode?: boolean;
+  onSave?: (data: {
+    name: string;
+    description: string;
+    courses: (string | CourseItem)[];
+    slug: string;
+    startDate: string;
+    endDate: string;
+  }) => void;
+  enrolledMembers?: ClubMember[]; // 수강중인 회원 목록
+}
+
+export interface AdminProgramEditProps {
   initialName?: string;
   initialDescription?: string;
   initialCourses?: (string | CourseItem)[];
@@ -53,7 +80,6 @@ export interface AdminProgramEditProps {
 }
 
 const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
-  allCourses,
   initialName = "",
   initialDescription = "",
   initialCourses = [],
@@ -64,6 +90,15 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
   onSave,
   enrolledMembers,
 }) => {
+  const { club, programSlug } = useParams<{
+    club?: string;
+    programSlug?: string;
+  }>();
+
+  const queryClient = useQueryClient();
+
+  const fetchBe = useFetchBe();
+
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   const [slug, setSlug] = useState(initialSlug);
@@ -73,58 +108,47 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
   const [endDate, setEndDate] = useState(
     initialEndDate ? new Date(initialEndDate) : null
   );
-  // courses는 CourseItem[]으로 관리
-  const [courses, setCourses] = useState<CourseItem[]>(
-    initialCourses?.map((c) =>
-      typeof c === "string"
-        ? allCourses.find((ac) => ac.id === c || ac.title === c) || {
-            id: c,
-            title: c,
-          }
-        : c
-    )
-  );
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editIdx, setEditIdx] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState<CourseItem | null>(null);
 
-  const [members, setMembers] = useState<ClubMember[]>(enrolledMembers ?? []);
-  const [memberDialogOpen, setMemberDialogOpen] = useState(false);
-  const [newMember, setNewMember] = useState<Partial<ClubMember>>({});
+  const { data: courseList, isLoading: coursesLoading } = useQuery({
+    queryKey: ["clubCourses", club],
+    queryFn: () => fetchBe(`/v1/clubs/${club}/courses`),
+    enabled: !!programSlug, // programSlug가 있을 때만 호출
+  });
+  console.log("courses", courseList);
+
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+
+  if (coursesLoading) return <Typography>로딩 중...</Typography>;
+
+  // courses는 CourseItem[]으로 관리
+  const courses = initialCourses?.map((c) =>
+    typeof c === "string"
+      ? courseList.find((ac: any) => ac.id === c || ac.title === c) || {
+          id: c,
+          title: c,
+          slug: c,
+          description: "",
+          pictureUrl: null,
+          isVisible: 1,
+          creatorUserId: "",
+          sections: null,
+        }
+      : c
+  );
 
   // 코스 추가
-  const handleAddCourse = (course: CourseItem) => {
-    if (!courses.some((c) => c.id === course.id))
-      setCourses([...courses, course]);
-    setAddDialogOpen(false);
-  };
+  const handleAddCourse = async (course: CourseItem) => {
+    console.log("Add Course", course);
 
-  // 코스 수정
-  const handleEditCourse = (idx: number, newValue: CourseItem) => {
-    setCourses((prev) => prev.map((c, i) => (i === idx ? newValue : c)));
-    setEditIdx(null);
-    setEditValue(null);
-  };
-
-  // 코스 삭제
-  const handleDeleteCourse = (idx: number) => {
-    setCourses((prev) => prev.filter((_, i) => i !== idx));
-  };
-
-  // 회원 추가
-  const handleAddMember = () => {
-    if (
-      newMember.userId &&
-      newMember.name &&
-      newMember.studentId &&
-      newMember.email &&
-      newMember.phone &&
-      newMember.profileImageUrl
-    ) {
-      setMembers((prev) => [...prev, newMember as ClubMember]);
-      setNewMember({});
-      setMemberDialogOpen(false);
-    }
+    await fetchBe(
+      `/v1/clubs/${club}/programs/${programSlug}/add-course/${course.slug}`,
+      {
+        method: "POST",
+      }
+    );
+    queryClient.invalidateQueries({
+      queryKey: ["clubPrograms", club, programSlug],
+    });
   };
 
   // 저장
@@ -205,113 +229,6 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
         />
         {isEditMode && (
           <>
-            <Box my={4}>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                mb={1}
-              >
-                <Typography variant="subtitle1" fontWeight={600}>
-                  수강중인 회원 목록
-                </Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<PersonAddIcon />}
-                  onClick={() => setMemberDialogOpen(true)}
-                  sx={{ fontWeight: 600, borderRadius: 2 }}
-                >
-                  회원 추가
-                </Button>
-              </Box>
-              <AdminClubMemberTable members={members} />
-            </Box>
-            {/* 회원 추가 다이얼로그 */}
-            <Dialog
-              open={memberDialogOpen}
-              onClose={() => setMemberDialogOpen(false)}
-            >
-              <DialogTitle>회원 추가</DialogTitle>
-              <DialogContent sx={{ minWidth: 340 }}>
-                <TextField
-                  label="이름"
-                  value={newMember.name ?? ""}
-                  onChange={(e) =>
-                    setNewMember((m: any) => ({ ...m, name: e.target.value }))
-                  }
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="학번"
-                  value={newMember.studentId ?? ""}
-                  onChange={(e) =>
-                    setNewMember((m: any) => ({
-                      ...m,
-                      studentId: e.target.value,
-                    }))
-                  }
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="이메일"
-                  value={newMember.email ?? ""}
-                  onChange={(e) =>
-                    setNewMember((m: any) => ({ ...m, email: e.target.value }))
-                  }
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="전화번호"
-                  value={newMember.phone ?? ""}
-                  onChange={(e) =>
-                    setNewMember((m: any) => ({ ...m, phone: e.target.value }))
-                  }
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="프로필 이미지 URL"
-                  value={newMember.profileImageUrl ?? ""}
-                  onChange={(e) =>
-                    setNewMember((m: any) => ({
-                      ...m,
-                      profileImageUrl: e.target.value,
-                    }))
-                  }
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="유저 ID"
-                  value={newMember.userId ?? ""}
-                  onChange={(e) =>
-                    setNewMember((m: any) => ({ ...m, userId: e.target.value }))
-                  }
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setMemberDialogOpen(false)}>취소</Button>
-                <Button
-                  onClick={handleAddMember}
-                  variant="contained"
-                  disabled={
-                    !newMember.userId ||
-                    !newMember.name ||
-                    !newMember.studentId ||
-                    !newMember.email ||
-                    !newMember.phone ||
-                    !newMember.profileImageUrl
-                  }
-                >
-                  추가
-                </Button>
-              </DialogActions>
-            </Dialog>
             <Box
               display="flex"
               alignItems="center"
@@ -345,20 +262,8 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
                     <ListItem
                       secondaryAction={
                         <>
-                          <IconButton
-                            edge="end"
-                            onClick={() => {
-                              setEditIdx(idx);
-                              setEditValue(course as CourseItem);
-                            }}
-                          >
+                          <IconButton edge="end" onClick={() => {}}>
                             <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            onClick={() => handleDeleteCourse(idx)}
-                          >
-                            <DeleteIcon />
                           </IconButton>
                         </>
                       }
@@ -385,61 +290,13 @@ const AdminProgramEdit: React.FC<AdminProgramEditProps> = ({
       </Paper>
 
       {/* 코스 추가 다이얼로그 */}
-      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)}>
-        <DialogTitle>코스 추가</DialogTitle>
-        <DialogContent>
-          <Autocomplete
-            options={allCourses.filter(
-              (c) => !courses.some((cc) => cc.id === c.id)
-            )}
-            getOptionLabel={(option) => option.title}
-            renderInput={(params) => (
-              <TextField {...params} label="코스 선택" />
-            )}
-            onChange={(_, value) => value && handleAddCourse(value)}
-            autoHighlight
-            value={null}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddDialogOpen(false)}>취소</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* 코스 수정 다이얼로그 */}
-      <Dialog open={editIdx !== null} onClose={() => setEditIdx(null)}>
-        <DialogTitle>코스 수정</DialogTitle>
-        <DialogContent>
-          <Autocomplete
-            options={allCourses.filter(
-              (c) =>
-                !courses.some((cc) => cc.id === c.id) ||
-                (editValue && c.id === editValue.id)
-            )}
-            getOptionLabel={(option) => option.title}
-            value={editValue}
-            renderInput={(params) => (
-              <TextField {...params} label="코스 선택" />
-            )}
-            onChange={(_, value) => value && setEditValue(value)}
-            autoHighlight
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditIdx(null)}>취소</Button>
-          <Button
-            onClick={() =>
-              editIdx !== null &&
-              editValue &&
-              handleEditCourse(editIdx, editValue)
-            }
-            disabled={!editValue}
-            variant="contained"
-          >
-            저장
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CourseAddDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        allCourses={courseList}
+        courses={courses || []}
+        onAdd={handleAddCourse}
+      />
     </Box>
   );
 };

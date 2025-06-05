@@ -30,7 +30,6 @@ function AdminProgramPage() {
 
   return (
     <AdminProgramEdit
-      allCourses={[]}
       initialName={programs?.name}
       initialDescription={programs?.description}
       initialCourses={programs?.courses}
