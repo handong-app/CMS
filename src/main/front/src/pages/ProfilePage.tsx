@@ -1,9 +1,9 @@
+// src/pages/ProfilePage.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
   TextField,
   Typography,
   Paper,
@@ -16,28 +16,25 @@ import useUserData from "../hooks/userData";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
-// 전화번호 자동 하이픈 함수
 const formatPhoneNumber = (value: string): string => {
   if (!value) return value;
   const phoneNumber = value.replace(/[^\d]/g, "");
-  const phoneNumberLength = phoneNumber.length;
+  const len = phoneNumber.length;
 
-  if (phoneNumberLength < 4) return phoneNumber;
-  if (phoneNumberLength < 7) {
-    return phoneNumber.replace(/^(\d{2,3})(\d{1,3})/, "$1-$2");
-  }
-  if (phoneNumberLength < 10) {
+  if (len < 4) return phoneNumber;
+  if (len < 7) return phoneNumber.replace(/^(\d{2,3})(\d{1,3})/, "$1-$2");
+  if (len < 10) {
     if (phoneNumber.startsWith("02")) {
       return phoneNumber
-        .replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (match, p1, p2, p3) => {
-          return `${p1}-${p2}${p3 ? "-" + p3 : ""}`;
-        })
+        .replace(/^(\d{2})(\d{3,4})(\d{0,4})/, (_, p1, p2, p3) =>
+          `${p1}-${p2}${p3 ? "-" + p3 : ""}`
+        )
         .substring(0, 12);
     }
     return phoneNumber
-      .replace(/^(\d{3})(\d{3})(\d{0,4})/, (match, p1, p2, p3) => {
-        return `${p1}-${p2}${p3 ? "-" + p3 : ""}`;
-      })
+      .replace(/^(\d{3})(\d{3})(\d{0,4})/, (_, p1, p2, p3) =>
+        `${p1}-${p2}${p3 ? "-" + p3 : ""}`
+      )
       .substring(0, 13);
   }
   return phoneNumber
@@ -45,52 +42,54 @@ const formatPhoneNumber = (value: string): string => {
     .substring(0, 13);
 };
 
-const ProfileRegistrationPage: React.FC = () => {
+const ProfilePage: React.FC = () => {
   const theme = useTheme();
   const user = useAuthStore((state) => state.user);
+  const jwtToken = useAuthStore.getState().jwtToken;
   const fetchBe = useFetchBe();
   const navigate = useNavigate();
   const userData = useUserData();
 
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState<string>("");
+
   const [studentId, setStudentId] = useState("");
-  const [studentIdError, setStudentIdError] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [termsAgreed, setTermsAgreed] = useState(false);
-  const [privacyAgreed, setPrivacyAgreed] = useState(false);
-  const jwtToken = useAuthStore.getState().jwtToken;
-  const { data: myData, refetch } = useQuery({
-    queryKey: ["myData"],
-    queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
-  });
+  const [studentIdError, setStudentIdError] = useState<string>("");
 
   useEffect(() => {
-    if (jwtToken) {
-      alert("이미 로그인된 사용자입니다.");
-      navigate("/profile"); // 또는 "/"로 변경 가능
+    if (!jwtToken) {
+      alert("로그인이 필요합니다.");
+      navigate("/land");
     }
   }, [jwtToken, navigate]);
 
-  useEffect(() => {
-    if (user?.name) setName(user.name);
-  }, [user]);
+  const { data: myData, refetch } = useQuery({
+    queryKey: ["myData"],
+    queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
+    enabled: !!jwtToken,
+  });
 
   useEffect(() => {
     if (myData) {
-      setName((prev) => prev || myData.name || "");
-      setStudentId((prev) => prev || myData.studentId || "");
-      setPhoneNumber((prev) => prev || myData.phone || "");
-      setTermsAgreed(!!myData.studentId);
-      setPrivacyAgreed(!!myData.studentId);
+      setName(myData.name || "");
+      setStudentId(myData.studentId || "");
+      setPhoneNumber(formatPhoneNumber(myData.phone || ""));
     }
   }, [myData]);
 
   const validateStudentId = (id: string): string => {
-    if (!id) return "학번을 입력해주세요.";
+    if (!id) return "";
     if (!/^\d+$/.test(id)) return "숫자만 입력해주세요.";
     if (id[0] !== "2") return "학번은 '2'로 시작해야 합니다.";
     if (id.length !== 8) return "학번은 8자리여야 합니다.";
     return "";
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+    setName(value);
+    setNameError(value.length === 0 ? "이름을 입력해주세요." : "");
   };
 
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,33 +103,17 @@ const ProfileRegistrationPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const currentStudentIdError = validateStudentId(studentId);
-    if (currentStudentIdError) {
-      setStudentIdError(currentStudentIdError);
-      alert(`학번 오류: ${currentStudentIdError}`);
-      return;
-    }
-    if (studentIdError) {
-      alert(`학번 형식을 확인해주세요. (${studentIdError})`);
-      return;
-    }
-
-    if (!termsAgreed || !privacyAgreed) {
-      alert("필수 약관에 동의해주세요.");
-      return;
-    }
-
-    
-    if (!jwtToken) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-
     const uid = userData?.userId;
     const email = user?.email;
 
     if (!uid || !email) {
       alert("사용자 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+      navigate("/land");
+      return;
+    }
+
+    if (name.trim().length === 0) {
+      setNameError("이름을 입력해주세요.");
       return;
     }
 
@@ -142,17 +125,15 @@ const ProfileRegistrationPage: React.FC = () => {
       phone: phoneNumber.replace(/-/g, ""),
     };
 
-    console.log("최종 제출 payload:", payload);
     try {
       await fetchBe("/v1/user/profile", {
         method: "PATCH",
         body: payload,
       });
-
-      alert("프로필이 성공적으로 등록되었습니다.");
-      navigate("/club/callein");
+      alert("프로필이 수정되었습니다.");
+      navigate("/");
     } catch (err: any) {
-      alert("프로필 등록에 실패했습니다: " + (err.message || "서버 오류"));
+      alert("프로필 수정에 실패했습니다: " + (err.message || "서버 오류"));
       console.error(err);
     }
   };
@@ -186,9 +167,10 @@ const ProfileRegistrationPage: React.FC = () => {
             photoURL={myData?.profileImage}
             size={80}
             onUploaded={() => {void refetch();}}
+
           />
           <Typography variant="h6" fontWeight="bold">
-            프로필 등록
+            프로필 수정
           </Typography>
           {user?.name && (
             <Typography variant="body2" sx={{ mt: 0.5, color: "#bbb" }}>
@@ -197,15 +179,19 @@ const ProfileRegistrationPage: React.FC = () => {
           )}
         </Box>
 
+
         <Box mb={2}>
           <TextField
             fullWidth
             label="이름"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
+            error={!!nameError}
+            helperText={nameError}
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
+            required
           />
         </Box>
 
@@ -216,10 +202,7 @@ const ProfileRegistrationPage: React.FC = () => {
             value={studentId}
             onChange={handleStudentIdChange}
             error={!!studentIdError}
-            helperText={
-              studentIdError ||
-              "2로 시작하는 8자리 숫자를 입력하세요. (ex. 2xxxxxxx)"
-            }
+            helperText={studentIdError || "2로 시작하는 8자리 숫자를 입력하세요."}
             InputLabelProps={{ style: { color: "#ccc" } }}
             InputProps={{ style: { color: "white" } }}
             variant="outlined"
@@ -241,49 +224,17 @@ const ProfileRegistrationPage: React.FC = () => {
           />
         </Box>
 
-        <Box mb={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={termsAgreed}
-                onChange={(e) => setTermsAgreed(e.target.checked)}
-                sx={{ color: "white" }}
-              />
-            }
-            label={
-              <Typography variant="body2" sx={{ color: "white" }}>
-                이용약관 동의 (필수)
-              </Typography>
-            }
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={privacyAgreed}
-                onChange={(e) => setPrivacyAgreed(e.target.checked)}
-                sx={{ color: "white" }}
-              />
-            }
-            label={
-              <Typography variant="body2" sx={{ color: "white" }}>
-                개인정보 수집 및 이용 동의 (필수)
-              </Typography>
-            }
-          />
-        </Box>
-
         <Button
           variant="contained"
           fullWidth
           onClick={handleSubmit}
           sx={{ mt: 1 }}
-          disabled={!!studentIdError && studentId.length > 0}
         >
-          회원가입
+          프로필 저장
         </Button>
       </Paper>
     </Box>
   );
 };
 
-export default ProfileRegistrationPage;
+export default ProfilePage;
