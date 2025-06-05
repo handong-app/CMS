@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface ClubRepository extends JpaRepository<TbClub, String> {
     Optional<TbClub> findBySlug(String clubSlug);
     Optional<TbClub> findBySlugAndDeleted(String clubSlug, String deleted);
-
+    boolean existsBySlugAndDeleted(String clubSlug, String deleted);
     List<TbClub> findAllByDeleted(String deleted);
 }
