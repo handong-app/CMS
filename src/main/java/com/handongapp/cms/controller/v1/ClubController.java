@@ -62,11 +62,12 @@ public class ClubController {
 
     @PostMapping("/{clubSlug}/join")
     @Operation(summary = "동아리 가입", description = "인증된 사용자가 특정 동아리에 가입하고 기수를 등록합니다.")
-    public ResponseEntity<Void> joinClub(
+    public ResponseEntity<Map<String, String>> joinClub(
             @Parameter(description = "가입할 동아리의 slug") @PathVariable String clubSlug,
             @RequestBody @Valid ClubDto.ClubJoinRequestDto joinRequestDto,
             Authentication authentication) {
         clubService.joinClub(clubSlug, joinRequestDto, authentication);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap("message", "동아리 '" + clubSlug + "'에 성공적으로 가입되었습니다."));
     }
 }
