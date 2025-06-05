@@ -1,5 +1,6 @@
 package com.handongapp.cms.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,10 +19,12 @@ import com.handongapp.cms.repository.TbProgramRepository;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.ProgramService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime; // 현재 시간 비교를 위해 추가
@@ -93,12 +96,24 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     @Transactional(readOnly = true)
     public String getProgramParticipantProgressAsJson(String clubSlug, String programSlug) {
+        // 존재 여부 검증
+        if (!clubRepository.existsBySlugAndDeleted(clubSlug, "N")) {
+            throw new NotFoundException("존재하지 않는 클럽입니다: " + clubSlug);
+        }
+        if (!tbProgramRepository.existsBySlugAndDeleted(programSlug, "N")) {
+            throw new NotFoundException("존재하지 않는 프로그램입니다: " + programSlug);
+        }
+
         String rawJson = programMapper.getProgramParticipantProgressAsJson(clubSlug, programSlug);
 
+        if (!StringUtils.hasText(rawJson) || "null".equals(rawJson)) {
+            throw new NotFoundException("참가자 진행 정보가 없습니다: " + programSlug);
+        }
+
         try {
-            JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동
+            JsonNode node = objectMapper.readTree(rawJson);
             return objectMapper.writeValueAsString(node);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             throw new IllegalStateException("프로그램 JSON 파싱/직렬화에 실패했습니다.", e);
         }
     }
