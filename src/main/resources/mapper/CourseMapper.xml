@@ -12,6 +12,7 @@
                 'pictureUrl', c.picture_url,
                 'isVisible', c.is_visible,
                 'creatorUserId', c.user_id,
+                'creatorName', u.name, -- Added creatorName
                 'sections', (
                     SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
@@ -50,6 +51,7 @@
                 )
             )
         FROM tb_course c
+        LEFT JOIN tb_user u ON c.user_id = u.id -- Joined with tb_user
         WHERE c.slug = #{courseSlug} AND c.deleted = 'N';
     </select>
 
