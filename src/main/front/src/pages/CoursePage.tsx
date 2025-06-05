@@ -74,7 +74,7 @@ function CoursePage() {
             )
           : [];
         filtered.sort(
-          (a, b) =>
+          (a: LatestComment, b: LatestComment) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         const top10 = filtered.slice(0, 10);
@@ -120,7 +120,56 @@ function CoursePage() {
         producer={courseData?.creatorUserId ?? ""}
         courseDescription={courseData?.description ?? ""}
         image={courseData?.pictureUrl ?? ""}
-        onContinue={() => alert("Continue to last lesson!")}
+        onContinue={() => {
+          // 진도중인 nodeGroup 중 마지막에 본 nodeGroup으로 이동
+          if (!programProcess || !courseData) {
+            return;
+          }
+
+          console.log(programProcess, courseData);
+          // 내 userId에 해당하는 데이터 찾기 (participants 기반)
+          let userData = null;
+          if (programProcess && Array.isArray(programProcess.participants)) {
+            userData = programProcess.participants.find(
+              (p: { userId: string }) => p.userId === userId
+            );
+          } else if (Array.isArray(programProcess)) {
+            userData = programProcess.find(
+              (u: { userId: string }) => u.userId === userId
+            );
+          }
+          if (!userData) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+          // 현재 코스에 해당하는 course 정보 찾기
+          const course = (userData.courses || []).find(
+            (c: { courseId: string }) => c.courseId === courseData.id
+          );
+          if (!course) return;
+          // IN_PROGRESS인 nodeGroup 중 lastSeenAt이 가장 최근인 것 찾기
+          const inProgressGroups = (course.nodeGroups || [])
+            .filter(
+              (g: { progress?: { state?: string; lastSeenAt?: string } }) =>
+                g.progress?.state === "IN_PROGRESS" && g.progress?.lastSeenAt
+            )
+            .sort(
+              (
+                a: { progress: { lastSeenAt: string } },
+                b: { progress: { lastSeenAt: string } }
+              ) =>
+                new Date(b.progress.lastSeenAt).getTime() -
+                new Date(a.progress.lastSeenAt).getTime()
+            );
+          if (inProgressGroups.length > 0) {
+            const lastNodeGroup = inProgressGroups[0];
+            navigate(
+              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${lastNodeGroup.nodeGroupId}`
+            );
+          } else {
+            alert("진행중인 강의가 없습니다.");
+          }
+        }}
       />
 
       <Box display="flex" mt={2}>
