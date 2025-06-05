@@ -67,6 +67,6 @@ public class ClubController {
             @RequestBody @Valid ClubDto.ClubJoinRequestDto joinRequestDto,
             Authentication authentication) {
         clubService.joinClub(clubSlug, joinRequestDto, authentication);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
