@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TbProgramRepository extends JpaRepository<TbProgram, String> {
     // programSlug는 unique하지 않을 수 있으므로 clubId와 함께 조회
     Optional<TbProgram> findByClubIdAndSlugAndDeleted(String clubId, String slug, String deleted);
+    boolean existsBySlugAndDeleted(String programSlug, String deleted);
 }
