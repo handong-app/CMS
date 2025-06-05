@@ -4,18 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.handongapp.cms.domain.TbClub;
-import com.handongapp.cms.domain.TbCourse;
-import com.handongapp.cms.domain.TbProgram;
-import com.handongapp.cms.domain.TbProgramParticipant;
+import com.handongapp.cms.domain.*;
 import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.exception.data.DuplicateEntityException;
 import com.handongapp.cms.exception.data.NotFoundException;
 import com.handongapp.cms.mapper.ProgramMapper;
-import com.handongapp.cms.repository.CourseRepository;
-import com.handongapp.cms.repository.ClubRepository;
-import com.handongapp.cms.repository.TbProgramParticipantRepository;
-import com.handongapp.cms.repository.TbProgramRepository;
+import com.handongapp.cms.repository.*;
 import com.handongapp.cms.service.PresignedUrlService;
 import com.handongapp.cms.service.ProgramService;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +33,11 @@ public class ProgramServiceImpl implements ProgramService {
     private final CourseRepository courseRepository;
     private final PresignedUrlService presignedUrlService;
 
-    // 추가된 Repository
+    private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final TbProgramRepository tbProgramRepository;
     private final TbProgramParticipantRepository tbProgramParticipantRepository;
 
-    // 상수 추가 (AuditingFields.deleted가 String "N" 타입이라고 가정)
     private static final String DELETED_FLAG_NO = "N";
 
     @Override
@@ -111,8 +104,30 @@ public class ProgramServiceImpl implements ProgramService {
         }
 
         try {
-            JsonNode node = objectMapper.readTree(rawJson);
-            return objectMapper.writeValueAsString(node);
+            JsonNode root = objectMapper.readTree(rawJson);
+
+            JsonNode participants = root.path("participants");
+            if (participants.isArray()) {
+                for (JsonNode participantNode : participants) {
+                    String userId = participantNode.path("userId").asText(null);
+
+                    if (StringUtils.hasText(userId)) {
+                        TbUser user = userRepository.findById(userId).orElse(null);
+                        if (user != null &&
+                                StringUtils.hasText(user.getFileKey()) &&
+                                FileStatus.UPLOADED.equals(user.getFileStatus())) {
+
+                            String presignedUrl = presignedUrlService
+                                    .generateDownloadUrl(user.getFileKey(), Duration.ofMinutes(60))
+                                    .toString();
+
+                            ((ObjectNode) participantNode).put("participantPictureUrl", presignedUrl);
+                        }
+                    }
+                }
+            }
+
+            return objectMapper.writeValueAsString(root);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("프로그램 JSON 파싱/직렬화에 실패했습니다.", e);
         }
