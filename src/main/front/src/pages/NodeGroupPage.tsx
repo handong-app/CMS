@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
-import DescriptionIcon from "@mui/icons-material/Description";
 // import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ImageIcon from "@mui/icons-material/Image";
@@ -21,11 +20,12 @@ import { useQuery } from "@tanstack/react-query";
 import { NodeGroup } from "../types/nodeGroupData.types";
 import NextNodeGroupButton from "../components/NodeGroupPage/NextButton";
 // 노드 타입별로 크기 매칭
-const nodeHeightMap = {
+const nodeHeightMap: Record<string, number | string> = {
   video: 600,
   file: 100,
   image: 500,
   quiz: "auto",
+  text: "auto",
 };
 // 이모지 매핑
 const categoryEmojiMap: Record<string, string> = {
@@ -41,11 +41,11 @@ const iconMap = {
   FILE: <AttachFileIcon fontSize="large" />,
   IMAGE: <ImageIcon fontSize="large" />,
   QUIZ: <QuizIcon fontSize="large" />,
+  TEXT: <AttachFileIcon fontSize="large" />,
 };
 
 function NodeGroupPage() {
   const { nodeGroupUUID } = useParams(); // URL 파라미터에서 UUID 가져오기
-
   const [openNodeId, setOpenNodeId] = useState<string | null>(null);
 
   const toggleComments = (nodeId: string) => {
@@ -208,7 +208,7 @@ function NodeGroupPage() {
                 key={node.id}
                 borderRadius={4}
                 bgcolor={"#f0f0f010"}
-                // height={nodeHeightMap[node.type.toLowerCase()] || 400}
+                height={nodeHeightMap[node.type.toLowerCase()] || 400}
                 mt={1}
                 position="relative"
                 p={2}

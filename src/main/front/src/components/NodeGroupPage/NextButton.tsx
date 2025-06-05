@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useFetchBe } from "../../tools/api";
 
 type NextNodeGroupButtonProps = {
@@ -10,7 +10,11 @@ function NextNodeGroupButton({ currentNodeGroupId }: NextNodeGroupButtonProps) {
   const navigate = useNavigate();
   const fetchBe = useFetchBe();
 
-  // API 요청 함수 (같은 파일에 정의)
+  const { club, course_name } = useParams<{
+    club: string;
+    course_name: string;
+  }>();
+
   const fetchNextNodeGroup = async (nodeGroupId: string) => {
     try {
       const response = await fetchBe(
@@ -30,7 +34,7 @@ function NextNodeGroupButton({ currentNodeGroupId }: NextNodeGroupButtonProps) {
       console.log("NEXT: ", next);
       if (next?.nodeGroupId) {
         navigate(
-          `/club/:club/course/:course_name/nodegroup/${next.nodeGroupId}`
+          `/club/${club}/course/${course_name}/nodegroup/${next.nodeGroupId}`
         );
       } else {
         alert("마지막 노드 그룹입니다.");
