@@ -74,7 +74,7 @@ function CoursePage() {
             )
           : [];
         filtered.sort(
-          (a, b) =>
+          (a: LatestComment, b: LatestComment) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         const top10 = filtered.slice(0, 10);
@@ -117,10 +117,56 @@ function CoursePage() {
     <Box maxWidth={980} margin="auto" mb={10}>
       <TopCourseBanner
         title={courseData?.title ?? ""}
-        producer={courseData?.creatorUserId ?? ""}
+        producer={courseData?.creatorName ?? ""}
         courseDescription={courseData?.description ?? ""}
         image={courseData?.pictureUrl ?? ""}
-        onContinue={() => alert("Continue to last lesson!")}
+        onContinue={() => {
+          if (!programProcess || !courseData || !userId) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+
+          const userData = Array.isArray(programProcess.participants)
+            ? programProcess.participants.find((p) => p.userId === userId)
+            : Array.isArray(programProcess)
+            ? programProcess.find((u) => u.userId === userId)
+            : null;
+
+          if (!userData?.courses) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+
+          const course = userData.courses.find(
+            (c: { courseId: string }) => c.courseId === courseData.id
+          );
+          if (!course?.nodeGroups) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+
+          const latestInProgressGroup = course.nodeGroups
+            .filter(
+              (g: { progress?: { state?: string; lastSeenAt?: string } }) =>
+                g.progress?.state === "IN_PROGRESS" && g.progress?.lastSeenAt
+            )
+            .sort(
+              (
+                a: { progress: { lastSeenAt: string } },
+                b: { progress: { lastSeenAt: string } }
+              ) =>
+                new Date(b.progress.lastSeenAt).getTime() -
+                new Date(a.progress.lastSeenAt).getTime()
+            )[0];
+
+          if (latestInProgressGroup) {
+            navigate(
+              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${latestInProgressGroup.nodeGroupId}`
+            );
+          } else {
+            alert("진행중인 강의가 없습니다.");
+          }
+        }}
       />
 
       <Box display="flex" mt={2}>
@@ -304,21 +350,17 @@ function CoursePage() {
                             : []
                         }
                         onTitleClick={() => {
-                          // console.log("group title", group.title);
-                          if (clubSlug && courseSlug && group.title) {
+                          console.log("group id", group.id);
+                          if (clubSlug && courseSlug && group.id) {
                             navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
-                                group.title
-                              )}`
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
                             );
                           }
                         }}
                         onNodeClick={() => {
-                          if (clubSlug && courseSlug && group.title) {
+                          if (clubSlug && courseSlug && group.id) {
                             navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${encodeURIComponent(
-                                group.title
-                              )}`
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
                             );
                           }
                         }}
