@@ -30,7 +30,7 @@ const CourseAddDialog: React.FC<CourseAddDialogProps> = ({
 }) => {
   // 추가 가능한 코스와 이미 추가된 코스 분리
   const addedIds = new Set(courses.map((c) => c.id));
-  const availableCourses = allCourses.filter((c) => !addedIds.has(c.id));
+  const availableCourses = allCourses?.filter((c) => !addedIds.has(c.id));
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -40,14 +40,14 @@ const CourseAddDialog: React.FC<CourseAddDialogProps> = ({
           추가 가능한 코스
         </Typography>
         <Grid container spacing={2} mb={2}>
-          {availableCourses.length === 0 && (
+          {availableCourses?.length === 0 && (
             <Grid sx={{ xs: 12 }}>
               <Typography color="text.secondary">
                 추가 가능한 코스가 없습니다.
               </Typography>
             </Grid>
           )}
-          {availableCourses.map((course) => (
+          {availableCourses?.map((course) => (
             <Grid width="100%" key={course.id}>
               <Box
                 display="flex"
