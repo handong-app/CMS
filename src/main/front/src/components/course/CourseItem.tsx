@@ -23,7 +23,7 @@ const CourseItem: React.FC<CourseItemProps> = ({
       component={Link}
       to={url}
       sx={{
-        maxWidth: 345,
+        // maxWidth: 345,
         position: "relative",
         overflow: "hidden",
         transition:
