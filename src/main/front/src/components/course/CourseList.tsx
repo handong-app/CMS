@@ -1,6 +1,7 @@
 import { Box } from "@mui/system";
 import CourseItem from "./CourseItem";
 import { useParams } from "react-router";
+import { Grid } from "@mui/material";
 
 export interface CourseListProps {
   courses?: Array<{
@@ -17,17 +18,18 @@ function CourseList({ courses }: CourseListProps) {
   const { club } = useParams<{ club: string }>();
   if (!courses || courses.length === 0) return <Box>No courses available</Box>;
   return (
-    <Box sx={{ display: "flex", gap: 2 }}>
+    <Grid container spacing={2} width="100%">
       {courses?.map((course, idx) => (
-        <CourseItem
-          key={`course-${course?.id}`}
-          name={course.title}
-          picture={course.pictureUrl}
-          progress={course.progress}
-          url={course.url || `/club/${club}/course/${course.slug}`}
-        />
+        <Grid key={`course-${course?.id}`} size={{ xs: 12, sm: 6, md: 4 }}>
+          <CourseItem
+            name={course.title}
+            picture={course.pictureUrl}
+            progress={course.progress}
+            url={course.url || `/club/${club}/course/${course.slug}`}
+          />
+        </Grid>
       ))}
-    </Box>
+    </Grid>
   );
 }
 

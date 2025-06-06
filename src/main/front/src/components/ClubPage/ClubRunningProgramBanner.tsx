@@ -67,6 +67,17 @@ function ClubRunningProgramBanner({
 
   return (
     <>
+      {(filteredPrograms.length === 0 ||
+        filteredPrograms.every((p) => p.isParticipant === "0")) && (
+        <Link to={`/club/${club}`} style={{ textDecoration: "none" }}>
+          <ClubBadge
+            hoverable
+            background="rgba(247, 91, 91, 0.14)"
+            noEmoji
+            text="‼️ 진행 중인 프로그램이 없습니다. 진도 확인이 되지 않습니다."
+          />
+        </Link>
+      )}
       <Box mt={0.5} {...props}>
         {filteredPrograms.map((program: any) => {
           const isParticipant = program.isParticipant === "1";

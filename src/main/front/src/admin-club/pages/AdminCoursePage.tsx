@@ -55,7 +55,7 @@ function AdminCoursePage() {
   if (coursesLoading) return <Typography>Loading...</Typography>;
 
   return (
-    <Box maxWidth={1000} mx="auto" mt={6}>
+    <Box mx="auto" mt={6}>
       <Paper
         elevation={3}
         sx={{ p: 4, borderRadius: 3, background: "rgba(255,255,255,0.04)" }}
@@ -81,103 +81,7 @@ function AdminCoursePage() {
             신규 코스 생성
           </Button>
         </Box>
-        {/* 신규 코스 생성 다이얼로그 */}
-        <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)}>
-          <DialogTitle>신규 코스 생성</DialogTitle>
-          <DialogContent sx={{ minWidth: 350 }}>
-            <Box display="flex" flexDirection="column" gap={2}>
-              <TextField
-                label="코스명"
-                value={newCourse.title}
-                onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, title: e.target.value }))
-                }
-                fullWidth
-              />
-              <TextField
-                label="슬러그"
-                value={newCourse.slug}
-                onChange={(e) =>
-                  setNewCourse((c) => ({
-                    ...c,
-                    slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9-]/g, ""),
-                  }))
-                }
-                helperText="영문 소문자, 숫자, 하이픈만 사용 가능"
-              />
-              <TextField
-                label="설명"
-                value={newCourse.description}
-                onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, description: e.target.value }))
-                }
-                fullWidth
-                multiline
-                minRows={2}
-              />
-              <Box display="flex" alignItems="center" gap={1}>
-                <Typography>공개 여부</Typography>
-                <Button
-                  variant={newCourse.isVisible ? "contained" : "outlined"}
-                  onClick={() =>
-                    setNewCourse((c) => ({ ...c, isVisible: !c.isVisible }))
-                  }
-                >
-                  {newCourse.isVisible ? "공개" : "비공개"}
-                </Button>
-              </Box>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setAddDialogOpen(false)} disabled={isSaving}>
-              취소
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleSaveCourse}
-              disabled={
-                isSaving ||
-                !newCourse.title ||
-                !newCourse.slug ||
-                !newCourse.description
-              }
-            >
-              {isSaving ? (
-                <>
-                  <span style={{ marginRight: 8 }}>
-                    <svg width="18" height="18" viewBox="0 0 50 50">
-                      <circle
-                        cx="25"
-                        cy="25"
-                        r="20"
-                        fill="none"
-                        stroke="#fff"
-                        strokeWidth="5"
-                        strokeDasharray="31.4 31.4"
-                        strokeLinecap="round"
-                      >
-                        <animateTransform
-                          attributeName="transform"
-                          type="rotate"
-                          from="0 25 25"
-                          to="360 25 25"
-                          dur="1s"
-                          repeatCount="indefinite"
-                        />
-                      </circle>
-                    </svg>
-                  </span>
-                  저장 중...
-                </>
-              ) : (
-                "저장"
-              )}
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Grid container spacing={3}>
+        <Grid container sx={{ width: "100%" }} spacing={3}>
           <CourseList
             courses={clubCourses.map((course: any) => ({
               ...course,
@@ -186,6 +90,101 @@ function AdminCoursePage() {
           />
         </Grid>
       </Paper>
+
+      {/* 신규 코스 생성 다이얼로그 */}
+      <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)}>
+        <DialogTitle>신규 코스 생성</DialogTitle>
+        <DialogContent sx={{ minWidth: 350 }}>
+          <Box display="flex" flexDirection="column" gap={2}>
+            <TextField
+              label="코스명"
+              value={newCourse.title}
+              onChange={(e) =>
+                setNewCourse((c) => ({ ...c, title: e.target.value }))
+              }
+              fullWidth
+            />
+            <TextField
+              label="슬러그"
+              value={newCourse.slug}
+              onChange={(e) =>
+                setNewCourse((c) => ({
+                  ...c,
+                  slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                }))
+              }
+              helperText="영문 소문자, 숫자, 하이픈만 사용 가능"
+            />
+            <TextField
+              label="설명"
+              value={newCourse.description}
+              onChange={(e) =>
+                setNewCourse((c) => ({ ...c, description: e.target.value }))
+              }
+              fullWidth
+              multiline
+              minRows={2}
+            />
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography>공개 여부</Typography>
+              <Button
+                variant={newCourse.isVisible ? "contained" : "outlined"}
+                onClick={() =>
+                  setNewCourse((c) => ({ ...c, isVisible: !c.isVisible }))
+                }
+              >
+                {newCourse.isVisible ? "공개" : "비공개"}
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddDialogOpen(false)} disabled={isSaving}>
+            취소
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveCourse}
+            disabled={
+              isSaving ||
+              !newCourse.title ||
+              !newCourse.slug ||
+              !newCourse.description
+            }
+          >
+            {isSaving ? (
+              <>
+                <span style={{ marginRight: 8 }}>
+                  <svg width="18" height="18" viewBox="0 0 50 50">
+                    <circle
+                      cx="25"
+                      cy="25"
+                      r="20"
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth="5"
+                      strokeDasharray="31.4 31.4"
+                      strokeLinecap="round"
+                    >
+                      <animateTransform
+                        attributeName="transform"
+                        type="rotate"
+                        from="0 25 25"
+                        to="360 25 25"
+                        dur="1s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  </svg>
+                </span>
+                저장 중...
+              </>
+            ) : (
+              "저장"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -11,21 +11,40 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
     <Box
       p={2}
       //   bgcolor="#fdfdfd"
-      border="1px solid #ccc"
+      // border="1px solid #ccc"
       borderRadius={2}
-      sx={{ overflow: "auto", maxHeight: "100%" }}
+      sx={{ overflow: "auto", maxHeight: "100%", width: "100%" }}
     >
       <ReactMarkdown
         children={content}
         components={{
           h1: ({ ...props }) => (
-            <Typography variant="h4" gutterBottom {...props} />
+            <Typography
+              variant="h4"
+              sx={{ my: 3, fontWeight: "bolder" }}
+              {...props}
+            />
           ),
           h2: ({ ...props }) => (
-            <Typography variant="h5" gutterBottom {...props} />
+            <Typography
+              variant="h5"
+              sx={{ my: 3, fontWeight: "bolder" }}
+              {...props}
+            />
+          ),
+          h3: ({ ...props }) => (
+            <Typography
+              variant="h6"
+              sx={{ my: 3, fontWeight: "bolder" }}
+              {...props}
+            />
           ),
           p: ({ ...props }) => (
-            <Typography variant="body1" paragraph {...props} />
+            <Typography
+              variant="body1"
+              sx={{ lineHeight: 1.75, wordBreak: "keep-all" }}
+              {...props}
+            />
           ),
           li: ({ ...props }) => (
             <li>

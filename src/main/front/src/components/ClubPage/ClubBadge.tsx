@@ -5,9 +5,16 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 export interface ClubBadgeProps {
   text: string;
   hoverable?: boolean;
+  noEmoji?: boolean;
+  background?: React.CSSProperties["background"];
 }
 
-const ClubBadge: React.FC<ClubBadgeProps> = ({ text, hoverable }) => {
+const ClubBadge: React.FC<ClubBadgeProps> = ({
+  text,
+  hoverable,
+  noEmoji,
+  background,
+}) => {
   return (
     <Paper
       elevation={2}
@@ -15,7 +22,7 @@ const ClubBadge: React.FC<ClubBadgeProps> = ({ text, hoverable }) => {
         display: "inline-flex",
         alignItems: "center",
         gap: 1,
-        background: "rgba(250, 250, 250, 0.14)",
+        background: background || "rgba(250, 250, 250, 0.14)",
         color: "#fff",
         borderRadius: 2,
         mt: 1,
@@ -41,7 +48,9 @@ const ClubBadge: React.FC<ClubBadgeProps> = ({ text, hoverable }) => {
           : {}),
       }}
     >
-      <EmojiEventsIcon sx={{ fontSize: 18, mr: 0.5, color: "#ffd700" }} />
+      {!noEmoji && (
+        <EmojiEventsIcon sx={{ fontSize: 18, mr: 0.5, color: "#ffd700" }} />
+      )}
       <Typography
         component="span"
         sx={{ fontWeight: 500, fontSize: 15, color: "inherit" }}

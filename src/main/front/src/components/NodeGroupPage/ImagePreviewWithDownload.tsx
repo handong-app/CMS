@@ -37,7 +37,7 @@ const ImagePreviewWithDownload: React.FC<Props> = ({ src, filename }) => {
             height: "100%",
             width: "100%",
             borderRadius: "12px",
-            objectFit: "cover",
+            objectFit: "contain",
           }}
         />
 

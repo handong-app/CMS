@@ -17,6 +17,7 @@ import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
 import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
+import { currentProgram } from "../utils/currentProgram";
 
 function CoursePage() {
   const { userId } = useUserData();
@@ -30,6 +31,11 @@ function CoursePage() {
   >({
     queryKey: ["myPrograms"],
     queryFn: () => fetchBe("/v1/user/programs"),
+  });
+
+  const { data: programs, isLoading: programsLoading } = useQuery({
+    queryKey: ["clubPrograms", clubSlug],
+    queryFn: () => fetchBe(`/v1/clubs/${clubSlug}/programs`),
   });
 
   // 현재 club에 해당하는 programSlug 찾기
@@ -126,6 +132,9 @@ function CoursePage() {
     percent = total > 0 ? Math.round((completed / total) * 1000) / 10 / 100 : 0;
   }
 
+  const filteredPrograms = currentProgram(programs ?? []);
+  console.log(filteredPrograms);
+
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
       <ClubRunningProgramBanner club={clubSlug} sx={{ mb: 2 }} />
@@ -186,28 +195,32 @@ function CoursePage() {
       <Box display="flex" mt={2}>
         <CourseProgressList
           courseTitle={courseData?.title ?? ""}
-          sections={(courseData?.sections ?? []).map((section) => ({
-            ...section,
-            nodeGroups: (section.nodeGroups ?? []).map((group) => {
-              // nodeGroup 완료 여부 및 진행중 여부 계산
-              let isCompleted = false;
-              let isInProgress = false;
-              if (courseData && myProgress) {
-                const courseId = courseData.id;
-                const courseProgress = myProgress.courseProgress[courseId];
-                if (courseProgress?.map) {
-                  const state = courseProgress.map?.[group.id];
-                  isCompleted = state === "DONE";
-                  isInProgress = state === "IN_PROGRESS";
-                }
-              }
-              return {
-                ...group,
-                isCompleted,
-                isInProgress,
-              };
-            }),
-          }))}
+          sections={(courseData?.sections ?? [])
+            .sort((sec1, sec2) => sec1.order - sec2.order)
+            .map((section) => ({
+              ...section,
+              nodeGroups: (section.nodeGroups ?? [])
+                .sort((g1, g2) => g1.order - g2.order)
+                .map((group) => {
+                  // nodeGroup 완료 여부 및 진행중 여부 계산
+                  let isCompleted = false;
+                  let isInProgress = false;
+                  if (courseData && myProgress) {
+                    const courseId = courseData.id;
+                    const courseProgress = myProgress.courseProgress[courseId];
+                    if (courseProgress?.map) {
+                      const state = courseProgress.map?.[group.id];
+                      isCompleted = state === "DONE";
+                      isInProgress = state === "IN_PROGRESS";
+                    }
+                  }
+                  return {
+                    ...group,
+                    isCompleted,
+                    isInProgress,
+                  };
+                }),
+            }))}
           width={260}
         />
 
@@ -221,21 +234,40 @@ function CoursePage() {
                     지금까지 학습한 진도율을 확인하세요.
                   </Typography>
                   <Box display="flex" alignItems="center" mt={2}>
-                    <Box width={86}>
-                      <CourseProgress value={percent} />
-                    </Box>
-                    <Box ml={2} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
-                      <Typography variant="body2">진도율</Typography>
-                      <Typography variant="body2">
-                        {completed}/{total}
+                    {filteredPrograms.length === 0 ||
+                    filteredPrograms.every((p) => p.isParticipant === "0") ? (
+                      <Typography variant="body2" color="error">
+                        진행중인 프로그램이 없습니다.
                       </Typography>
-                    </Box>
-                    <Box ml={1} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
-                      <Typography variant="body2">남은 강의</Typography>
-                      <Typography variant="body2">
-                        {total - completed}개
-                      </Typography>
-                    </Box>
+                    ) : (
+                      <>
+                        <Box width={86}>
+                          <CourseProgress value={percent} />
+                        </Box>
+                        <Box
+                          ml={2}
+                          bgcolor={"#f0f0f010"}
+                          p={1}
+                          borderRadius={1}
+                        >
+                          <Typography variant="body2">진도율</Typography>
+                          <Typography variant="body2">
+                            {completed}/{total}
+                          </Typography>
+                        </Box>
+                        <Box
+                          ml={1}
+                          bgcolor={"#f0f0f010"}
+                          p={1}
+                          borderRadius={1}
+                        >
+                          <Typography variant="body2">남은 강의</Typography>
+                          <Typography variant="body2">
+                            {total - completed}개
+                          </Typography>
+                        </Box>
+                      </>
+                    )}
                   </Box>
                 </>
               }
@@ -331,68 +363,74 @@ function CoursePage() {
 
           <Box ml={2}>
             <Box>
-              {(courseData?.sections ?? []).map((section) => (
-                <Box key={section.id} mt={1}>
-                  <Section text={section.title} />
-                  {(section.nodeGroups ?? []).map((group) => (
-                    <Box mt={1.6} key={group.id}>
-                      <SectionCourses
-                        title={group.title}
-                        description={section.description}
-                        nodes={
-                          Array.isArray(group.nodes)
-                            ? group.nodes?.map((node) => {
-                                let title = "";
-                                switch (node.type) {
-                                  case "VIDEO":
-                                  case "IMAGE":
-                                  case "FILE":
-                                  case "TEXT":
-                                    title = node.data?.title ?? "";
-                                    break;
-                                  case "QUIZ":
-                                    title = node.data?.question ?? "";
-                                    break;
-                                  default:
-                                    title = "";
-                                }
-                                return {
-                                  id: node.id,
-                                  type:
-                                    node.type === "FILE"
-                                      ? "doc"
-                                      : (node.type.toLowerCase() as
-                                          | "video"
-                                          | "image"
-                                          | "quiz"
-                                          | "doc"
-                                          | "file"
-                                          | "text"),
-                                  title,
-                                };
-                              })
-                            : []
-                        }
-                        onTitleClick={() => {
-                          console.log("group id", group.id);
-                          if (clubSlug && courseSlug && group.id) {
-                            navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
-                            );
-                          }
-                        }}
-                        onNodeClick={() => {
-                          if (clubSlug && courseSlug && group.id) {
-                            navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
-                            );
-                          }
-                        }}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              ))}
+              {(courseData?.sections ?? [])
+                .sort((a, b) => a.order - b.order)
+                .map((section) => (
+                  <Box key={section.id} mt={1}>
+                    <Section text={section.title} />
+                    {(section.nodeGroups ?? [])
+                      .sort((a, b) => a.order - b.order)
+                      .map((group) => (
+                        <Box mt={1.6} key={group.id}>
+                          <SectionCourses
+                            title={group.title}
+                            description={section.description}
+                            nodes={
+                              Array.isArray(group.nodes)
+                                ? group.nodes
+                                    ?.sort((a, b) => a.order - b.order)
+                                    .map((node) => {
+                                      let title = "";
+                                      switch (node.type) {
+                                        case "VIDEO":
+                                        case "IMAGE":
+                                        case "FILE":
+                                        case "TEXT":
+                                          title = node.data?.title ?? "";
+                                          break;
+                                        case "QUIZ":
+                                          title = node.data?.question ?? "";
+                                          break;
+                                        default:
+                                          title = "";
+                                      }
+                                      return {
+                                        id: node.id,
+                                        type:
+                                          node.type === "FILE"
+                                            ? "doc"
+                                            : (node.type.toLowerCase() as
+                                                | "video"
+                                                | "image"
+                                                | "quiz"
+                                                | "doc"
+                                                | "file"
+                                                | "text"),
+                                        title,
+                                      };
+                                    })
+                                : []
+                            }
+                            onTitleClick={() => {
+                              console.log("group id", group.id);
+                              if (clubSlug && courseSlug && group.id) {
+                                navigate(
+                                  `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
+                                );
+                              }
+                            }}
+                            onNodeClick={() => {
+                              if (clubSlug && courseSlug && group.id) {
+                                navigate(
+                                  `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
+                                );
+                              }
+                            }}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
+                ))}
             </Box>
           </Box>
         </Box>
