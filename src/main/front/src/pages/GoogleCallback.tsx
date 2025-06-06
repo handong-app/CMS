@@ -76,7 +76,7 @@ const GoogleOAuthCallback: React.FC = () => {
 
           setJwtToken(data.accessToken);
           setRefreshToken(data.refreshToken);
-          fetchUserInfo();
+          await fetchUserInfo();
 
           console.log("✅ 디코딩된 유저 정보:", decoded);
 
