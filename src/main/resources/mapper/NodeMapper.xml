@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.handongapp.cms.mapper.NodeMapper">
+<mapper namespace="app.handong.cms.mapper.NodeMapper">
 
     <!--    노드 ID로 클럽ID를 조회-->
     <select id="findClubIdByNodeId" resultType="string">
@@ -15,7 +15,7 @@
     </select>
 
     <!--    노드 ID로 타입을 조회-->
-    <select id="findNodeTypeById" resultType="com.handongapp.cms.domain.TbNode$NodeType">
+    <select id="findNodeTypeById" resultType="app.handong.cms.domain.TbNode$NodeType">
         SELECT type
         FROM tb_node
         WHERE id = #{nodeId}

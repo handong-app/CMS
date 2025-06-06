@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.handongapp.cms.mapper.ProgramMapper">
+<mapper namespace="app.handong.cms.mapper.ProgramMapper">
 
     <select id="getProgramDetailsWithCoursesAsJson" resultType="string">
         SELECT
@@ -219,7 +219,7 @@
         WHERE cl.slug = #{clubSlug} AND prog.slug = #{programSlug} AND prog.deleted = 'N' AND cl.deleted = 'N';
     </select>
 
-    <select id="findProgramsByUserId" resultType="com.handongapp.cms.dto.v1.ProgramDto$ResponseDto">
+    <select id="findProgramsByUserId" resultType="app.handong.cms.dto.v1.ProgramDto$ResponseDto">
         SELECT p.id         AS programId,
                p.name,
                p.slug,

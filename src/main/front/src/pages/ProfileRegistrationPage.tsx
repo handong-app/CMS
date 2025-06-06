@@ -64,12 +64,12 @@ const ProfileRegistrationPage: React.FC = () => {
     queryFn: () => fetchBe("/v1/user/profile", { onUnauthorized: () => {} }),
   });
 
-  useEffect(() => {
-    if (jwtToken) {
-      alert("이미 로그인된 사용자입니다.");
-      navigate("/profile"); // 또는 "/"로 변경 가능
-    }
-  }, [jwtToken, navigate]);
+  // useEffect(() => {
+  //   if (jwtToken) {
+  //     alert("이미 로그인된 사용자입니다.");
+  //     navigate("/profile"); // 또는 "/"로 변경 가능
+  //   }
+  // }, [jwtToken, navigate]);
 
   useEffect(() => {
     if (user?.name) setName(user.name);

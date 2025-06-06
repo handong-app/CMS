@@ -3,31 +3,31 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.handongapp.cms.mapper.ClubMapper">
+<mapper namespace="app.handong.cms.mapper.ClubMapper">
 
-    <resultMap id="CourseInfoMap" type="com.handongapp.cms.dto.v1.ClubDto$ClubCourseInfoResDto">
+    <resultMap id="CourseInfoMap" type="app.handong.cms.dto.v1.ClubDto$ClubCourseInfoResDto">
         <result column="course_title" property="courseTitle"/>
         <result column="program_creator" property="programCreator"/>
         <result column="course_description" property="courseDescription"/>
         <result column="course_picture_url" property="coursePictureUrl"/>
 
-        <collection property="categoryList" ofType="com.handongapp.cms.dto.v1.CategoryOfCommentDto$CategoryOfCommentBaseDto">
+        <collection property="categoryList" ofType="app.handong.cms.dto.v1.CategoryOfCommentDto$CategoryOfCommentBaseDto">
             <result column="category_slug" property="slug"/>
             <result column="category_label" property="label"/>
             <result column="category_emoji" property="emoji"/>
         </collection>
 
-        <collection property="sectionList" ofType="com.handongapp.cms.dto.v1.SectionDto$SectionBaseDto">
+        <collection property="sectionList" ofType="app.handong.cms.dto.v1.SectionDto$SectionBaseDto">
             <result column="section_title" property="title"/>
             <result column="section_order" property="order"/>
         </collection>
 
-        <collection property="nodeGroupList" ofType="com.handongapp.cms.dto.v1.NodeGroupDto$NodeGroupBaseDto">
+        <collection property="nodeGroupList" ofType="app.handong.cms.dto.v1.NodeGroupDto$NodeGroupBaseDto">
             <result column="node_group_title" property="title"/>
             <result column="node_group_order" property="order"/>
         </collection>
 
-        <collection property="nodeList" ofType="com.handongapp.cms.dto.v1.NodeDto$NodeBaseDto">
+        <collection property="nodeList" ofType="app.handong.cms.dto.v1.NodeDto$NodeBaseDto">
             <result column="node_type" property="type"/>
             <result column="node_order" property="order"/>
         </collection>

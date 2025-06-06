@@ -247,6 +247,7 @@ function NodeGroupPage() {
                     alignItems="center"
                     justifyContent="center"
                     height="100%"
+                    width="100%"
                     borderRadius={2}
                     color="white"
                     sx={{
