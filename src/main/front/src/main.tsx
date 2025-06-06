@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import App from "./App.tsx";
 import "./index.css";
 import ProductView from "./pages/ProductView.tsx";
@@ -14,6 +14,7 @@ import NodeGroupPage from "./pages/NodeGroupPage.tsx";
 // 페이지 컴포넌트
 import LandingPage from "./pages/LandingPage.tsx";
 import GoogleCallback from "./pages/GoogleCallback.tsx";
+import ProfilePage from "./pages/ProfilePage";
 import ProfileRegistrationPage from "./pages/ProfileRegistrationPage.tsx";
 import AuthTestPage from "./pages/AuthTestPage.tsx";
 
@@ -40,31 +41,40 @@ const router = createBrowserRouter([
         path: "register",
         element: <ProfileRegistrationPage />,
       },
+      {
+        path: "profile",
+        element: <ProfilePage />,
+      },
+      {
+        path: "/product/:id",
+        element: <ProductView />,
+      },
+      {
+        path: "/club",
+        element: <ClubListPage />,
+      },
+      {
+        path: "/club/:club",
+        element: <ClubPage />,
+      },
+      {
+        path: "/club/:club/program/:program_name",
+        element: <ProgramPage />,
+      },
+      {
+        path: "club/:club/course/:course_name/nodegroup/:nodeGroupUUID",
+        element: <NodeGroupPage />,
+      },
+      {
+        path: "/club/:clubSlug/course/:courseSlug",
+        element: <CoursePage />,
+      },
     ],
   },
+
   {
-    path: "/product/:id",
-    element: <ProductView />,
-  },
-  {
-    path: "/club",
-    element: <ClubListPage />,
-  },
-  {
-    path: "/club/:club",
-    element: <ClubPage />,
-  },
-  {
-    path: "/club/:club/program/:program_name",
-    element: <ProgramPage />,
-  },
-  {
-    path: "club/:club/course/:course_name/nodegroup/:nodeGroupUUID",
-    element: <NodeGroupPage />,
-  },
-  {
-    path: "/club/:clubSlug/course/:courseSlug",
-    element: <CoursePage />,
+    path: "/land",
+    element: <LandingPage />,
   },
   {
     path: "/auth-test",

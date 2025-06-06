@@ -30,6 +30,14 @@ function NextNodeGroupButton({ currentNodeGroupId }: NextNodeGroupButtonProps) {
 
   const handleClick = async () => {
     try {
+      // 먼저 진도 확인
+      fetchBe("/v1/progress/end", {
+        method: "POST",
+        body: {
+          nodeGroupId: currentNodeGroupId,
+        },
+      });
+
       const next = await fetchNextNodeGroup(currentNodeGroupId);
       if (next?.nodeGroupId) {
         navigate(
