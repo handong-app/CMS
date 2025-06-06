@@ -9,6 +9,7 @@ export interface CourseListProps {
     pictureUrl: string;
     progress: number;
     slug: string;
+    url?: string;
   }>;
 }
 
@@ -23,7 +24,7 @@ function CourseList({ courses }: CourseListProps) {
           name={course.title}
           picture={course.pictureUrl}
           progress={course.progress}
-          url={`/club/${club}/course/${course.slug}`}
+          url={course.url || `/club/${club}/course/${course.slug}`}
         />
       ))}
     </Box>
