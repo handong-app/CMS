@@ -25,7 +25,7 @@ import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramB
 const nodeHeightMap: Record<string, number | string> = {
   video: 600,
   file: 100,
-  image: 500,
+  image: "auto",
   quiz: "auto",
   text: "auto",
 };
