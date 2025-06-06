@@ -62,6 +62,9 @@ public class S3Dto {
         private String fileKey;
         @NotBlank(message = "filetype 는 필수입니다")
         private String filetype;
+        @NotBlank(message = "nodeId는 필수입니다")
+        @Pattern(regexp = "^[a-fA-F0-9]{32}$", message = "nodeId는 32자리 16진수 문자열이어야 합니다.")
+        private String nodeId;
     }
 
     @Data

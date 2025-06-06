@@ -41,6 +41,8 @@ cloud:
 rabbitmq:
   queue:
     transcode-request: ${TRANSCODE_REQUEST_QUEUE}
+    transcode-status: ${TRANSCODE_STATUS_QUEUE}
+
   host: ${RABBITMQ_HOST}
   port: ${RABBITMQ_PORT}
   username: ${RABBITMQ_USERNAME}
