@@ -58,11 +58,28 @@ function NodeGroupPage() {
     data: nodeGroupData,
     isLoading,
     error,
+    refetch,
   } = useQuery<NodeGroup>({
     queryKey: ["node-group", nodeGroupUUID],
     queryFn: () => fetchBe(`/v1/node-group/${nodeGroupUUID}`),
     enabled: !!nodeGroupUUID, // UUID 있을 때만 실행
   });
+
+  // 트랜스코딩 중인 비디오 노드가 있으면 3초마다 polling
+  useEffect(() => {
+    if (!nodeGroupData?.nodes) return;
+    const hasTranscoding = nodeGroupData.nodes.some(
+      (node) =>
+        node.type === "VIDEO" &&
+        node.data?.file?.status &&
+        ["UPLOADED", "TRANSCODING"].includes(node.data.file.status)
+    );
+    if (!hasTranscoding) return;
+    const interval = setInterval(() => {
+      refetch && refetch();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [nodeGroupData, refetch]);
 
   useEffect(() => {
     if (!nodeGroupData?.id) return;
@@ -244,10 +261,121 @@ function NodeGroupPage() {
                     justifyContent="center"
                   >
                     {/* 콘텐츠 조건 분기 */}
-                    {node.type === "VIDEO" && node.data?.file?.playlist ? (
-                      <VideoPlayer
-                        src={`https://cms.handong.app${node.data.file.playlist}`}
-                      />
+                    {node.type === "VIDEO" ? (
+                      (() => {
+                        const file = node.data?.file;
+                        const status = file?.status;
+                        const progress = file?.progress;
+                        if (!file) {
+                          return (
+                            <Typography color="#999" fontSize={18}>
+                              비디오 파일 정보 없음
+                            </Typography>
+                          );
+                        }
+                        if (status === "TRANSCODING") {
+                          return (
+                            <Box
+                              width="100%"
+                              display="flex"
+                              flexDirection="column"
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              <Typography
+                                color="primary"
+                                fontWeight={600}
+                                mb={1}
+                              >
+                                비디오 트랜스코딩 중...
+                              </Typography>
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                gap={1}
+                                width={220}
+                              >
+                                <Box width={120}>
+                                  <Box
+                                    sx={{
+                                      height: 8,
+                                      background: "#eee",
+                                      borderRadius: 4,
+                                      overflow: "hidden",
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        width: `${progress || 0}%`,
+                                        height: "100%",
+                                        background: "#1976d2",
+                                        transition: "width 0.3s",
+                                      }}
+                                    />
+                                  </Box>
+                                </Box>
+                                <Typography
+                                  fontSize={14}
+                                  color="text.secondary"
+                                >
+                                  {progress != null
+                                    ? `${progress}%`
+                                    : "진행률 계산 중..."}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                mt={1}
+                              >
+                                트랜스코딩이 완료되면 영상이 표시됩니다.
+                              </Typography>
+                            </Box>
+                          );
+                        }
+                        if (status === "UPLOADED") {
+                          return (
+                            <Typography color="primary" fontWeight={600}>
+                              비디오 업로드가 완료되었습니다. 트랜스코딩을
+                              기다리는 중입니다.
+                            </Typography>
+                          );
+                        }
+                        if (status === "PENDING") {
+                          return (
+                            <Typography color="primary" fontWeight={600}>
+                              비디오 업로드 대기 중입니다.
+                            </Typography>
+                          );
+                        }
+                        if (status === "UPLOADING") {
+                          return (
+                            <Typography color="primary" fontWeight={600}>
+                              비디오 업로드 중입니다.
+                            </Typography>
+                          );
+                        }
+                        if (status === "TRANSCODE_FAILED") {
+                          return (
+                            <Typography color="error" fontWeight={600}>
+                              비디오 트랜스코딩에 실패했습니다. 다시 업로드해
+                              주세요.
+                            </Typography>
+                          );
+                        }
+                        if (status === "TRANSCODE_COMPLETED" && file.playlist) {
+                          return (
+                            <VideoPlayer
+                              src={`https://cms.handong.app${file.playlist}`}
+                            />
+                          );
+                        }
+                        return (
+                          <Typography color="#999" fontSize={18}>
+                            비디오 파일이 준비되지 않았습니다.
+                          </Typography>
+                        );
+                      })()
                     ) : node.type === "IMAGE" &&
                       node.data?.file?.presignedUrl ? (
                       <ImagePreviewWithDownload

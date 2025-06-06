@@ -15,6 +15,7 @@ export interface NodeFile {
   presignedUrl?: string;
   playlist?: string;
   status?: string;
+  progress?: number;
 }
 
 export interface NodeData {
