@@ -14,7 +14,7 @@ const LandingPage: React.FC = () => {
 
   const handleButtonClick = () => {
     if (jwtToken) {
-      navigate("/club/callein"); // 로그인된 경우 클럽 페이지로 이동
+      navigate("/club"); // 로그인된 경우 클럽 페이지로 이동
     } else {
       initiateGoogleLogin(); // 로그인 안 된 경우 구글 로그인 시작
     }

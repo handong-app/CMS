@@ -120,7 +120,6 @@ const ProfileRegistrationPage: React.FC = () => {
       return;
     }
 
-    
     if (!jwtToken) {
       alert("로그인이 필요합니다.");
       return;
@@ -150,7 +149,7 @@ const ProfileRegistrationPage: React.FC = () => {
       });
 
       alert("프로필이 성공적으로 등록되었습니다.");
-      navigate("/club/callein");
+      navigate("/club");
     } catch (err: any) {
       alert("프로필 등록에 실패했습니다: " + (err.message || "서버 오류"));
       console.error(err);
@@ -185,7 +184,9 @@ const ProfileRegistrationPage: React.FC = () => {
             userId={userData?.userId || ""}
             photoURL={myData?.profileImage}
             size={80}
-            onUploaded={() => {void refetch();}}
+            onUploaded={() => {
+              void refetch();
+            }}
           />
           <Typography variant="h6" fontWeight="bold">
             프로필 등록
