@@ -15,11 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.lang.Nullable;
 import com.handongapp.cms.mapper.NodeGroupMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -49,9 +47,9 @@ public class NodeGroupServiceImpl implements NodeGroupService {
     @Override
     @Transactional
     public NodeGroupDto.Response create(NodeGroupDto.CreateRequest req) {
-        TbNodeGroup newNodeGroup = req.toEntity(); // Assumes toEntity sets sectionId and order from req
-        TbNodeGroup persistedNodeGroup = reorderAndPersistNodeGroups(newNodeGroup.getSectionId(), newNodeGroup, newNodeGroup.getOrder());
-        return NodeGroupDto.Response.from(persistedNodeGroup);
+        TbNodeGroup entity = req.toEntity();
+        TbNodeGroup savedNodeGroup = nodeGroupRepository.save(entity);
+        return NodeGroupDto.Response.from(savedNodeGroup);
     }
 
     @Override
@@ -74,17 +72,10 @@ public class NodeGroupServiceImpl implements NodeGroupService {
     @Override
     @Transactional
     public NodeGroupDto.Response update(String id, NodeGroupDto.UpdateRequest req) {
-        TbNodeGroup entityToUpdate = nodeGroupRepository.findByIdAndDeleted(id, "N")
+        TbNodeGroup entity = nodeGroupRepository.findByIdAndDeleted(id, "N")
                 .orElseThrow(() -> new EntityNotFoundException("NodeGroup not found with id: " + id));
-        
-        String sectionId = entityToUpdate.getSectionId();
-        
-        // Apply changes from DTO. Assumes req.applyTo updates entityToUpdate.order if req.getOrder() is not null.
-        req.applyTo(entityToUpdate);
-        
-        // entityToUpdate.getOrder() will be the requested new order if specified in DTO, or original order if not.
-        TbNodeGroup updatedEntity = reorderAndPersistNodeGroups(sectionId, entityToUpdate, entityToUpdate.getOrder());
-        return NodeGroupDto.Response.from(updatedEntity);
+        req.applyTo(entity);
+        return NodeGroupDto.Response.from(entity);
     }
 
     @Override
@@ -92,59 +83,7 @@ public class NodeGroupServiceImpl implements NodeGroupService {
     public void deleteSoft(String id) {
         TbNodeGroup entity = nodeGroupRepository.findByIdAndDeleted(id, "N")
                 .orElseThrow(() -> new EntityNotFoundException("NodeGroup not found with id: " + id));
-        
-        String sectionId = entity.getSectionId();
         entity.setDeleted("Y");
-        entity.setOrder(null); // Mark order as irrelevant for soft-deleted items
-        nodeGroupRepository.save(entity); // Persist the soft deletion
-
-        // Reorder remaining active node groups
-        reorderAndPersistNodeGroups(sectionId, null, null);
-    }
-
-    private TbNodeGroup reorderAndPersistNodeGroups(String sectionId, @Nullable TbNodeGroup targetNodeGroup, @Nullable Integer requestedOrderForTarget) {
-        List<TbNodeGroup> currentNodeGroupsInDb = nodeGroupRepository.findBySectionIdAndDeletedOrderByOrderAsc(sectionId, "N");
-
-        List<TbNodeGroup> nodeGroupsToProcess = new ArrayList<>();
-        boolean isTargetNew = (targetNodeGroup != null && targetNodeGroup.getId() == null);
-
-        for (TbNodeGroup ng : currentNodeGroupsInDb) {
-            if (targetNodeGroup != null && ng.getId() != null && ng.getId().equals(targetNodeGroup.getId()) && !isTargetNew) {
-                continue;
-            }
-            nodeGroupsToProcess.add(ng);
-        }
-
-        TbNodeGroup nodeGroupToReturn = targetNodeGroup;
-
-        if (targetNodeGroup != null) {
-            int insertionIndex;
-            Integer effectiveOrder = requestedOrderForTarget;
-
-            if (effectiveOrder == null) {
-                if (!isTargetNew) { 
-                    effectiveOrder = targetNodeGroup.getOrder(); 
-                }
-            }
-
-            if (effectiveOrder == null) {
-                 insertionIndex = nodeGroupsToProcess.size();
-            } else {
-                insertionIndex = Math.max(0, Math.min(effectiveOrder, nodeGroupsToProcess.size()));
-            }
-            nodeGroupsToProcess.add(insertionIndex, targetNodeGroup);
-        }
-
-        for (int i = 0; i < nodeGroupsToProcess.size(); i++) {
-            TbNodeGroup nodeGroup = nodeGroupsToProcess.get(i);
-            nodeGroup.setOrder(i);
-        }
-
-        if (!nodeGroupsToProcess.isEmpty()) {
-            nodeGroupRepository.saveAll(nodeGroupsToProcess);
-        }
-        
-        return nodeGroupToReturn;
     }
 
     @Override
