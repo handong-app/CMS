@@ -204,11 +204,20 @@ public class UploadNotifyServiceImpl implements UploadNotifyService {
 
         Map<String, Object> data = node.getData();
         if (data != null && data.containsKey("file")) {
-            Map<String, Object> fileMap = (Map<String, Object>) data.get("file");
+            Object fileObj = data.get("file");
+            if (!(fileObj instanceof Map<?, ?>)) {
+                log.warn("⚠️ 노드 data.file이 Map 형태가 아닙니다. nodeId: {}", dto.getNodeId());
+                return;
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> fileMap = (Map<String, Object>) fileObj;
             fileMap.put("status", VideoStatus.TRANSCODING.name());
             node.setData(data);
 
             nodeRepository.save(node);
+        } else {
+            log.warn("⚠️ 노드 data 또는 file 정보가 없습니다. nodeId: {}", dto.getNodeId());
         }
 
         try {
