@@ -36,7 +36,7 @@ public class TbCourse extends AuditingFields {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isVisible = true;
 
-    @Column(name = "file_key", length = 255, nullable = false)
+    @Column(name = "file_key", length = 255, nullable = true)
     private String fileKey;
 
     @Enumerated(EnumType.STRING) private FileStatus fileStatus;

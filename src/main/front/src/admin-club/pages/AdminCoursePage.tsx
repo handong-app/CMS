@@ -24,7 +24,6 @@ function AdminCoursePage() {
     title: "",
     slug: "",
     description: "",
-    pictureUrl: "",
     isVisible: true,
   });
   const [isSaving, setIsSaving] = React.useState(false);
@@ -117,14 +116,6 @@ function AdminCoursePage() {
                 fullWidth
                 multiline
                 minRows={2}
-              />
-              <TextField
-                label="이미지 URL"
-                value={newCourse.pictureUrl}
-                onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, pictureUrl: e.target.value }))
-                }
-                fullWidth
               />
               <Box display="flex" alignItems="center" gap={1}>
                 <Typography>공개 여부</Typography>
