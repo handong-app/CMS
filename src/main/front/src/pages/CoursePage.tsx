@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 
 function CoursePage() {
   const { userId } = useUserData();
@@ -127,6 +128,7 @@ function CoursePage() {
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
+      <ClubRunningProgramBanner club={clubSlug} sx={{ mb: 2 }} />
       <TopCourseBanner
         title={courseData?.title ?? ""}
         producer={courseData?.creatorName ?? ""}

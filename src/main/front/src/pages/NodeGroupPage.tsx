@@ -19,6 +19,7 @@ import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { NodeGroup } from "../types/nodeGroupData.types";
 import NextNodeGroupButton from "../components/NodeGroupPage/NextButton";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 // 노드 타입별로 크기 매칭
 const nodeHeightMap: Record<string, number | string> = {
   video: 600,
@@ -47,6 +48,10 @@ const iconMap = {
 function NodeGroupPage() {
   const { nodeGroupUUID } = useParams(); // URL 파라미터에서 UUID 가져오기
   const [openNodeId, setOpenNodeId] = useState<string | null>(null);
+
+  const { club } = useParams<{
+    club: string;
+  }>();
 
   const toggleComments = (nodeId: string) => {
     setOpenNodeId((prev) => (prev === nodeId ? null : nodeId));
@@ -82,6 +87,7 @@ function NodeGroupPage() {
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
+      <ClubRunningProgramBanner club={club} sx={{ mb: 2 }} />
       <Box
         top={0}
         zIndex={1000}

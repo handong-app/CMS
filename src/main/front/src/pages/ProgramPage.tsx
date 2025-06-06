@@ -13,6 +13,7 @@ import useUserData from "../hooks/userData";
 import { courseListParser } from "../utils/courseListParser";
 
 import { getMostRecentNodeGroupForUser } from "../utils/getMostRecentNodeGroupForUser";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 
 function ProgramPage() {
   const { club, program_name } = useParams<{
@@ -61,6 +62,7 @@ function ProgramPage() {
       alignItems="center"
     >
       <Box width="100%" maxWidth={980}>
+        <ClubRunningProgramBanner club={club} sx={{ mb: 2 }} />
         <TopBanner
           title={programInfo?.name}
           subtitle={programInfo?.description}
