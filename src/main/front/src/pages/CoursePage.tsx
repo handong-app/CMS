@@ -17,6 +17,7 @@ import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
 import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
+import { currentProgram } from "../utils/currentProgram";
 
 function CoursePage() {
   const { userId } = useUserData();
@@ -30,6 +31,11 @@ function CoursePage() {
   >({
     queryKey: ["myPrograms"],
     queryFn: () => fetchBe("/v1/user/programs"),
+  });
+
+  const { data: programs, isLoading: programsLoading } = useQuery({
+    queryKey: ["clubPrograms", clubSlug],
+    queryFn: () => fetchBe(`/v1/clubs/${clubSlug}/programs`),
   });
 
   // 현재 club에 해당하는 programSlug 찾기
@@ -126,6 +132,9 @@ function CoursePage() {
     percent = total > 0 ? Math.round((completed / total) * 1000) / 10 / 100 : 0;
   }
 
+  const filteredPrograms = currentProgram(programs ?? []);
+  console.log(filteredPrograms);
+
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
       <ClubRunningProgramBanner club={clubSlug} sx={{ mb: 2 }} />
@@ -221,21 +230,40 @@ function CoursePage() {
                     지금까지 학습한 진도율을 확인하세요.
                   </Typography>
                   <Box display="flex" alignItems="center" mt={2}>
-                    <Box width={86}>
-                      <CourseProgress value={percent} />
-                    </Box>
-                    <Box ml={2} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
-                      <Typography variant="body2">진도율</Typography>
-                      <Typography variant="body2">
-                        {completed}/{total}
+                    {filteredPrograms.length === 0 ||
+                    filteredPrograms.every((p) => p.isParticipant === "0") ? (
+                      <Typography variant="body2" color="error">
+                        진행중인 프로그램이 없습니다.
                       </Typography>
-                    </Box>
-                    <Box ml={1} bgcolor={"#f0f0f010"} p={1} borderRadius={1}>
-                      <Typography variant="body2">남은 강의</Typography>
-                      <Typography variant="body2">
-                        {total - completed}개
-                      </Typography>
-                    </Box>
+                    ) : (
+                      <>
+                        <Box width={86}>
+                          <CourseProgress value={percent} />
+                        </Box>
+                        <Box
+                          ml={2}
+                          bgcolor={"#f0f0f010"}
+                          p={1}
+                          borderRadius={1}
+                        >
+                          <Typography variant="body2">진도율</Typography>
+                          <Typography variant="body2">
+                            {completed}/{total}
+                          </Typography>
+                        </Box>
+                        <Box
+                          ml={1}
+                          bgcolor={"#f0f0f010"}
+                          p={1}
+                          borderRadius={1}
+                        >
+                          <Typography variant="body2">남은 강의</Typography>
+                          <Typography variant="body2">
+                            {total - completed}개
+                          </Typography>
+                        </Box>
+                      </>
+                    )}
                   </Box>
                 </>
               }

@@ -125,7 +125,7 @@ function AdminProgramListPage() {
                         edge="end"
                         aria-label="view"
                         component={RouterLink}
-                        to={`/club/${club}/program/${program.id}`}
+                        to={`/club/${club}/program/${program.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
