@@ -21,6 +21,9 @@ export interface Node {
 export interface SectionCoursesProps {
   title: string;
   description: string;
+  clubSlug?: string;
+  courseSlug?: string;
+  nodeGroupId: string;
   nodes: Node[];
   onMove?: () => void;
   onDelete?: () => void;
@@ -55,6 +58,9 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
   onMoveDown,
   disableMoveUp,
   disableMoveDown,
+  clubSlug = "",
+  courseSlug = "",
+  nodeGroupId,
 }) => {
   return (
     <Paper
@@ -75,7 +81,17 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
         justifyContent="space-between"
         mb={0.2}
       >
-        <Typography variant="subtitle1" fontWeight={600}>
+        <Typography
+          variant="subtitle1"
+          fontWeight={600}
+          onClick={() => {
+            window.open(
+              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${nodeGroupId}`,
+              "_blank"
+            );
+          }}
+          sx={{ cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+        >
           {title}
         </Typography>
         <Box display="flex" alignItems="center" gap={0.5}>
@@ -108,12 +124,13 @@ const SectionCourses: React.FC<SectionCoursesProps> = ({
             </Tooltip>
           )}
           {onMove && (
-            <Tooltip title="노드 그룹 이동">
+            <Tooltip title="노드 그룹 수정">
               <IconButton size="small" sx={{ color: "#fff" }} onClick={onMove}>
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           )}
+
           {onDelete && (
             <Tooltip title="노드 그룹 삭제">
               <IconButton

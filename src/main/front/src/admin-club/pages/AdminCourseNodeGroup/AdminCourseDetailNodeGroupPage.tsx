@@ -402,12 +402,6 @@ function AdminCourseNodeGroupPage() {
                           >
                             <ArrowDownwardIcon fontSize="small" />
                           </Button>
-                          <Box mt={1}>
-                            <EditIcon
-                              fontSize="small"
-                              sx={{ color: "#fff", cursor: "grab" }}
-                            />
-                          </Box>
                         </Box>
                       </Box>
                       <NodeRenderer node={node} refetch={refetch} />

@@ -334,6 +334,9 @@ const SectionList: React.FC<SectionListProps> = ({
                                 <SectionCourses
                                   title={group.title}
                                   description={section.description}
+                                  nodeGroupId={group.id}
+                                  clubSlug={club}
+                                  courseSlug={courseSlug}
                                   nodes={
                                     Array.isArray(group.nodes)
                                       ? group.nodes.map((node: any) => {
