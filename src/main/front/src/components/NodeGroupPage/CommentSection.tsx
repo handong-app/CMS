@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -7,6 +7,8 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import { useFetchBe } from "../../tools/api";
+import { usePostComment } from "../../utils/usePostComment";
 
 const categoryEmojiMap: Record<string, string> = {
   질문: "❓",
@@ -16,55 +18,76 @@ const categoryEmojiMap: Record<string, string> = {
   칭찬: "🌟",
 };
 
+const labelToCategoryId: Record<string, string> = {
+  질문: "cate0000000000000000000000000001",
+  피드백: "cate0000000000000000000000000002",
+  열정: "cate0000000000000000000000000003",
+  감사: "cate0000000000000000000000000004",
+  칭찬: "cate0000000000000000000000000005",
+};
+
 interface Comment {
+  id: string;
+  targetId: string;
+  userName: string;
   content: string;
-  category: keyof typeof categoryEmojiMap;
-  author: {
-    name: string;
-    uid: string;
-    studentId: string;
-  };
-  timestamp: string; // ISO format
+  categoryId: string;
+  createdAt: string;
 }
 
 interface Props {
-  comments: Comment[];
-  onSubmit: (newComment: Comment) => void;
+  nodeId: string;
+  // onSubmit: (newComment: Comment) => void;
 }
 
-const CommentSection: React.FC<Props> = ({ comments, onSubmit }) => {
+const CommentSection: React.FC<Props> = ({ nodeId }) => {
+  const fetchBe = useFetchBe();
+  // const postComment = usePostComment();
+
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newCategory, setNewCategory] =
     useState<keyof typeof categoryEmojiMap>("질문");
   const [newContent, setNewContent] = useState("");
+  const { mutateAsync: postComment } = usePostComment();
+  const loadComments = async () => {
+    try {
+      const all = await fetchBe("/v1/comments/search?");
+      const filtered = all.filter((c: Comment) => c.targetId === nodeId);
+      setComments(filtered);
+    } catch (err) {
+      console.error("❌ 댓글 로딩 실패", err);
+    }
+  };
+  const handleSubmit = async () => {
+    if (!newContent.trim()) return;
+    try {
+      await postComment({
+        content: newContent,
+        categoryId: labelToCategoryId[newCategory],
+        targetId: nodeId,
+      });
 
-  // 카테고리별 이모지 수 계산
-  //   const emojiCounts: Record<string, number> = {};
-  //   comments.forEach(({ category }) => {
-  //     const emoji = categoryEmojiMap[category];
-  //     emojiCounts[emoji] = (emojiCounts[emoji] || 0) + 1;
-  //   });
+      setNewContent("");
+      loadComments();
+    } catch (err) {
+      console.log(err);
+      alert("❌ 댓글 등록 실패!!");
+    }
+  };
+
+  useEffect(() => {
+    loadComments();
+  }, [nodeId]);
 
   const categoryCounts: Record<string, number> = {};
   comments.forEach((comment) => {
-    const category = comment.category.trim(); // 공백 제거!
-    if (categoryEmojiMap[category]) {
-      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    const label = Object.entries(labelToCategoryId).find(
+      ([_, id]) => id === comment.categoryId
+    )?.[0];
+    if (label && categoryEmojiMap[label]) {
+      categoryCounts[label] = (categoryCounts[label] || 0) + 1;
     }
   });
-  const handleSubmit = () => {
-    if (!newContent.trim()) return;
-    onSubmit({
-      category: newCategory,
-      content: newContent,
-      author: {
-        name: "현재유저",
-        uid: "user-uid",
-        studentId: "student-id",
-      },
-      timestamp: new Date().toISOString(),
-    });
-    setNewContent("");
-  };
 
   return (
     <Box
@@ -169,7 +192,7 @@ const CommentSection: React.FC<Props> = ({ comments, onSubmit }) => {
         comments.map((c, i) => (
           <Box key={i} mb={1}>
             <Typography color="black" fontSize={14} fontWeight={600}>
-              {c.author.name} ({c.category})
+              {/* {c.author.name} ({c.category}) */}
             </Typography>
             <Typography color="black" fontSize={14}>
               {c.content}
