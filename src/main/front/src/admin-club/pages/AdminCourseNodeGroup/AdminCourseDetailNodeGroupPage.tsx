@@ -178,6 +178,23 @@ function AdminCourseNodeGroupPage() {
     enabled: !!nodeGroupId,
   });
 
+  // 비디오 노드 중 업로드/트랜스코딩 상태가 있으면 3초마다 refetch
+  React.useEffect(() => {
+    if (!data || !Array.isArray(data.nodes)) return;
+    const hasUploadingVideo = data.nodes.some(
+      (node: any) =>
+        node.type === "VIDEO" &&
+        node.data?.file?.status &&
+        ["UPLOADED", "TRANSCODING"].includes(node.data.file.status)
+    );
+    if (!hasUploadingVideo) return;
+
+    const interval = setInterval(() => {
+      refetch && refetch();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [data, refetch]);
+
   // 노드 그룹 제목 수정 상태
   const [editingTitle, setEditingTitle] = useState(false);
   const [title, setTitle] = useState(data?.title || "");
