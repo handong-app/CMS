@@ -195,28 +195,32 @@ function CoursePage() {
       <Box display="flex" mt={2}>
         <CourseProgressList
           courseTitle={courseData?.title ?? ""}
-          sections={(courseData?.sections ?? []).map((section) => ({
-            ...section,
-            nodeGroups: (section.nodeGroups ?? []).map((group) => {
-              // nodeGroup 완료 여부 및 진행중 여부 계산
-              let isCompleted = false;
-              let isInProgress = false;
-              if (courseData && myProgress) {
-                const courseId = courseData.id;
-                const courseProgress = myProgress.courseProgress[courseId];
-                if (courseProgress?.map) {
-                  const state = courseProgress.map?.[group.id];
-                  isCompleted = state === "DONE";
-                  isInProgress = state === "IN_PROGRESS";
-                }
-              }
-              return {
-                ...group,
-                isCompleted,
-                isInProgress,
-              };
-            }),
-          }))}
+          sections={(courseData?.sections ?? [])
+            .sort((sec1, sec2) => sec1.order - sec2.order)
+            .map((section) => ({
+              ...section,
+              nodeGroups: (section.nodeGroups ?? [])
+                .sort((g1, g2) => g1.order - g2.order)
+                .map((group) => {
+                  // nodeGroup 완료 여부 및 진행중 여부 계산
+                  let isCompleted = false;
+                  let isInProgress = false;
+                  if (courseData && myProgress) {
+                    const courseId = courseData.id;
+                    const courseProgress = myProgress.courseProgress[courseId];
+                    if (courseProgress?.map) {
+                      const state = courseProgress.map?.[group.id];
+                      isCompleted = state === "DONE";
+                      isInProgress = state === "IN_PROGRESS";
+                    }
+                  }
+                  return {
+                    ...group,
+                    isCompleted,
+                    isInProgress,
+                  };
+                }),
+            }))}
           width={260}
         />
 
@@ -359,68 +363,74 @@ function CoursePage() {
 
           <Box ml={2}>
             <Box>
-              {(courseData?.sections ?? []).map((section) => (
-                <Box key={section.id} mt={1}>
-                  <Section text={section.title} />
-                  {(section.nodeGroups ?? []).map((group) => (
-                    <Box mt={1.6} key={group.id}>
-                      <SectionCourses
-                        title={group.title}
-                        description={section.description}
-                        nodes={
-                          Array.isArray(group.nodes)
-                            ? group.nodes?.map((node) => {
-                                let title = "";
-                                switch (node.type) {
-                                  case "VIDEO":
-                                  case "IMAGE":
-                                  case "FILE":
-                                  case "TEXT":
-                                    title = node.data?.title ?? "";
-                                    break;
-                                  case "QUIZ":
-                                    title = node.data?.question ?? "";
-                                    break;
-                                  default:
-                                    title = "";
-                                }
-                                return {
-                                  id: node.id,
-                                  type:
-                                    node.type === "FILE"
-                                      ? "doc"
-                                      : (node.type.toLowerCase() as
-                                          | "video"
-                                          | "image"
-                                          | "quiz"
-                                          | "doc"
-                                          | "file"
-                                          | "text"),
-                                  title,
-                                };
-                              })
-                            : []
-                        }
-                        onTitleClick={() => {
-                          console.log("group id", group.id);
-                          if (clubSlug && courseSlug && group.id) {
-                            navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
-                            );
-                          }
-                        }}
-                        onNodeClick={() => {
-                          if (clubSlug && courseSlug && group.id) {
-                            navigate(
-                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
-                            );
-                          }
-                        }}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              ))}
+              {(courseData?.sections ?? [])
+                .sort((a, b) => a.order - b.order)
+                .map((section) => (
+                  <Box key={section.id} mt={1}>
+                    <Section text={section.title} />
+                    {(section.nodeGroups ?? [])
+                      .sort((a, b) => a.order - b.order)
+                      .map((group) => (
+                        <Box mt={1.6} key={group.id}>
+                          <SectionCourses
+                            title={group.title}
+                            description={section.description}
+                            nodes={
+                              Array.isArray(group.nodes)
+                                ? group.nodes
+                                    ?.sort((a, b) => a.order - b.order)
+                                    .map((node) => {
+                                      let title = "";
+                                      switch (node.type) {
+                                        case "VIDEO":
+                                        case "IMAGE":
+                                        case "FILE":
+                                        case "TEXT":
+                                          title = node.data?.title ?? "";
+                                          break;
+                                        case "QUIZ":
+                                          title = node.data?.question ?? "";
+                                          break;
+                                        default:
+                                          title = "";
+                                      }
+                                      return {
+                                        id: node.id,
+                                        type:
+                                          node.type === "FILE"
+                                            ? "doc"
+                                            : (node.type.toLowerCase() as
+                                                | "video"
+                                                | "image"
+                                                | "quiz"
+                                                | "doc"
+                                                | "file"
+                                                | "text"),
+                                        title,
+                                      };
+                                    })
+                                : []
+                            }
+                            onTitleClick={() => {
+                              console.log("group id", group.id);
+                              if (clubSlug && courseSlug && group.id) {
+                                navigate(
+                                  `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
+                                );
+                              }
+                            }}
+                            onNodeClick={() => {
+                              if (clubSlug && courseSlug && group.id) {
+                                navigate(
+                                  `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
+                                );
+                              }
+                            }}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
+                ))}
             </Box>
           </Box>
         </Box>
