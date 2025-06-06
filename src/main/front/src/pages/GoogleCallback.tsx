@@ -81,8 +81,8 @@ const GoogleOAuthCallback: React.FC = () => {
           console.log("✅ 디코딩된 유저 정보:", decoded);
 
           if (decoded.studentId) {
-            setOutput(`학생 인증됨! ${decoded.email} → club/callein 이동`);
-            navigate("/club/callein");
+            setOutput(`학생 인증됨! ${decoded.email} → club 이동`);
+            navigate("/club");
           } else {
             setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
             navigate("/register");
