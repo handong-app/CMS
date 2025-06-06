@@ -15,6 +15,9 @@ jobs:
   check-dist:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false || github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: .github/actions/auto-assign-reviewer
 
     steps:
       - name: Checkout code
@@ -28,15 +31,12 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        working-directory: .github/actions/auto-assign-reviewer
         run: npm ci
 
       - name: Rebuild action
-        working-directory: .github/actions/auto-assign-reviewer
         run: npm run build
 
       - name: Check if dist is up-to-date
-        working-directory: .github/actions/auto-assign-reviewer
         run: |
           git diff --exit-code dist || {
             echo "❌ dist/ is not up to date. Please run 'npm run build' and commit the result."
