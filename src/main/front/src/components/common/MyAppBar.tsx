@@ -9,28 +9,31 @@ import {
 } from "@mui/material";
 import Logo from "../../assets/Logo.png"; // 로고 이미지 경로 확인
 import { useTheme } from "@mui/material/styles";
-import useUserData from "../../hooks/userData";
 import { Link } from "react-router";
 
 import { useNavigate } from "react-router";
-
-type UserInfo = {
-  name: string;
-  email: string;
-  photoURL: string;
-};
+import useAuthStore from "../../store/authStore";
+import { useEffect } from "react";
 
 const MyAppBar = ({
   position = "fixed",
   transparent = false,
-  user,
+  user: userTest,
 }: {
   position?: AppBarOwnProps["position"];
   transparent?: boolean;
-  user: UserInfo | null;
+  user?: {
+    name?: string;
+    profileImage?: string;
+  };
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const userStore = useAuthStore((state) => state.user);
+  const user = userTest || userStore; // 테스트용으로 외부에서 user를 받을 수 있도록
+
+  const fetchUserInfo = useAuthStore((state) => state.fetchUserInfo);
 
   const handleGoogleLogin = async () => {
     try {
@@ -62,6 +65,10 @@ const MyAppBar = ({
   const handleAvatarClick = () => {
     navigate("/profile");
   };
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, [fetchUserInfo]);
 
   return (
     // position을 "fixed"로 변경하여 앱 바를 화면 상단에 고정
@@ -112,7 +119,7 @@ const MyAppBar = ({
             </Typography>
             <Avatar
               alt={user.name}
-              src={user.photoURL}
+              src={user.profileImage}
               sx={{ width: 36, height: 36, cursor: "pointer" }}
               onClick={handleAvatarClick}
             />
