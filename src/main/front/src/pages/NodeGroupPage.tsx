@@ -132,7 +132,7 @@ function NodeGroupPage() {
 
             return (
               // 노드의 완전 겉부분, 댓글+노드내용
-              <Box display="flex" flexDirection="column" mt={2}>
+              <Box key={node.id} display="flex" flexDirection="column" mt={2}>
                 {/* 노드 번호, 제목, 댓글 부분  */}
 
                 <Box display="flex" justifyContent="end" mt={4} mb={0}>
