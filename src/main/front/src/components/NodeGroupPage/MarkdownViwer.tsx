@@ -19,16 +19,32 @@ const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
         children={content}
         components={{
           h1: ({ ...props }) => (
-            <Typography variant="h4" sx={{ my: 3 }} {...props} />
+            <Typography
+              variant="h4"
+              sx={{ my: 3, fontWeight: "bolder" }}
+              {...props}
+            />
           ),
           h2: ({ ...props }) => (
-            <Typography variant="h5" sx={{ my: 3 }} {...props} />
+            <Typography
+              variant="h5"
+              sx={{ my: 3, fontWeight: "bolder" }}
+              {...props}
+            />
           ),
           h3: ({ ...props }) => (
-            <Typography variant="h6" sx={{ my: 3 }} {...props} />
+            <Typography
+              variant="h6"
+              sx={{ my: 3, fontWeight: "bolder" }}
+              {...props}
+            />
           ),
           p: ({ ...props }) => (
-            <Typography variant="body1" sx={{ lineHeight: 1.75 }} {...props} />
+            <Typography
+              variant="body1"
+              sx={{ lineHeight: 1.75, wordBreak: "keep-all" }}
+              {...props}
+            />
           ),
           li: ({ ...props }) => (
             <li>
