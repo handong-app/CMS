@@ -9,28 +9,24 @@ import {
 } from "@mui/material";
 import Logo from "../../assets/Logo.png"; // 로고 이미지 경로 확인
 import { useTheme } from "@mui/material/styles";
-import useUserData from "../../hooks/userData";
 import { Link } from "react-router";
 
 import { useNavigate } from "react-router";
-
-type UserInfo = {
-  name: string;
-  email: string;
-  photoURL: string;
-};
+import useAuthStore from "../../store/authStore";
+import { useEffect } from "react";
 
 const MyAppBar = ({
   position = "fixed",
   transparent = false,
-  user,
 }: {
   position?: AppBarOwnProps["position"];
   transparent?: boolean;
-  user: UserInfo | null;
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
+
+  const user = useAuthStore((state) => state.user);
+  const fetchUserInfo = useAuthStore((state) => state.fetchUserInfo);
 
   const handleGoogleLogin = async () => {
     try {
@@ -62,6 +58,10 @@ const MyAppBar = ({
   const handleAvatarClick = () => {
     navigate("/profile");
   };
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, [fetchUserInfo]);
 
   return (
     // position을 "fixed"로 변경하여 앱 바를 화면 상단에 고정
@@ -112,7 +112,7 @@ const MyAppBar = ({
             </Typography>
             <Avatar
               alt={user.name}
-              src={user.photoURL}
+              src={user.profileImage}
               sx={{ width: 36, height: 36, cursor: "pointer" }}
               onClick={handleAvatarClick}
             />
