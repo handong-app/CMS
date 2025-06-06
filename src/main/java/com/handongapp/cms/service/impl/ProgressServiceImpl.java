@@ -79,7 +79,9 @@ public class ProgressServiceImpl implements ProgressService {
                 });
         
         // 상태 업데이트
-        progress.setState(state);
+        if (progress.getState() == null || progress.getState() == ProgramProgressState.IN_PROGRESS) {
+            progress.setState(state);
+        }
         progress.setLastSeenAt(LocalDateTime.now());
         
         try {
