@@ -102,7 +102,7 @@ function ClubPage() {
                 }
                 onContinue={() => {
                   navigate(
-                    `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
+                    `/club/${club}/course/${mostRecentNodeGroup.courseSlug}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
                   );
                 }}
                 theme={"dark"}

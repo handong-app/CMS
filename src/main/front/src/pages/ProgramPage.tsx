@@ -155,7 +155,7 @@ function ProgramPage() {
                   onContinue={() => {
                     // 강의 이동
                     navigate(
-                      `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
+                      `/club/${club}/course/${mostRecentNodeGroup.courseSlug}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
                     );
                   }}
                   background="rgba(255, 255, 255, 0.05)"
