@@ -58,7 +58,6 @@ public class CourseDto {
         private String description;
         @Builder.Default
         private Boolean isVisible = true;
-        private String fileKey;
 
         public TbCourse toEntity(String clubId, String userId) {
             TbCourse course = new TbCourse();
@@ -68,7 +67,6 @@ public class CourseDto {
             course.setSlug(this.slug);
             course.setDescription(this.description);
             course.setVisible(this.isVisible != null ? this.isVisible : true);
-            course.setFileKey(this.fileKey);
             return course;
         }
     }
