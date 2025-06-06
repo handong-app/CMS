@@ -1,22 +1,13 @@
-import React from "react";
 import TopBanner from "../components/ClubPage/TopBanner";
-import {
-  Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from "@mui/material";
+import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import ClubBadge from "../components/ClubPage/ClubBadge";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 import ContinueNodeGroup from "../components/course/ContinueNodeGroup";
 import CourseList from "../components/course/CourseList";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link, useNavigate } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { currentProgram } from "../utils/currentProgram";
-import { formatTimestamp } from "../tools/tools";
 import calculateProgress from "../utils/calculateProcess";
 import useUserData from "../hooks/userData";
 import { courseListParser } from "../utils/courseListParser";
@@ -27,11 +18,7 @@ function ClubPage() {
   const fetchBe = useFetchBe();
   const navigate = useNavigate();
   const { userId } = useUserData();
-  const [joinModal, setJoinModal] = React.useState<null | { program: any }>(
-    null
-  );
-  const [joinLoading, setJoinLoading] = React.useState(false);
-  const [joinError, setJoinError] = React.useState<string | null>(null);
+  // 가입 모달 관련 상태 제거 (ClubProgramList로 이동)
 
   const { data: clubInfo, isLoading: clubLoading } = useQuery({
     queryKey: ["clubInfo", club],
@@ -97,33 +84,7 @@ function ClubPage() {
           />
         </Box>
         <Box maxWidth={1012} width="100%" margin="auto" px={2}>
-          <Box mt={0.5}>
-            {currentProgram(clubPrograms).map((program) => {
-              // program.isParticipant가 "1"이 아니면 가입 모달 띄우기
-              const isParticipant = program.isParticipant === "1";
-              const handleProgramClick = (e: React.MouseEvent) => {
-                if (!isParticipant) {
-                  e.preventDefault();
-                  setJoinModal({ program });
-                }
-              };
-              return (
-                <Link
-                  to={`/club/${club}/program/${program.slug}`}
-                  key={program.id}
-                  style={{ textDecoration: "none" }}
-                  onClick={handleProgramClick}
-                >
-                  <ClubBadge
-                    hoverable
-                    text={`${program.name} (진행기간 ${formatTimestamp(
-                      program.startDate
-                    )} ~ ${formatTimestamp(program.endDate)})`}
-                  />
-                </Link>
-              );
-            })}
-          </Box>
+          {club && <ClubRunningProgramBanner club={club} />}
           {mostRecentNodeGroup && (
             <Box mt={4}>
               <Typography variant="h5" fontWeight={700} mb={2}>
@@ -156,54 +117,7 @@ function ClubPage() {
           </Box>
         </Box>
       </Box>
-      {/* 가입 모달 */}
-      {joinModal && (
-        <Dialog open onClose={() => setJoinModal(null)}>
-          <DialogTitle>프로그램 등록 필요</DialogTitle>
-          <DialogContent>
-            <Typography mb={2}>
-              이 프로그램에 아직 등록되어 있지 않습니다.
-              <br />
-              등록 후 이동하시겠습니까?
-            </Typography>
-            {joinError && (
-              <Typography color="error" fontSize={13} mb={1}>
-                {joinError}
-              </Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setJoinModal(null)} disabled={joinLoading}>
-              취소
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={joinLoading}
-              onClick={async () => {
-                setJoinLoading(true);
-                setJoinError(null);
-                try {
-                  await fetchBe(
-                    `/v1/clubs/${club}/programs/${joinModal.program.slug}/join`,
-                    {
-                      method: "POST",
-                    }
-                  );
-                  setJoinModal(null);
-                  navigate(`/club/${club}/program/${joinModal.program.slug}`);
-                } catch (e: any) {
-                  setJoinError(e?.errorMsg || "등록에 실패했습니다.");
-                } finally {
-                  setJoinLoading(false);
-                }
-              }}
-            >
-              {joinLoading ? "등록 중..." : "등록하고 이동"}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+      {/* 가입 모달은 ClubProgramList 내부로 이동 */}
     </>
   );
 }
