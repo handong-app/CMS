@@ -18,12 +18,9 @@ function CourseList({ courses }: CourseListProps) {
   const { club } = useParams<{ club: string }>();
   if (!courses || courses.length === 0) return <Box>No courses available</Box>;
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} width="100%">
       {courses?.map((course, idx) => (
-        <Grid
-          key={`course-${course?.id}`}
-          size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-        >
+        <Grid key={`course-${course?.id}`} size={{ xs: 12, sm: 6, md: 4 }}>
           <CourseItem
             name={course.title}
             picture={course.pictureUrl}
