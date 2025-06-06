@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.handongapp.cms.mapper.UserMapper">
+<mapper namespace="app.handong.cms.mapper.UserMapper">
 
-    <select id="findLastNodeGroupByCourseForUser" parameterType="String" resultType="com.handongapp.cms.dto.v1.UserDto$LastProgramResDto">
+    <select id="findLastNodeGroupByCourseForUser" parameterType="String" resultType="app.handong.cms.dto.v1.UserDto$LastProgramResDto">
         SELECT
             club.id as clubId,
             course.id as courseId,
