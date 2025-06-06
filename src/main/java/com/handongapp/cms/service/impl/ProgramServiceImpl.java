@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.handongapp.cms.domain.*;
+import com.handongapp.cms.dto.v1.ProgramDto;
 import com.handongapp.cms.domain.enums.FileStatus;
 import com.handongapp.cms.exception.data.DuplicateEntityException;
 import com.handongapp.cms.exception.data.NotFoundException;
@@ -39,6 +40,7 @@ public class ProgramServiceImpl implements ProgramService {
     private final ClubRepository clubRepository;
     private final TbProgramRepository tbProgramRepository;
     private final TbProgramParticipantRepository tbProgramParticipantRepository;
+    private final TbProgramCourseRepository tbProgramCourseRepository;
 
     private static final String DELETED_FLAG_NO = "N";
 
@@ -93,8 +95,8 @@ public class ProgramServiceImpl implements ProgramService {
      */
     @Override
     @Transactional(readOnly = true)
-    public String getProgramsWithCoursesByClubSlugAsJson(String clubSlug) {
-        String rawJson = programMapper.getProgramsWithCoursesByClubSlugAsJson(clubSlug);
+    public String getProgramsWithCoursesByClubSlugAsJson(String clubSlug, String currentUserId) {
+        String rawJson = programMapper.getProgramsWithCoursesByClubSlugAsJson(clubSlug, currentUserId);
 
         try {
             JsonNode node = objectMapper.readTree(rawJson);  // 여기서 실패하면 예외 catch로 이동
@@ -228,5 +230,74 @@ public class ProgramServiceImpl implements ProgramService {
         // 5. 프로그램 참여자로 등록
         TbProgramParticipant newParticipant = TbProgramParticipant.of(program.getId(), currentUserId);
         tbProgramParticipantRepository.save(newParticipant);
+    }
+
+    @Override
+    @Transactional
+    public ProgramDto.ResponseDto createProgram(String clubSlug, ProgramDto.CreateRequest requestDto, Authentication authentication) {
+        String currentUserId = authentication.getName();
+
+        // 1. 클럽 조회
+        TbClub club = clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("클럽을 찾을 수 없습니다: " + clubSlug));
+
+        // 2. 프로그램 슬러그 중복 확인 (같은 클럽 내에서)
+        if (tbProgramRepository.existsByClubIdAndSlugAndDeleted(club.getId(), requestDto.getSlug(), DELETED_FLAG_NO)) {
+            throw new DuplicateEntityException("이미 사용 중인 프로그램 슬러그입니다: " + requestDto.getSlug());
+        }
+
+        // 3. 날짜 유효성 검사 (startDate < endDate)
+        if (requestDto.getStartDate().isAfter(requestDto.getEndDate()) || requestDto.getStartDate().isEqual(requestDto.getEndDate())) {
+            throw new IllegalArgumentException("프로그램 시작일은 종료일보다 이전이어야 합니다.");
+        }
+
+        // 4. 프로그램 엔티티 생성 및 저장
+        TbProgram newProgram = requestDto.toEntity(club.getId(), currentUserId);
+        TbProgram savedProgram = tbProgramRepository.save(newProgram);
+
+        // 5. ResponseDto로 변환하여 반환
+        return ProgramDto.ResponseDto.builder()
+                .programId(savedProgram.getId())
+                .clubId(savedProgram.getClubId())
+                .clubSlug(clubSlug) // clubSlug는 요청에서 받았으므로 그대로 사용
+                .userId(savedProgram.getUserId())
+                .name(savedProgram.getName())
+                .slug(savedProgram.getSlug())
+                .description(savedProgram.getDescription())
+                .startDate(savedProgram.getStartDate())
+                .endDate(savedProgram.getEndDate())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void addCourseToProgram(String clubSlug, String programSlug, String courseSlug, Authentication authentication) {
+        // 1. 클럽 조회
+        TbClub club = clubRepository.findBySlugAndDeleted(clubSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("클럽을 찾을 수 없습니다: " + clubSlug));
+        String clubId = club.getId();
+
+        // 2. 프로그램 조회
+        TbProgram program = tbProgramRepository.findByClubIdAndSlugAndDeleted(clubId, programSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("프로그램을 찾을 수 없습니다: " + programSlug + " (클럽: " + clubSlug + ")"));
+        String programId = program.getId();
+
+        // 3. 코스 조회
+        TbCourse course = courseRepository.findByClubIdAndSlugAndDeleted(clubId, courseSlug, DELETED_FLAG_NO)
+                .orElseThrow(() -> new NotFoundException("코스를 찾을 수 없습니다: " + courseSlug + " (클럽: " + clubSlug + ")"));
+        String courseId = course.getId();
+
+        // 4. 이미 프로그램에 코스가 추가되었는지 확인
+        if (tbProgramCourseRepository.existsByProgramIdAndCourseIdAndDeleted(programId, courseId, DELETED_FLAG_NO)) {
+            throw new DuplicateEntityException("이미 해당 프로그램에 추가된 코스입니다: " + courseSlug);
+        }
+
+        // 5. TbProgramCourse 엔티티 생성 및 저장
+        TbProgramCourse newProgramCourse = new TbProgramCourse();
+        newProgramCourse.setProgramId(programId);
+        newProgramCourse.setCourseId(courseId);
+        newProgramCourse.setUserId(authentication.getName());
+
+        tbProgramCourseRepository.save(newProgramCourse);
     }
 }

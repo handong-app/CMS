@@ -23,7 +23,7 @@ function CourseProgress({ value }: CourseProgressProps) {
     <CircularProgressbar
       value={value}
       maxValue={1}
-      text={`${value * 100}%`}
+      text={`${Math.round(value * 10000) / 100}%`}
       styles={buildStyles({
         pathColor: theme.palette.primary.main,
         textColor: theme.palette.text.primary,

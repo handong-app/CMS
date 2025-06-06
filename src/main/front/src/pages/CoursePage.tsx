@@ -6,23 +6,26 @@ import CourseProgressList from "../components/coursePage/CourseProgressList";
 import Section from "../components/coursePage/Section";
 import SectionCourses from "../components/coursePage/SectionCourses";
 import CourseProgress from "../components/course/CourseProgress";
+import CoursePageSkeleton from "../components/coursePage/CoursePageSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import useUserData from "../hooks/userData";
 import type { ProgramData, UserProgress } from "../types/process.types";
 import calculateProgress from "../utils/calculateProcess";
 import { useFetchBe } from "../tools/api";
-import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 
 function CoursePage() {
   const { userId } = useUserData();
   const fetchBe = useFetchBe();
   const { clubSlug, courseSlug } = useParams();
+  const navigate = useNavigate();
 
   // 내 프로그램 리스트
-  const { data: myPrograms } = useQuery<
+  const { data: myPrograms, isLoading: isMyProgramsLoading } = useQuery<
     { programId: string; clubSlug: string; slug: string }[]
   >({
     queryKey: ["myPrograms"],
@@ -34,30 +37,38 @@ function CoursePage() {
   const programSlug = myProgram?.slug;
 
   // 프로그램별 유저 진도 데이터
-  const { data: programProcess } = useQuery<ProgramData>({
-    queryKey: ["programProcess", programSlug],
-    queryFn: () =>
-      fetchBe(`/v1/clubs/${clubSlug}/programs/${programSlug}/users`),
-    enabled: !!programSlug,
-  });
+  const { data: programProcess, isLoading: isProgramProcessLoading } =
+    useQuery<ProgramData>({
+      queryKey: ["programProcess", programSlug],
+      queryFn: () =>
+        fetchBe(`/v1/clubs/${clubSlug}/programs/${programSlug}/users`),
+      enabled: !!programSlug,
+    });
 
   const [courseData, setCourseData] = useState<CourseData | null>(null);
-
+  const [isLoadingCourse, setIsLoadingCourse] = useState(true);
   const [latestComments, setLatestComments] = useState<LatestComment[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
 
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
       return;
     }
 
-    fetchBe(`/v1/clubs/${clubSlug}/courses/${courseSlug}`).then((data) => {
-      setCourseData(data);
-    });
+    setIsLoadingCourse(true);
+    fetchBe(`/v1/clubs/${clubSlug}/courses/${courseSlug}`)
+      .then((data) => {
+        setCourseData(data);
+      })
+      .finally(() => {
+        setIsLoadingCourse(false);
+      });
   }, [clubSlug, courseSlug, fetchBe]);
 
-  // 최신 댓글 불러오기 (코스 전체에 해당하는 댓글만 추출)
+  // 최신 댓글 불러오기
   useEffect(() => {
     if (!courseData?.id) return;
+    setIsLoadingComments(true);
     fetchBe(`/v1/comments/search?courseId=${courseData.id}`)
       .then((comments: LatestComment[]) => {
         const nodeGroupIds = (courseData.sections ?? []).flatMap((s) =>
@@ -73,31 +84,35 @@ function CoursePage() {
             )
           : [];
         filtered.sort(
-          (a, b) =>
+          (a: LatestComment, b: LatestComment) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         const top10 = filtered.slice(0, 10);
         setLatestComments(top10);
-
-        // console.log("[최신 반응 디버깅]", {
-        //   courseId: courseData.id,
-        //   nodeGroupIds,
-        //   nodeIds,
-        //   totalComments: comments.length,
-        //   filteredCount: filtered.length,
-        //   latestComments: top10,
-        // });
       })
-      .catch(() => setLatestComments([]));
+      .catch(() => setLatestComments([]))
+      .finally(() => {
+        setIsLoadingComments(false);
+      });
   }, [courseData?.id, fetchBe, courseData]);
 
-  // 진도율 계산 및 내 진도 정보 useMemo로 최적화
-  const myProgress = useMemo(() => {
-    if (!courseData || !programProcess) return null;
+  const isLoading =
+    isMyProgramsLoading ||
+    isProgramProcessLoading ||
+    (isLoadingCourse && !courseData) ||
+    (isLoadingComments && !latestComments);
+
+  if (isLoading) {
+    return <CoursePageSkeleton />;
+  }
+
+  // 진도율 계산 및 내 진도 정보
+  let myProgress = null;
+  if (courseData && programProcess) {
     const calculatedProgress: UserProgress[] =
       calculateProgress(programProcess);
-    return calculatedProgress.find((u) => u.userId === userId);
-  }, [courseData, programProcess, userId]);
+    myProgress = calculatedProgress.find((u) => u.userId === userId);
+  }
 
   // 진도율 계산
   let percent = 0,
@@ -108,18 +123,64 @@ function CoursePage() {
     const courseProgress = myProgress.courseProgress[courseId];
     completed = courseProgress?.completed ?? 0;
     total = courseProgress?.total ?? 0;
-    percent = total > 0 ? completed / total : 0;
-    // console.log("[진도율 디버깅]", { courseId, myProgress, courseProgress, completed, total, percent });
+    percent = total > 0 ? Math.round((completed / total) * 1000) / 10 / 100 : 0;
   }
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
+      <ClubRunningProgramBanner club={clubSlug} sx={{ mb: 2 }} />
       <TopCourseBanner
         title={courseData?.title ?? ""}
-        producer={courseData?.creatorUserId ?? ""}
+        producer={courseData?.creatorName ?? ""}
         courseDescription={courseData?.description ?? ""}
         image={courseData?.pictureUrl ?? ""}
-        onContinue={() => alert("Continue to last lesson!")}
+        onContinue={() => {
+          if (!programProcess || !courseData || !userId) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+
+          const userData = Array.isArray(programProcess.participants)
+            ? programProcess.participants.find((p) => p.userId === userId)
+            : Array.isArray(programProcess)
+            ? programProcess.find((u) => u.userId === userId)
+            : null;
+
+          if (!userData?.courses) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+
+          const course = userData.courses.find(
+            (c: { courseId: string }) => c.courseId === courseData.id
+          );
+          if (!course?.nodeGroups) {
+            alert("진행중인 강의가 없습니다.");
+            return;
+          }
+
+          const latestInProgressGroup = course.nodeGroups
+            .filter(
+              (g: { progress?: { state?: string; lastSeenAt?: string } }) =>
+                g.progress?.state === "IN_PROGRESS" && g.progress?.lastSeenAt
+            )
+            .sort(
+              (
+                a: { progress: { lastSeenAt: string } },
+                b: { progress: { lastSeenAt: string } }
+              ) =>
+                new Date(b.progress.lastSeenAt).getTime() -
+                new Date(a.progress.lastSeenAt).getTime()
+            )[0];
+
+          if (latestInProgressGroup) {
+            navigate(
+              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${latestInProgressGroup.nodeGroupId}`
+            );
+          } else {
+            alert("진행중인 강의가 없습니다.");
+          }
+        }}
       />
 
       <Box display="flex" mt={2}>
@@ -127,7 +188,7 @@ function CoursePage() {
           courseTitle={courseData?.title ?? ""}
           sections={(courseData?.sections ?? []).map((section) => ({
             ...section,
-            nodeGroups: section.nodeGroups?.map((group) => {
+            nodeGroups: (section.nodeGroups ?? []).map((group) => {
               // nodeGroup 완료 여부 및 진행중 여부 계산
               let isCompleted = false;
               let isInProgress = false;
@@ -135,7 +196,7 @@ function CoursePage() {
                 const courseId = courseData.id;
                 const courseProgress = myProgress.courseProgress[courseId];
                 if (courseProgress?.map) {
-                  const state = courseProgress?.map[group.id];
+                  const state = courseProgress.map?.[group.id];
                   isCompleted = state === "DONE";
                   isInProgress = state === "IN_PROGRESS";
                 }
@@ -218,7 +279,7 @@ function CoursePage() {
                     scrollbarColor: "rgba(255,255,255,0.08) transparent",
                   }}
                 >
-                  {latestComments?.map((comment, index) => (
+                  {(latestComments ?? []).map((comment, index) => (
                     <Box
                       key={comment.id || index}
                       display="flex"
@@ -234,9 +295,19 @@ function CoursePage() {
                         },
                       }}
                     >
-                      <Typography variant="body2">
-                        {comment.userId?.slice(0, 5) || "-"} {comment.content}
-                      </Typography>
+                      <Box display="flex">
+                        <Typography
+                          variant="body2"
+                          mr={1}
+                          sx={{ color: "#d7e2ffdb" }}
+                        >
+                          {comment.userName || "-"}
+                        </Typography>
+                        <Typography variant="body2">
+                          {comment.content}
+                        </Typography>
+                      </Box>
+
                       <Typography
                         component="span"
                         variant="caption"
@@ -263,7 +334,7 @@ function CoursePage() {
               {(courseData?.sections ?? []).map((section) => (
                 <Box key={section.id} mt={1}>
                   <Section text={section.title} />
-                  {section.nodeGroups?.map((group) => (
+                  {(section.nodeGroups ?? []).map((group) => (
                     <Box mt={1.6} key={group.id}>
                       <SectionCourses
                         title={group.title}
@@ -302,6 +373,21 @@ function CoursePage() {
                               })
                             : []
                         }
+                        onTitleClick={() => {
+                          console.log("group id", group.id);
+                          if (clubSlug && courseSlug && group.id) {
+                            navigate(
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
+                            );
+                          }
+                        }}
+                        onNodeClick={() => {
+                          if (clubSlug && courseSlug && group.id) {
+                            navigate(
+                              `/club/${clubSlug}/course/${courseSlug}/nodegroup/${group.id}`
+                            );
+                          }
+                        }}
                       />
                     </Box>
                   ))}

@@ -23,9 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.lang.Nullable;
 
 
 @Slf4j
@@ -43,9 +45,9 @@ public class NodeServiceImpl implements NodeService {
     @Transactional
     public NodeDto.Response create(NodeDto.CreateRequest req) {
 //        NodeDataValidator.validate(req.getType(), req.getData());
-        TbNode entity = req.toEntity(); 
-        TbNode savedNode = nodeRepository.save(entity);
-        return NodeDto.Response.from(savedNode); 
+        TbNode newNode = req.toEntity(); // Assumes toEntity sets nodeGroupId and order from req
+        TbNode persistedNode = reorderAndPersistNodes(newNode.getNodeGroupId(), newNode, newNode.getOrder());
+        return NodeDto.Response.from(persistedNode); 
     }
 
     @Override
@@ -68,13 +70,20 @@ public class NodeServiceImpl implements NodeService {
     @Override
     @Transactional
     public NodeDto.Response update(String nodeId, NodeDto.UpdateRequest req) {
-        TbNode entity = nodeRepository.findByIdAndDeleted(nodeId, "N")
+        TbNode entityToUpdate = nodeRepository.findByIdAndDeleted(nodeId, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Node not found with id: " + nodeId));
+        
         if (req.getData() != null) {
-//            NodeDataValidator.validate(entity.getType(), req.getData());
+//            NodeDataValidator.validate(entityToUpdate.getType(), req.getData());
         }
-        req.applyTo(entity); 
-        return NodeDto.Response.from(entity); 
+        String nodeGroupId = entityToUpdate.getNodeGroupId();
+        
+        // Apply changes from DTO. Assumes req.applyTo updates entityToUpdate.order if req.getOrder() is not null.
+        req.applyTo(entityToUpdate);
+        
+        // entityToUpdate.getOrder() will be the requested new order if specified in DTO, or original order if not.
+        TbNode updatedEntity = reorderAndPersistNodes(nodeGroupId, entityToUpdate, entityToUpdate.getOrder());
+        return NodeDto.Response.from(updatedEntity); 
     }
 
     @Override
@@ -82,7 +91,59 @@ public class NodeServiceImpl implements NodeService {
     public void deleteSoft(String nodeId) {
         TbNode entity = nodeRepository.findByIdAndDeleted(nodeId, "N")
                 .orElseThrow(() -> new EntityNotFoundException("Node not found with id: " + nodeId));
+        
+        String nodeGroupId = entity.getNodeGroupId();
         entity.setDeleted("Y");
+        entity.setOrder(null); // Mark order as irrelevant for soft-deleted items
+        nodeRepository.save(entity); // Persist the soft deletion
+
+        // Reorder remaining active nodes
+        reorderAndPersistNodes(nodeGroupId, null, null);
+    }
+
+    private TbNode reorderAndPersistNodes(String nodeGroupId, @Nullable TbNode targetNode, @Nullable Integer requestedOrderForTarget) {
+        List<TbNode> currentNodesInDb = nodeRepository.findByNodeGroupIdAndDeletedOrderByOrderAsc(nodeGroupId, "N");
+
+        List<TbNode> nodesToProcess = new ArrayList<>();
+        boolean isTargetNew = (targetNode != null && targetNode.getId() == null);
+
+        for (TbNode n : currentNodesInDb) {
+            if (targetNode != null && n.getId() != null && n.getId().equals(targetNode.getId()) && !isTargetNew) {
+                continue;
+            }
+            nodesToProcess.add(n);
+        }
+
+        TbNode nodeToReturn = targetNode;
+
+        if (targetNode != null) {
+            int insertionIndex;
+            Integer effectiveOrder = requestedOrderForTarget;
+
+            if (effectiveOrder == null) {
+                if (!isTargetNew) { 
+                    effectiveOrder = targetNode.getOrder(); 
+                }
+            }
+
+            if (effectiveOrder == null) {
+                 insertionIndex = nodesToProcess.size();
+            } else {
+                insertionIndex = Math.max(0, Math.min(effectiveOrder, nodesToProcess.size()));
+            }
+            nodesToProcess.add(insertionIndex, targetNode);
+        }
+
+        for (int i = 0; i < nodesToProcess.size(); i++) {
+            TbNode node = nodesToProcess.get(i);
+            node.setOrder(i);
+        }
+
+        if (!nodesToProcess.isEmpty()) {
+            nodeRepository.saveAll(nodesToProcess);
+        }
+        
+        return nodeToReturn;
     }
 
     /**
@@ -191,5 +252,57 @@ public class NodeServiceImpl implements NodeService {
             log.error("❌ TbNode data.file 업데이트 실패: {}", e.getMessage(), e);
             throw new DataUpdateException("노드 data 업데이트 실패", e);
         }
+    }
+
+    /**
+     * 비디오 트랜스코딩 상태 및 진행률을 업데이트합니다.
+     *
+     * <p>
+     * 전달받은 videoId를 가진 노드를 찾아 {@code data.file.status}와
+     * {@code data.file.progress}를 업데이트합니다.
+     * </p>
+     *
+     * @param videoId  노드 ID (UUID와 동일)
+     * @param status   트랜스코딩 상태 (예: in_progress, success, failed)
+     * @param progress 트랜스코딩 진행률 (0~100), 없으면 null
+     */
+    @Override
+    @Transactional
+    public void updateVideoTranscodeStatus(String videoId, String status, Integer progress) {
+        // 1. 노드 조회
+        TbNode node = nodeRepository.findById(videoId)
+                .orElseThrow(() -> new NotFoundException("노드를 찾을 수 없습니다: " + videoId));
+
+        // 2. data JSON에서 file Map 꺼내기
+        Map<String, Object> dataMap = node.getData();
+        if (dataMap == null) {
+            throw new IllegalStateException("노드 data가 존재하지 않습니다. videoId=" + videoId);
+        }
+
+        Object fileObj = dataMap.get("file");
+        if (!(fileObj instanceof Map<?, ?>)) {
+            throw new IllegalStateException("노드 data의 file 정보가 없습니다. videoId=" + videoId);
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> fileMap = (Map<String, Object>) fileObj;
+
+        // 3. 새로운 status로 변환
+        String newStatus;
+        switch (status) {
+            case "in_progress" -> newStatus = VideoStatus.TRANSCODING.name();
+            case "success" -> newStatus = VideoStatus.TRANSCODE_COMPLETED.name();
+            case "failed" -> newStatus = VideoStatus.TRANSCODE_FAILED.name();
+            default -> throw new IllegalArgumentException("알 수 없는 status: " + status);
+        }
+
+        // 4. 업데이트
+        fileMap.put("status", newStatus);
+        fileMap.put("progress", progress);
+
+        log.info("🎥 videoId={} 트랜스코딩 상태={}, 진행률={}", videoId, newStatus, progress);
+
+        // 5. 저장
+        nodeRepository.save(node);
     }
 }

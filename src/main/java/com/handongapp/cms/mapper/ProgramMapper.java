@@ -11,7 +11,7 @@ public interface ProgramMapper {
 
     String getProgramDetailsWithCoursesAsJson(@Param("clubSlug") String clubSlug, @Param("programSlug") String programSlug);
 
-    String getProgramsWithCoursesByClubSlugAsJson(@Param("clubSlug") String clubSlug);
+    String getProgramsWithCoursesByClubSlugAsJson(@Param("clubSlug") String clubSlug, @Param("currentUserId") String currentUserId);
 
     String getProgramParticipantProgressAsJson(@Param("clubSlug") String clubSlug, @Param("programSlug") String programSlug);
 

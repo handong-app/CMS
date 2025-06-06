@@ -1,0 +1,20 @@
+meta {
+  name: course comment-category List
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{BASE_URL_LOCAL}}/api/v1/clubs/{{clubSlug}}/courses/{{courseSlug}}/comment-categories
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  clubSlug: callein
+  courseSlug: new-test-course
+}

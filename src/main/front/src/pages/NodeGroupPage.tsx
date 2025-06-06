@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { nodeGroupDummy } from "../components/NodeGroupPage/NodeGroupDummy";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
-import DescriptionIcon from "@mui/icons-material/Description";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+// import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ImageIcon from "@mui/icons-material/Image";
 // import TextSnippetIcon from "@mui/icons-material/TextSnippet"; // 텍스트용 아이콘
 import CommentSection from "../components/NodeGroupPage/CommentSection";
@@ -14,71 +13,97 @@ import DownloadFileBox from "../components/NodeGroupPage/DownloadFileBox";
 import ImagePreviewWithDownload from "../components/NodeGroupPage/ImagePreviewWithDownload";
 import QuizBox from "../components/NodeGroupPage/QuizBox";
 import MultiAnswerQuizBox from "../components/NodeGroupPage/MultiAnswerQuizBox";
-
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import { useParams } from "react-router";
+import { useFetchBe } from "../tools/api";
+import { useQuery } from "@tanstack/react-query";
+import { NodeGroup } from "../types/nodeGroupData.types";
+import NextNodeGroupButton from "../components/NodeGroupPage/NextButton";
+import MarkdownViewer from "../components/NodeGroupPage/MarkdownViwer";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 // 노드 타입별로 크기 매칭
-const nodeHeightMap = {
+const nodeHeightMap: Record<string, number | string> = {
   video: 600,
   file: 100,
   image: 500,
   quiz: "auto",
+  text: "auto",
 };
-// 이모지 매핑
-const categoryEmojiMap: Record<string, string> = {
-  질문: "❓",
-  피드백: "😁",
-  열정: "🔥",
-  감사: "☺️",
-  칭찬: "🌟",
-};
-
-interface Comment {
-  content: string;
-  category: keyof typeof categoryEmojiMap;
-  author: {
-    name: string;
-    uid: string;
-    studentId: string;
-  };
-  timestamp: string; // ISO format
-}
-
-interface Props {
-  comments: Comment[];
-  onSubmit: (newComment: Comment) => void;
-}
 
 const iconMap = {
   VIDEO: <VideoLibraryIcon fontSize="large" />,
-  FILE: <PictureAsPdfIcon fontSize="large" />,
+  FILE: <AttachFileIcon fontSize="large" />,
   IMAGE: <ImageIcon fontSize="large" />,
   QUIZ: <QuizIcon fontSize="large" />,
+  TEXT: <AttachFileIcon fontSize="large" />,
 };
 
 function NodeGroupPage() {
+  const { nodeGroupUUID } = useParams(); // URL 파라미터에서 UUID 가져오기
   const [openNodeId, setOpenNodeId] = useState<string | null>(null);
+
+  const { club } = useParams<{
+    club: string;
+  }>();
 
   const toggleComments = (nodeId: string) => {
     setOpenNodeId((prev) => (prev === nodeId ? null : nodeId));
   };
 
+  // const postComment = usePostComment(); //댓글 업로드
+
+  const fetchBe = useFetchBe();
+
+  const {
+    data: nodeGroupData,
+    isLoading,
+    error,
+  } = useQuery<NodeGroup>({
+    queryKey: ["node-group", nodeGroupUUID],
+    queryFn: () => fetchBe(`/v1/node-group/${nodeGroupUUID}`),
+    enabled: !!nodeGroupUUID, // UUID 있을 때만 실행
+  });
+
+  useEffect(() => {
+    if (!nodeGroupData?.id) return;
+    fetchBe("/v1/progress/start", {
+      method: "POST",
+      body: {
+        nodeGroupId: nodeGroupData?.id,
+      },
+    }).catch((err) => {
+      console.error("Progress start error:", err);
+    });
+  }, [nodeGroupData?.id]);
+
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생: {(error as any).message}</div>;
+  if (!nodeGroupData) return <div>데이터 없음</div>;
+
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
-      <Box top={0} zIndex={1000} mb={4}>
+      <ClubRunningProgramBanner club={club} sx={{ mb: 2 }} />
+      <Box
+        top={0}
+        zIndex={1000}
+        mb={4}
+        display="flex"
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="space-between"
+      >
         <Typography variant="h4" fontWeight={700} mt={6} mb={4}>
-          {nodeGroupDummy.title}
+          {nodeGroupData.title}
         </Typography>
+        <Box>
+          <NextNodeGroupButton currentNodeGroupId={nodeGroupData.id} />
+        </Box>
       </Box>
 
       {/* 노드 목록 */}
       <Box>
-        {nodeGroupDummy.nodes.map((node, index) => {
+        {nodeGroupData.nodes.map((node, index) => {
           const emojiCountMap: Record<string, number> = {};
-          node.comments.forEach((comment) => {
-            // const emoji = categoryEmojiMap[comment.category];
-            // if (emoji) {
-            //   emojiCountMap[emoji] = (emojiCountMap[emoji] || 0) + 1;
-            // }
-          });
 
           const emojiSummary = Object.entries(emojiCountMap)
             .map(([emoji]) => `${emoji}`)
@@ -92,22 +117,26 @@ function NodeGroupPage() {
               {/* 노드 번호, 제목, 댓글 부분  */}
 
               <Box display="flex" justifyContent="end" mt={4} mb={0}>
-                <Box display="flex" justifyContent="center" alignItems="center">
-                  {/* 1. 순번 */}
-                  <Typography variant="h4" color="#fff" mr={2}>
-                    {/* {index + 1} */}
-                  </Typography>
-                  {/* 노드 제목, 이름, 설명 등 */}
-                  <Typography variant="h5" color="#fff">
+                <Box display="flex" flexDirection="column" flex={5}>
+                  <Typography variant="h5" color="#fff" mr={2}>
                     {node.data.title}
                   </Typography>
+                  <Typography
+                    fontSize={14}
+                    color="#ffffff99"
+                    mt={0.5}
+                    sx={{ lineHeight: 1.4 }}
+                  >
+                    {!(node.type === "TEXT") && node.data.description}
+                  </Typography>
                 </Box>
+
                 <Box
                   flex={4}
                   display="flex"
                   flexDirection="column"
                   alignItems="end"
-                  justifyContent="space-between"
+                  justifyContent="flex-end"
                   borderRadius={2}
                   position="relative" // 댓글"창"의 위치 기준
                 >
@@ -171,10 +200,8 @@ function NodeGroupPage() {
                       borderRadius={2}
                     >
                       <CommentSection
-                        comments={node.comments}
-                        onSubmit={() => {
-                          alert("message submitted!");
-                        }}
+                        nodeId={node.id}
+                        // onSubmit={() => alert("submit")}
                       />
                     </Box>
                   )}
@@ -186,7 +213,7 @@ function NodeGroupPage() {
                 key={node.id}
                 borderRadius={4}
                 bgcolor={"#f0f0f010"}
-                // height={nodeHeightMap[node.type.toLowerCase()] || 400}
+                height={nodeHeightMap[node.type.toLowerCase()] || 400}
                 mt={1}
                 position="relative"
                 p={2}
@@ -195,20 +222,28 @@ function NodeGroupPage() {
                 gap={1}
               >
                 {/* 콘텐츠 영역 */}
+
                 <Box
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                   height="100%"
                   borderRadius={2}
-                  color="black"
+                  color="white"
                   sx={{
                     flex: 5,
                     cursor: node.type === "IMAGE" ? "pointer" : "default",
                     transition: "background-color 0.2s",
                   }}
                 >
-                  <Box width="100%" height="100%" alignContent="center">
+                  <Box
+                    width="100%"
+                    height="100%"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    {/* 콘텐츠 조건 분기 */}
                     {node.type === "VIDEO" && node.data?.file?.playlist ? (
                       <VideoPlayer
                         src={`https://cms.handong.app${node.data.file.playlist}`}
@@ -219,42 +254,52 @@ function NodeGroupPage() {
                         src={node.data.file.presignedUrl}
                         filename={node.data.file.originalFileName}
                       />
+                    ) : node.type === "FILE" &&
+                      node.data?.file?.presignedUrl ? (
+                      <DownloadFileBox
+                        fileUrl={node.data.file.presignedUrl}
+                        fileName={node.data.file.originalFileName}
+                      />
+                    ) : node.type === "QUIZ" &&
+                      node.data?.question &&
+                      Array.isArray(node.data.options) &&
+                      typeof node.data.answer === "string" ? (
+                      node.data.answer.includes("&") ? (
+                        <MultiAnswerQuizBox
+                          question={node.data.question}
+                          options={node.data.options}
+                          answer={node.data.answer}
+                        />
+                      ) : (
+                        <QuizBox
+                          question={node.data.question}
+                          options={node.data.options}
+                          answer={node.data.answer}
+                        />
+                      )
+                    ) : node.type === "TEXT" && node.data?.description ? (
+                      <MarkdownViewer content={node.data.description} />
                     ) : (
+                      // 👉 콘텐츠가 없을 때 표시되는 fallback 메시지
                       <Box
-                        color="white"
                         display="flex"
-                        justifyContent="start"
-                        flexDirection="row"
+                        justifyContent="center"
                         alignItems="center"
+                        height="100%"
+                        width="100%"
                       >
-                        {/* {iconMap[node.type] || (
-                          <DescriptionIcon fontSize="large" />
-                        )} */}
-                        {node.type === "QUIZ" &&
-                          node.data?.question &&
-                          Array.isArray(node.data.options) &&
-                          typeof node.data.answer === "string" &&
-                          (node.data.answer.includes("&") ? (
-                            <MultiAnswerQuizBox
-                              question={node.data.question}
-                              options={node.data.options}
-                              answer={node.data.answer}
-                            />
-                          ) : (
-                            <QuizBox
-                              question={node.data.question}
-                              options={node.data.options}
-                              answer={node.data.answer}
-                            />
-                          ))}
-
-                        {node.type === "FILE" &&
-                          node.data?.file?.presignedUrl && (
-                            <DownloadFileBox
-                              fileUrl={node.data.file.presignedUrl}
-                              fileName={node.data.file.originalFileName}
-                            />
-                          )}
+                        <Typography
+                          color="#999"
+                          fontSize={18}
+                          display="flex"
+                          alignItems="center"
+                        >
+                          아직 콘텐츠가 없습니다.
+                          <HourglassEmptyIcon
+                            fontSize="large"
+                            style={{ marginLeft: "4px" }}
+                          />
+                        </Typography>
                       </Box>
                     )}
                   </Box>
@@ -263,6 +308,9 @@ function NodeGroupPage() {
             </Box>
           );
         })}
+      </Box>
+      <Box display="flex" justifyContent="flex-end">
+        <NextNodeGroupButton currentNodeGroupId={nodeGroupData.id} />
       </Box>
     </Box>
   );

@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import com.handongapp.cms.dto.v1.ProgramDto;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,12 +18,19 @@ public class ProgramController {
 
     private final ProgramService programService;
 
+    @PostMapping
+    public ResponseEntity<ProgramDto.ResponseDto> createProgram(
+            @PathVariable String clubSlug,
+            @Valid @RequestBody ProgramDto.CreateRequest requestDto,
+            Authentication authentication) {
+        ProgramDto.ResponseDto createdProgram = programService.createProgram(clubSlug, requestDto, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProgram);
+    }
+
     @GetMapping
-    public ResponseEntity<String> getProgramsByClubSlug(@PathVariable String clubSlug) {
-        String programsJson = programService.getProgramsWithCoursesByClubSlugAsJson(clubSlug);
-        if (isEmptyJsonResult(programsJson)) { // 결과가 없거나 빈 배열일 경우
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"No programs found for this club.\"}");
-        }
+    public ResponseEntity<String> getProgramsByClubSlug(@PathVariable String clubSlug, Authentication authentication) {
+        String currentUserId = (authentication != null) ? authentication.getName() : null;
+        String programsJson = programService.getProgramsWithCoursesByClubSlugAsJson(clubSlug, currentUserId);
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(programsJson, httpHeaders, HttpStatus.OK);
@@ -32,9 +41,6 @@ public class ProgramController {
             @PathVariable String clubSlug,
             @PathVariable String programSlug) {
         String programDetailsJson = programService.getProgramDetailsWithCoursesAsJson(clubSlug, programSlug);
-        if (isEmptyJsonResult(programDetailsJson)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Program not found or no courses associated.\"}");
-        }
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(programDetailsJson, httpHeaders, HttpStatus.OK);
@@ -45,9 +51,6 @@ public class ProgramController {
             @PathVariable String clubSlug,
             @PathVariable String programSlug) {
         String progressJson = programService.getProgramParticipantProgressAsJson(clubSlug, programSlug);
-        if (isEmptyJsonResult(progressJson)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Program not found or no participant progress data available.\"}");
-        }
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new ResponseEntity<>(progressJson, httpHeaders, HttpStatus.OK);
@@ -62,10 +65,14 @@ public class ProgramController {
         return ResponseEntity.status(HttpStatus.CREATED).build(); // 성공 시 201 CREATED 반환
     }
 
-    private boolean isEmptyJsonResult(String json) {
-        if (json == null || json.trim().isEmpty()) return true;
-        String trimmed = json.trim();
-        return "{}".equals(trimmed) || "[]".equals(trimmed);
+    @PostMapping("/{programSlug}/add-course/{courseSlug}")
+    public ResponseEntity<Void> addCourseToProgram(
+            @PathVariable String clubSlug,
+            @PathVariable String programSlug,
+            @PathVariable String courseSlug,
+            Authentication authentication) {
+        programService.addCourseToProgram(clubSlug, programSlug, courseSlug, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

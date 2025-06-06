@@ -71,7 +71,7 @@
         WHERE cl.slug = #{clubSlug} AND prog.slug = #{programSlug} AND prog.deleted = 'N' AND cl.deleted = 'N';
     </select>
 
-    <select id="getProgramsWithCoursesByClubSlugAsJson" resultType="string">
+    <select id="getProgramsWithCoursesByClubSlugAsJson" resultType="string" parameterType="map">
         SELECT
             IFNULL(
                 JSON_ARRAYAGG(
@@ -84,6 +84,7 @@
                         'description', prog.description,
                         'startDate', prog.start_date,
                         'endDate', prog.end_date,
+                        'isParticipant', (EXISTS (SELECT 1 FROM tb_program_participant pp WHERE pp.program_id = prog.id AND pp.user_id = #{currentUserId} AND pp.deleted = 'N')),
                         'courses', (
                             SELECT JSON_ARRAYAGG(
                                 JSON_OBJECT(
