@@ -1,23 +1,24 @@
 import TopBanner from "../components/ClubPage/TopBanner";
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import ClubBadge from "../components/ClubPage/ClubBadge";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 import ContinueNodeGroup from "../components/course/ContinueNodeGroup";
 import CourseList from "../components/course/CourseList";
 import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { currentProgram } from "../utils/currentProgram";
-import { formatTimestamp } from "../tools/tools";
 import calculateProgress from "../utils/calculateProcess";
 import useUserData from "../hooks/userData";
 import { courseListParser } from "../utils/courseListParser";
+import { getMostRecentNodeGroupForUser } from "../utils/getMostRecentNodeGroupForUser";
 
 function ClubPage() {
   const { club } = useParams<{ club: string }>();
   const fetchBe = useFetchBe();
-
+  const navigate = useNavigate();
   const { userId } = useUserData();
+  // 가입 모달 관련 상태 제거 (ClubProgramList로 이동)
 
   const { data: clubInfo, isLoading: clubLoading } = useQuery({
     queryKey: ["clubInfo", club],
@@ -62,58 +63,62 @@ function ClubPage() {
     (user) => user.userId === userId
   );
 
+  const mostRecentNodeGroup = getMostRecentNodeGroupForUser(
+    userId || "",
+    clubProgramProcess?.participants || []
+  );
+
   return (
-    <Box
-      display="flex"
-      justifyContent={"center"}
-      flexDirection="column"
-      alignItems="center"
-    >
-      <Box width="100%" maxWidth={980}>
-        <TopBanner
-          title={clubInfo?.clubName || ""}
-          subtitle={clubInfo?.description || ""}
-          image={clubInfo?.bannerUrl || ""}
-        />
-      </Box>
-      <Box maxWidth={1012} width="100%" margin="auto" px={2}>
-        <Box mt={0.5}>
-          {currentProgram(clubPrograms).map((program) => (
-            <Link
-              to={`/club/${club}/program/${program.slug}`}
-              key={program.id}
-              style={{ textDecoration: "none" }}
-            >
-              <ClubBadge
-                hoverable
-                text={`${program.name} (진행기간 ${formatTimestamp(
-                  program.startDate
-                )} ~ ${formatTimestamp(program.endDate)})`}
-              />
-            </Link>
-          ))}
-        </Box>
-        <Box mt={4}>
-          <Typography variant="h5" fontWeight={700} mb={2}>
-            마지막으로 본 강의
-          </Typography>
-          <ContinueNodeGroup
-            theme="dark"
-            courseName="React Basics"
-            lessonName="Hooks and State"
-            onContinue={() => alert("Continue to last lesson!")}
-            thumbnail="https://images.unsplash.com/photo-1519125323398-675f0ddb6308"
-            lastViewedAt="2025-05-28 22:10"
+    <>
+      <Box
+        display="flex"
+        justifyContent={"center"}
+        flexDirection="column"
+        alignItems="center"
+      >
+        <Box width="100%" maxWidth={980}>
+          <TopBanner
+            title={clubInfo?.clubName || ""}
+            subtitle={clubInfo?.description || ""}
+            image={clubInfo?.bannerUrl || ""}
           />
         </Box>
-        <Box my={4}>
-          <Typography variant="h5" fontWeight={700} mb={2}>
-            전체 강의
-          </Typography>
-          <CourseList courses={courseListParser(clubCourses, myProgress)} />
+        <Box maxWidth={1012} width="100%" margin="auto" px={2}>
+          {club && <ClubRunningProgramBanner club={club} />}
+          {mostRecentNodeGroup && (
+            <Box mt={4}>
+              <Typography variant="h5" fontWeight={700} mb={2}>
+                마지막으로 본 강의
+              </Typography>
+              <ContinueNodeGroup
+                courseName={mostRecentNodeGroup?.courseTitle || "강의 없음"}
+                lessonName={mostRecentNodeGroup?.nodeGroupTitle}
+                lastViewedAt={mostRecentNodeGroup?.lastSeenAt}
+                thumbnail={
+                  clubCourses?.find(
+                    (course: { id: string; pictureUrl: string }) =>
+                      course.id === mostRecentNodeGroup.courseId
+                  )?.pictureUrl
+                }
+                onContinue={() => {
+                  navigate(
+                    `/club/${club}/course/${mostRecentNodeGroup.courseId}/nodegroup/${mostRecentNodeGroup.nodeGroupId}`
+                  );
+                }}
+                theme={"dark"}
+              />
+            </Box>
+          )}
+          <Box my={4}>
+            <Typography variant="h5" fontWeight={700} mb={2}>
+              전체 강의
+            </Typography>
+            <CourseList courses={courseListParser(clubCourses, myProgress)} />
+          </Box>
         </Box>
       </Box>
-    </Box>
+      {/* 가입 모달은 ClubProgramList 내부로 이동 */}
+    </>
   );
 }
 

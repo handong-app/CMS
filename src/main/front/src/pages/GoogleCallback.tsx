@@ -15,6 +15,7 @@ interface DecodedToken {
   name: string;
   email: string;
   picture?: string;
+  studentId?: string;
   [key: string]: any;
 }
 
@@ -33,6 +34,7 @@ const GoogleOAuthCallback: React.FC = () => {
     setRefreshToken,
     setUser,
     clearAuth,
+    fetchUserInfo,
   } = useAuthStore();
 
   const [searchParams] = useSearchParams();
@@ -74,17 +76,17 @@ const GoogleOAuthCallback: React.FC = () => {
 
           setJwtToken(data.accessToken);
           setRefreshToken(data.refreshToken);
-          setUser({
-            name: decoded.name,
-            email: decoded.email,
-            photoURL:
-              decoded.picture ||
-              "https://lh3.googleusercontent.com/a/default-user",
-          });
+          await fetchUserInfo();
 
           console.log("✅ 디코딩된 유저 정보:", decoded);
-          setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
-          navigate("/register");
+
+          if (decoded.studentId) {
+            setOutput(`학생 인증됨! ${decoded.email} → club/callein 이동`);
+            navigate("/club/callein");
+          } else {
+            setOutput(`로그인 성공! ${decoded.email} 님 환영합니다.`);
+            navigate("/register");
+          }
         } catch (decodeError) {
           console.error("JWT 디코딩 실패:", decodeError);
           throw new Error("유효하지 않은 토큰입니다.");
@@ -208,28 +210,13 @@ const GoogleOAuthCallback: React.FC = () => {
         spacing={2}
         sx={{ mt: theme.spacing(3) }}
       >
-        {/* 로그인 상태 확인 버튼 수정: variant="outlined"로 변경하고 color="primary" 유지 */}
-        <Button
-          variant="outlined" // 여기를 "outlined"로 변경
-          color="primary"
-          onClick={checkLoginStatus}
-        >
+        <Button variant="outlined" color="primary" onClick={checkLoginStatus}>
           로그인 상태 확인
         </Button>
-        {/* 로그아웃 버튼: variant="outlined"로 유지하고 color를 primary로 통일 (선택 사항) */}
-        <Button
-          variant="outlined"
-          color="primary" // primary 색상으로 통일
-          onClick={logout}
-        >
+        <Button variant="outlined" color="primary" onClick={logout}>
           로그아웃
         </Button>
-        {/* JWT 토큰 재발급 버튼: variant="outlined"로 유지하고 color를 primary로 통일 (선택 사항) */}
-        <Button
-          variant="outlined"
-          color="primary" // primary 색상으로 통일
-          onClick={refreshAccessToken}
-        >
+        <Button variant="outlined" color="primary" onClick={refreshAccessToken}>
           JWT 토큰 재발급
         </Button>
       </Stack>
@@ -253,7 +240,6 @@ const GoogleOAuthCallback: React.FC = () => {
         </Typography>
       </Paper>
 
-      {/* 토큰 및 사용자 정보 섹션 */}
       <Box sx={{ mt: theme.spacing(4) }}>
         <Typography variant="h6" component="h4" gutterBottom>
           🔐 토큰 및 사용자 정보

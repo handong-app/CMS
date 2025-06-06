@@ -19,8 +19,8 @@ import { useFetchBe } from "../tools/api";
 import { useQuery } from "@tanstack/react-query";
 import { NodeGroup } from "../types/nodeGroupData.types";
 import NextNodeGroupButton from "../components/NodeGroupPage/NextButton";
-import { usePostComment } from "../utils/usePostComment";
 import MarkdownViewer from "../components/NodeGroupPage/MarkdownViwer";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 // 노드 타입별로 크기 매칭
 const nodeHeightMap: Record<string, number | string> = {
   video: 600,
@@ -42,6 +42,10 @@ function NodeGroupPage() {
   const { nodeGroupUUID } = useParams(); // URL 파라미터에서 UUID 가져오기
   const [openNodeId, setOpenNodeId] = useState<string | null>(null);
 
+  const { club } = useParams<{
+    club: string;
+  }>();
+
   const toggleComments = (nodeId: string) => {
     setOpenNodeId((prev) => (prev === nodeId ? null : nodeId));
   };
@@ -60,12 +64,25 @@ function NodeGroupPage() {
     enabled: !!nodeGroupUUID, // UUID 있을 때만 실행
   });
 
+  useEffect(() => {
+    if (!nodeGroupData?.id) return;
+    fetchBe("/v1/progress/start", {
+      method: "POST",
+      body: {
+        nodeGroupId: nodeGroupData?.id,
+      },
+    }).catch((err) => {
+      console.error("Progress start error:", err);
+    });
+  }, [nodeGroupData?.id]);
+
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러 발생: {(error as any).message}</div>;
   if (!nodeGroupData) return <div>데이터 없음</div>;
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
+      <ClubRunningProgramBanner club={club} sx={{ mb: 2 }} />
       <Box
         top={0}
         zIndex={1000}
@@ -291,6 +308,9 @@ function NodeGroupPage() {
             </Box>
           );
         })}
+      </Box>
+      <Box display="flex" justifyContent="flex-end">
+        <NextNodeGroupButton currentNodeGroupId={nodeGroupData.id} />
       </Box>
     </Box>
   );

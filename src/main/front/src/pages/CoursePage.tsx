@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import type { CourseData } from "../types/courseData.types";
 import { LatestComment } from "../types/latestComment.types";
+import ClubRunningProgramBanner from "../components/ClubPage/ClubRunningProgramBanner";
 
 function CoursePage() {
   const { userId } = useUserData();
@@ -45,9 +46,9 @@ function CoursePage() {
     });
 
   const [courseData, setCourseData] = useState<CourseData | null>(null);
-  const [isLoadingCourse, setIsLoadingCourse] = useState(false);
+  const [isLoadingCourse, setIsLoadingCourse] = useState(true);
   const [latestComments, setLatestComments] = useState<LatestComment[]>([]);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
 
   useEffect(() => {
     if (!clubSlug || !courseSlug) {
@@ -98,8 +99,8 @@ function CoursePage() {
   const isLoading =
     isMyProgramsLoading ||
     isProgramProcessLoading ||
-    isLoadingCourse ||
-    isLoadingComments;
+    (isLoadingCourse && !courseData) ||
+    (isLoadingComments && !latestComments);
 
   if (isLoading) {
     return <CoursePageSkeleton />;
@@ -127,6 +128,7 @@ function CoursePage() {
 
   return (
     <Box maxWidth={980} margin="auto" mb={10}>
+      <ClubRunningProgramBanner club={clubSlug} sx={{ mb: 2 }} />
       <TopCourseBanner
         title={courseData?.title ?? ""}
         producer={courseData?.creatorName ?? ""}
