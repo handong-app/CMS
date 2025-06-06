@@ -19,6 +19,11 @@ import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime; // 현재 시간 비교를 위해 추가
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -120,26 +125,39 @@ public class ProgramServiceImpl implements ProgramService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 클럽입니다: " + clubSlug))
                 .getId();
 
-        if (!tbProgramRepository.existsByClubIdAndSlugAndDeleted(clubId ,programSlug, "N")) {
+        if (!tbProgramRepository.existsByClubIdAndSlugAndDeleted(clubId, programSlug, "N")) {
             throw new NotFoundException("존재하지 않는 프로그램입니다: " + programSlug);
         }
 
         String rawJson = programMapper.getProgramParticipantProgressAsJson(clubSlug, programSlug);
-
         if (!StringUtils.hasText(rawJson) || "null".equals(rawJson)) {
             throw new NotFoundException("참가자 진행 정보가 없습니다: " + programSlug);
         }
 
         try {
             JsonNode root = objectMapper.readTree(rawJson);
-
             JsonNode participants = root.path("participants");
+
+            List<String> userIds = new ArrayList<>();
+            if (participants.isArray()) {
+                for (JsonNode participantNode : participants) {
+                    String userId = participantNode.path("userId").asText(null);
+                    if (StringUtils.hasText(userId)) {
+                        userIds.add(userId);
+                    }
+                }
+            }
+
+            Map<String, TbUser> userMap = userRepository.findAllById(userIds)
+                    .stream()
+                    .collect(Collectors.toMap(TbUser::getId, Function.identity()));
+
             if (participants.isArray()) {
                 for (JsonNode participantNode : participants) {
                     String userId = participantNode.path("userId").asText(null);
 
                     if (StringUtils.hasText(userId)) {
-                        TbUser user = userRepository.findById(userId).orElse(null);
+                        TbUser user = userMap.get(userId);
                         if (user != null &&
                                 StringUtils.hasText(user.getFileKey()) &&
                                 FileStatus.UPLOADED.equals(user.getFileStatus())) {
