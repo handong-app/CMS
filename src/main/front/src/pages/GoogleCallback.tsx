@@ -34,6 +34,7 @@ const GoogleOAuthCallback: React.FC = () => {
     setRefreshToken,
     setUser,
     clearAuth,
+    fetchUserInfo,
   } = useAuthStore();
 
   const [searchParams] = useSearchParams();
@@ -75,13 +76,7 @@ const GoogleOAuthCallback: React.FC = () => {
 
           setJwtToken(data.accessToken);
           setRefreshToken(data.refreshToken);
-          setUser({
-            name: decoded.name,
-            email: decoded.email,
-            photoURL:
-              decoded.picture ||
-              "https://lh3.googleusercontent.com/a/default-user",
-          });
+          fetchUserInfo();
 
           console.log("✅ 디코딩된 유저 정보:", decoded);
 
