@@ -18,14 +18,21 @@ import { useEffect } from "react";
 const MyAppBar = ({
   position = "fixed",
   transparent = false,
+  user: userTest,
 }: {
   position?: AppBarOwnProps["position"];
   transparent?: boolean;
+  user?: {
+    name?: string;
+    profileImage?: string;
+  };
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const user = useAuthStore((state) => state.user);
+  const userStore = useAuthStore((state) => state.user);
+  const user = userTest || userStore; // 테스트용으로 외부에서 user를 받을 수 있도록
+
   const fetchUserInfo = useAuthStore((state) => state.fetchUserInfo);
 
   const handleGoogleLogin = async () => {

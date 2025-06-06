@@ -25,6 +25,8 @@ const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user }),
       clearAuth: () => set({ jwtToken: null, refreshToken: null, user: null }),
       fetchUserInfo: async () => {
+        if (process.env.NODE_ENV === "test") return; // 테스트 환경에서는 호출 안 함
+
         if (get().user) return; // 이미 유저 정보가 있다면 불필요한 요청 방지
         const userInfo = await fetchBe(
           get().jwtToken,
